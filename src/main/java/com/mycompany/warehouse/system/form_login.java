@@ -4,6 +4,9 @@
  */
 package com.mycompany.warehouse.system;
 
+import javax.swing.JOptionPane;
+import java.util.logging.Level;
+
 /**
  *
  * @author Rivaldi
@@ -11,6 +14,7 @@ package com.mycompany.warehouse.system;
 public class form_login extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(form_login.class.getName());
+    private User currentUser;
 
     /**
      * Creates new form form_login
@@ -150,12 +154,65 @@ public class form_login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
+        // Pindah ke password field saat Enter ditekan
+        jPasswordField1.requestFocus();
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jPasswordField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPasswordField1ActionPerformed
-        // TODO add your handling code here:
+        // Login saat Enter ditekan di password field
+        performLogin();
     }//GEN-LAST:event_jPasswordField1ActionPerformed
+    
+    /**
+     * Melakukan proses login
+     */
+    private void performLogin() {
+        String username = jTextField1.getText().trim();
+        String password = new String(jPasswordField1.getPassword()).trim();
+        
+        // Validasi input
+        if (username.isEmpty() || username.equals("Username")) {
+            JOptionPane.showMessageDialog(this, "Username tidak boleh kosong!", 
+                    "Validasi Error", JOptionPane.WARNING_MESSAGE);
+            jTextField1.requestFocus();
+            return;
+        }
+        
+        if (password.isEmpty() || password.equals("Password")) {
+            JOptionPane.showMessageDialog(this, "Password tidak boleh kosong!", 
+                    "Validasi Error", JOptionPane.WARNING_MESSAGE);
+            jPasswordField1.requestFocus();
+            return;
+        }
+        
+        // Proses autentikasi
+        User user = UserService.authenticate(username, password);
+        
+        if (user != null) {
+            currentUser = user;
+            JOptionPane.showMessageDialog(this, 
+                    "Selamat datang, " + user.getUsername() + "!\nRole: " + user.getRole(), 
+                    "Login Berhasil", JOptionPane.INFORMATION_MESSAGE);
+            
+            logger.log(Level.INFO, "User berhasil login: " + user.getUsername());
+            
+            // TODO: Buka form dashboard atau main application
+            // Contoh: new DashboardForm(user).setVisible(true);
+            // this.dispose();
+            
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                    "Username atau password salah!", 
+                    "Login Gagal", JOptionPane.ERROR_MESSAGE);
+            
+            // Clear password field
+            jPasswordField1.setText("");
+            jPasswordField1.setForeground(java.awt.Color.GRAY);
+            jPasswordField1.setEchoChar((char) 0);
+            jPasswordField1.setText("Password");
+            jTextField1.requestFocus();
+        }
+    }
 
     /**
      * @param args the command line arguments
