@@ -16,8 +16,10 @@ public class WarehouseSystem {
     private static final Logger logger = Logger.getLogger(WarehouseSystem.class.getName());
 
     public static void main(String[] args) {
-        logger.log(Level.INFO, "Starting Warehouse System...");
         
+        
+        logger.log(Level.INFO, "Starting Warehouse System...");
+
         // Test database connection
         logger.log(Level.INFO, "Testing database connection...");
         if (!DatabaseConfig.testConnection()) {
@@ -29,7 +31,7 @@ public class WarehouseSystem {
         
         // Show login form
         java.awt.EventQueue.invokeLater(() -> {
-            form_login loginForm = new form_login();
+            form_logins loginForm = new form_logins();
             loginForm.setVisible(true);
             logger.log(Level.INFO, "Login form displayed");
         });
