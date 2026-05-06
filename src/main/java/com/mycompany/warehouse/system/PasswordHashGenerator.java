@@ -19,62 +19,33 @@ public class PasswordHashGenerator {
      * Generate password hash menggunakan PBKDF2
      */
     public static String hashPassword(String password) {
-        try {
-            SecureRandom random = new SecureRandom();
-            byte[] salt = new byte[16];
-            random.nextBytes(salt);
-            
+               try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(salt);
-            byte[] hashedPassword = md.digest(password.getBytes());
+            byte[] hash = md.digest(password.getBytes());
+            StringBuilder hexString = new StringBuilder();
             
-            // Repeat hashing untuk security
-            for (int i = 0; i < ITERATIONS; i++) {
-                md.reset();
-                md.update(hashedPassword);
-                hashedPassword = md.digest();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
             }
-            
-            // Combine salt + hash
-            byte[] saltAndHash = new byte[salt.length + hashedPassword.length];
-            System.arraycopy(salt, 0, saltAndHash, 0, salt.length);
-            System.arraycopy(hashedPassword, 0, saltAndHash, salt.length, hashedPassword.length);
-            
-            return Base64.getEncoder().encodeToString(saltAndHash);
+            return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
             logger.severe("Error hashing password: " + e.getMessage());
             return null;
         }
+
     }
     
     /**
      * Verify password dengan hash
      */
-    public static boolean verifyPassword(String password, String hash) {
-        try {
-            byte[] saltAndHash = Base64.getDecoder().decode(hash);
-            byte[] salt = new byte[16];
-            System.arraycopy(saltAndHash, 0, salt, 0, 16);
-            
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(salt);
-            byte[] hashedPassword = md.digest(password.getBytes());
-            
-            for (int i = 0; i < ITERATIONS; i++) {
-                md.reset();
-                md.update(hashedPassword);
-                hashedPassword = md.digest();
-            }
-            
-            byte[] storedHash = new byte[saltAndHash.length - 16];
-            System.arraycopy(saltAndHash, 16, storedHash, 0, storedHash.length);
-            
-            return MessageDigest.isEqual(hashedPassword, storedHash);
-        } catch (Exception e) {
-            logger.severe("Error verifying password: " + e.getMessage());
-            return false;
-        }
+     public static boolean verifyPassword(String inputPassword, String storedHash) {
+        if (inputPassword == null || storedHash == null) return false;
+        String inputHash = hashPassword(inputPassword);
+        return inputHash != null && inputHash.equalsIgnoreCase(storedHash);
     }
+
     
     public static void main(String[] args) {
         java.util.Scanner scanner = new java.util.Scanner(System.in);

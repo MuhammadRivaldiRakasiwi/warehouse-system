@@ -21,44 +21,37 @@ public class UserService {
      * @return User object jika autentikasi berhasil, null jika gagal
      */
     public static User authenticate(String username, String password) {
-        if (username == null || username.trim().isEmpty() || 
-            password == null || password.trim().isEmpty()) {
-            logger.log(Level.WARNING, "Username atau password kosong");
-            return null;
-        }
-        
-        String query = "SELECT id, username, email, role, password_hash AS password FROM users WHERE username = ?";
-        
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
-            stmt.setString(1, username);
-            ResultSet rs = stmt.executeQuery();
-            
-            if (rs.next()) {
-                String storedPassword = rs.getString("password");
-                
-                 String inputPasswordHashed = PasswordHashGenerator.hashPassword(password);
-
-                if (storedPassword != null) { 
-    System.out.println("DEBUG: User ditemukan, mencoba masuk tanpa cek password...");
-    User user = new User();
-    // ... isi data user seperti di atas
-    return user; 
-} else {
-                    logger.log(Level.WARNING, "Password salah untuk user: " + username);
-                }
-            } else {
-                logger.log(Level.WARNING, "User tidak ditemukan: " + username);
-            }
-            
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error saat autentikasi: " + e.getMessage(), e);
-        }
-        
+    // Gunakan .trim() untuk membuang spasi yang tidak sengaja terketik
+    if (username == null || username.trim().isEmpty() || password == null) {
         return null;
     }
+
+    String cleanUsername = username.trim();
+    String query = "SELECT id, username, email, role, password_hash FROM users WHERE username = ?";
     
+    try (Connection conn = DatabaseConfig.getConnection(); 
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+        
+        stmt.setString(1, cleanUsername);
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            String storedPasswordHash = rs.getString("password_hash");
+
+            // Gunakan .trim() juga pada hash dari DB untuk jaga-jaga ada spasi di DB
+            if (PasswordHashGenerator.verifyPassword(password, storedPasswordHash.trim())) {
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setUsername(rs.getString("username"));
+                user.setRole(rs.getString("role"));
+                return user;
+            }
+        }
+    } catch (SQLException e) {
+        logger.log(Level.SEVERE, "Database error: " + e.getMessage());
+    }
+    return null;
+}
     /**
      * Registrasi user baru
      * @param username username baru

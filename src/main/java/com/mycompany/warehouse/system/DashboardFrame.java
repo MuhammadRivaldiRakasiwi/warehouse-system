@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.mycompany.warehouse.system;
-
+import javax.swing.JOptionPane;
 /**
  *
  * @author ndesc
@@ -215,11 +215,20 @@ public class DashboardFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
-        // TODO add your handling code here:
+    System.exit(0); // Menutup aplikasi
+
     }//GEN-LAST:event_btnLogoutActionPerformed
 
     private void btnHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHistoryActionPerformed
-        // TODO add your handling code here:
+            JOptionPane.showMessageDialog(this, "Membuka Halaman History...");
+              // 1. Membuat objek dari frame tujuan
+    HistoryFrame halamanHistory = new HistoryFrame();
+    
+    // 2. Menampilkan frame tujuan
+    halamanHistory.setVisible(true);
+    
+    // 3. (Opsional) Menutup frame dashboard saat ini
+    this.dispose(); 
     }//GEN-LAST:event_btnHistoryActionPerformed
 
     /**

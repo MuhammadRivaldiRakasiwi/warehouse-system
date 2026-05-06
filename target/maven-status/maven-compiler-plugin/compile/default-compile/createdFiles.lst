@@ -3,6 +3,7 @@ com\mycompany\warehouse\system\WarehouseSystem.class
 com\mycompany\warehouse\system\UserService.class
 com\mycompany\warehouse\system\form_login.class
 com\mycompany\warehouse\system\User.class
+com\mycompany\warehouse\system\HistoryFrame.class
 com\mycompany\warehouse\system\DashboardFrame.class
 com\mycompany\warehouse\system\PasswordHashGenerator.class
 com\mycompany\warehouse\system\PlaceholderPasswordField.class
