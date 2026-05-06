@@ -4,90 +4,27 @@
  */
 package com.mycompany.warehouse.system;
 
-import javax.swing.JOptionPane;
-import java.util.logging.Level;
-
 /**
  *
- * @author Rivaldi
+ * @author ndesc
  */
+
 public class form_login extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(form_login.class.getName());
-    private User currentUser;
 
     /**
-     * Creates new form form_login
+     * Creates new form form_logins
      */
     public form_login() {
         initComponents();
-        
-        addComponentListener(new java.awt.event.ComponentAdapter() {
-            @Override
-            public void componentResized(java.awt.event.ComponentEvent e) {
-                int w = getWidth();
-                int margin = w / 4; // margin kiri-kanan otomatis
-            
-                jLabel1.setBounds(margin, 80, w / 2, 30);
-                jLabel2.setBounds(margin, 115, w / 2, 20);
-                jTextField1.setBounds(margin, 145, w / 2, 30);
-                jPasswordField1.setBounds(margin, 185, w / 2, 30);
-            }
-        });
-        
-        // Placeholder Username
-        jTextField1.setText("Username");
-        jTextField1.setForeground(java.awt.Color.GRAY);
-        jTextField1.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-            public void focusGained(java.awt.event.FocusEvent e) {
-                if (jTextField1.getText().equals("Username")) {
-                    jTextField1.setText("");
-                    jTextField1.setForeground(java.awt.Color.BLACK);
-                }
-            }
-            @Override
-            public void focusLost(java.awt.event.FocusEvent e) {
-                if (jTextField1.getText().isEmpty()) {
-                    jTextField1.setText("Username");
-                    jTextField1.setForeground(java.awt.Color.GRAY);
-                }
-            }
-        });
+      java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 
-        // Placeholder Password
-        jPasswordField1.setEchoChar((char) 0);
-        jPasswordField1.setText("Password");
-        jPasswordField1.setForeground(java.awt.Color.GRAY);
-        jPasswordField1.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-            public void focusGained(java.awt.event.FocusEvent e) {
-                if (new String(jPasswordField1.getPassword()).equals("Password")) {
-                    jPasswordField1.setText("");
-                    jPasswordField1.setForeground(java.awt.Color.BLACK);
-                    jPasswordField1.setEchoChar('•');
-                }
-            }
-            @Override
-            public void focusLost(java.awt.event.FocusEvent e) {
-                if (jPasswordField1.getPassword().length == 0) {
-                    jPasswordField1.setEchoChar((char) 0);
-                    jPasswordField1.setText("Password");
-                    jPasswordField1.setForeground(java.awt.Color.GRAY);
-                }
-            }
-        });
-        
-            // Set layout ke null agar bisa pakai setBounds
-        getContentPane().setLayout(null);
-    
-        // Ukuran awal
-        jLabel1.setBounds(100, 80, 200, 30);
-        jLabel2.setBounds(60, 115, 280, 20);
-        jTextField1.setBounds(60, 145, 260, 30);
-        jPasswordField1.setBounds(60, 185, 260, 30);
-    
-        setMinimumSize(new java.awt.Dimension(400, 300));
+int width = screenSize.width / 2;
+int height = screenSize.height / 2;
+
+this.setSize(width, height);
+this.setLocationRelativeTo(null); // center
     }
 
     /**
@@ -98,121 +35,137 @@ public class form_login extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
-        jLabel3 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jPasswordField1 = new javax.swing.JPasswordField();
-
-        jLabel3.setText("jLabel3");
+        jLabel3 = new javax.swing.JLabel();
+        tusername = new javax.swing.JTextField();
+        bregister = new javax.swing.JButton();
+        tpassword = new javax.swing.JPasswordField();
+        blogin1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI Semibold", 0, 18)); // NOI18N
-        jLabel1.setText("Login");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(80, 176, 0, 0);
-        getContentPane().add(jLabel1, gridBagConstraints);
+        jLabel1.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel1.setFont(new java.awt.Font("Rockwell", 1, 36)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(153, 255, 255));
+        jLabel1.setText("WAREHOUSE");
 
-        jLabel2.setText("Silahkan masukkan username dan password anda");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.ipadx = 8;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 69, 0, 65);
-        getContentPane().add(jLabel2, gridBagConstraints);
+        jLabel2.setText("Username");
 
-        jTextField1.addActionListener(this::jTextField1ActionPerformed);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.ipadx = 194;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(12, 69, 0, 0);
-        getContentPane().add(jTextField1, gridBagConstraints);
+        jLabel3.setText("Password");
 
-        jPasswordField1.addActionListener(this::jPasswordField1ActionPerformed);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.ipadx = 194;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 69, 111, 0);
-        getContentPane().add(jPasswordField1, gridBagConstraints);
+        tusername.addActionListener(this::tusernameActionPerformed);
+
+        bregister.setText("Register");
+        bregister.addActionListener(this::bregisterActionPerformed);
+
+        tpassword.addActionListener(this::tpasswordActionPerformed);
+
+        blogin1.setText("Login");
+        blogin1.addActionListener(this::blogin1ActionPerformed);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap(33, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(bregister)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(blogin1))
+                            .addComponent(tusername)
+                            .addComponent(tpassword))))
+                .addContainerGap(68, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap(50, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 56, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tusername, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tpassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(bregister)
+                    .addComponent(blogin1))
+                .addContainerGap(24, Short.MAX_VALUE))
+        );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // Pindah ke password field saat Enter ditekan
-        jPasswordField1.requestFocus();
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    private void tusernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tusernameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tusernameActionPerformed
 
-    private void jPasswordField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPasswordField1ActionPerformed
-        // Login saat Enter ditekan di password field
-        performLogin();
-    }//GEN-LAST:event_jPasswordField1ActionPerformed
-    
-    /**
-     * Melakukan proses login
-     */
-    private void performLogin() {
-        String username = jTextField1.getText().trim();
-        String password = new String(jPasswordField1.getPassword()).trim();
-        
-        // Validasi input
-        if (username.isEmpty() || username.equals("Username")) {
-            JOptionPane.showMessageDialog(this, "Username tidak boleh kosong!", 
-                    "Validasi Error", JOptionPane.WARNING_MESSAGE);
-            jTextField1.requestFocus();
-            return;
-        }
-        
-        if (password.isEmpty() || password.equals("Password")) {
-            JOptionPane.showMessageDialog(this, "Password tidak boleh kosong!", 
-                    "Validasi Error", JOptionPane.WARNING_MESSAGE);
-            jPasswordField1.requestFocus();
-            return;
-        }
-        
-        // Proses autentikasi
-        User user = UserService.authenticate(username, password);
-        
-        if (user != null) {
-            currentUser = user;
-            JOptionPane.showMessageDialog(this, 
-                    "Selamat datang, " + user.getUsername() + "!\nRole: " + user.getRole(), 
-                    "Login Berhasil", JOptionPane.INFORMATION_MESSAGE);
-            
-            logger.log(Level.INFO, "User berhasil login: " + user.getUsername());
-            
-            // TODO: Buka form dashboard atau main application
-            // Contoh: new DashboardForm(user).setVisible(true);
-            // this.dispose();
-            
-        } else {
-            JOptionPane.showMessageDialog(this, 
-                    "Username atau password salah!", 
-                    "Login Gagal", JOptionPane.ERROR_MESSAGE);
-            
-            // Clear password field
-            jPasswordField1.setText("");
-            jPasswordField1.setForeground(java.awt.Color.GRAY);
-            jPasswordField1.setEchoChar((char) 0);
-            jPasswordField1.setText("Password");
-            jTextField1.requestFocus();
-        }
+    private void bregisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bregisterActionPerformed
+     
+    }//GEN-LAST:event_bregisterActionPerformed
+
+    private void tpasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tpasswordActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tpasswordActionPerformed
+
+    private void blogin1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_blogin1ActionPerformed
+          // 1. Ambil input dari JTextField/JPasswordField
+String username = tusername.getText();
+String password = new String(tpassword.getPassword()); // Jika tpassword adalah JPasswordField
+
+// 2. Cek apakah input kosong
+if (username.isEmpty() || password.isEmpty()) {
+    javax.swing.JOptionPane.showMessageDialog(
+        this,
+        "Username dan Password tidak boleh kosong!"
+    );
+    return;
+}
+
+// 3. Panggil fungsi authenticate dari UserService
+// Karena method-nya static, tidak perlu "new UserService()"
+User userAuthenticated = UserService.authenticate(username, password);
+
+// 4. Cek hasil autentikasi
+if (userAuthenticated != null) {
+    // Login berhasil
+        javax.swing.JOptionPane.showMessageDialog(this, "Login Berhasil!");
+
+        // Buka Dashboard
+        DashboardFrame dash = new DashboardFrame();
+        dash.setLocationRelativeTo(null); // Tengah layar (opsional)
+        dash.setVisible(true);
+
+        // Tutup form login
+        this.dispose();
+
+    } else {
+        // Login gagal
+        javax.swing.JOptionPane.showMessageDialog(
+            this,
+            "Username atau Password Salah / Tidak Ditemukan",
+            "Login Gagal",
+            javax.swing.JOptionPane.ERROR_MESSAGE
+        );
+
+        tpassword.setText("");
+        tusername.requestFocus();
     }
+    }//GEN-LAST:event_blogin1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -240,10 +193,12 @@ public class form_login extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton blogin1;
+    private javax.swing.JButton bregister;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JPasswordField tpassword;
+    private javax.swing.JTextField tusername;
     // End of variables declaration//GEN-END:variables
 }

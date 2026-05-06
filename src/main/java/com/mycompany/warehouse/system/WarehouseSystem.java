@@ -31,7 +31,7 @@ public class WarehouseSystem {
         
         // Show login form
         java.awt.EventQueue.invokeLater(() -> {
-            form_logins loginForm = new form_logins();
+            form_login loginForm = new form_login();
             loginForm.setVisible(true);
             logger.log(Level.INFO, "Login form displayed");
         });
