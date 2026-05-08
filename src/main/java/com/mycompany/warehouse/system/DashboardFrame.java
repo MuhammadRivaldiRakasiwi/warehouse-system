@@ -25,6 +25,11 @@ public class DashboardFrame extends javax.swing.JFrame {
          setMenuColor(btnMDashboard);
          this.setExtendedState(DashboardFrame.MAXIMIZED_BOTH); 
          loadDashboard();
+         
+             // Buat objek dari panel barang yang sudah dipisah
+    BarangPanel menuBarang = new BarangPanel();
+    // Masukkan ke dalam panelKonten secara manual
+    panelContent.add(menuBarang, "cardBarang"); 
     }
     private void loadDashboard() {
         lbluser.setText(String.valueOf(DashboardService.getTotalUsers()));
