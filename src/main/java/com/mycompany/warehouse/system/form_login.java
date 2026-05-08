@@ -62,6 +62,9 @@ this.setLocationRelativeTo(null); // center
 
         tpassword.addActionListener(this::tpasswordActionPerformed);
 
+        blogin1.setBackground(new java.awt.Color(33, 150, 243));
+        blogin1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        blogin1.setForeground(new java.awt.Color(255, 255, 255));
         blogin1.setText("Login");
         blogin1.addActionListener(this::blogin1ActionPerformed);
 

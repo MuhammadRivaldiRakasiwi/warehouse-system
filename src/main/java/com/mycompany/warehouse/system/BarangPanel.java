@@ -114,12 +114,21 @@ public final void loadData() {
 
         inputMinimumStok.setModel(new javax.swing.SpinnerNumberModel(0, null, 99999, 1));
 
+        btnSimpan.setBackground(new java.awt.Color(39, 174, 96));
+        btnSimpan.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnSimpan.setForeground(new java.awt.Color(255, 255, 255));
         btnSimpan.setText("Simpan");
         btnSimpan.addActionListener(this::btnSimpanActionPerformed);
 
+        btnEdit.setBackground(new java.awt.Color(243, 156, 18));
+        btnEdit.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnEdit.setForeground(new java.awt.Color(255, 255, 255));
         btnEdit.setText("Edit");
         btnEdit.addActionListener(this::btnEditActionPerformed);
 
+        btnDelete.setBackground(new java.awt.Color(231, 76, 60));
+        btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnDelete.setForeground(new java.awt.Color(255, 255, 255));
         btnDelete.setText("Delete");
         btnDelete.addActionListener(this::btnDeleteActionPerformed);
 
@@ -143,6 +152,9 @@ public final void loadData() {
 
         inputKategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Hardware", "Elektrikal", "Plumbing", "APD", "Kimia" }));
 
+        btnReset.setBackground(new java.awt.Color(149, 165, 166));
+        btnReset.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnReset.setForeground(new java.awt.Color(255, 255, 255));
         btnReset.setText("Reset");
         btnReset.addActionListener(this::btnResetActionPerformed);
 
