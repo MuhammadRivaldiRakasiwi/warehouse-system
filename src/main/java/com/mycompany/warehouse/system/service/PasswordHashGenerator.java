@@ -1,4 +1,4 @@
-package com.mycompany.warehouse.system;
+package com.mycompany.warehouse.system.service;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

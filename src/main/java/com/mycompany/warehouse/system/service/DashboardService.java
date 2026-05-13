@@ -1,5 +1,6 @@
-package com.mycompany.warehouse.system;
+package com.mycompany.warehouse.system.service;
 
+import com.mycompany.warehouse.system.DatabaseConfig;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

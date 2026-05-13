@@ -1,4 +1,4 @@
-package com.mycompany.warehouse.system;
+package com.mycompany.warehouse.system.model;
 
 /**
  * Model class untuk User

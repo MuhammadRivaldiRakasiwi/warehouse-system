@@ -2,21 +2,25 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.mycompany.warehouse.system;
+package com.mycompany.warehouse.system.view;
+
+import com.mycompany.warehouse.system.model.User;
+import com.mycompany.warehouse.system.service.UserService;
+import com.mycompany.warehouse.system.service.Session;
 
 /**
  *
  * @author ndesc
  */
 
-public class form_login extends javax.swing.JFrame {
+public class FormLogin extends javax.swing.JFrame {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(form_login.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FormLogin.class.getName());
 
     /**
      * Creates new form form_logins
      */
-    public form_login() {
+    public FormLogin() {
         initComponents();
       java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -40,7 +44,6 @@ this.setLocationRelativeTo(null); // center
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         tusername = new javax.swing.JTextField();
-        bregister = new javax.swing.JButton();
         tpassword = new javax.swing.JPasswordField();
         blogin1 = new javax.swing.JButton();
 
@@ -57,9 +60,6 @@ this.setLocationRelativeTo(null); // center
 
         tusername.addActionListener(this::tusernameActionPerformed);
 
-        bregister.setText("Register");
-        bregister.addActionListener(this::bregisterActionPerformed);
-
         tpassword.addActionListener(this::tpasswordActionPerformed);
 
         blogin1.setBackground(new java.awt.Color(33, 150, 243));
@@ -73,30 +73,28 @@ this.setLocationRelativeTo(null); // center
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(33, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(bregister)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(blogin1))
-                    .addComponent(tusername)
-                    .addComponent(tpassword))
-                .addContainerGap(78, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addContainerGap())
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(79, 79, 79)
+                                .addComponent(blogin1))
+                            .addComponent(tusername)
+                            .addComponent(tpassword))))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(38, 38, 38)
+                .addGap(76, 76, 76)
                 .addComponent(jLabel1)
-                .addGap(68, 68, 68)
+                .addGap(30, 30, 30)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tusername, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2))
@@ -105,9 +103,7 @@ this.setLocationRelativeTo(null); // center
                     .addComponent(tpassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(bregister)
-                    .addComponent(blogin1))
+                .addComponent(blogin1)
                 .addContainerGap(24, Short.MAX_VALUE))
         );
 
@@ -117,10 +113,6 @@ this.setLocationRelativeTo(null); // center
     private void tusernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tusernameActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_tusernameActionPerformed
-
-    private void bregisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bregisterActionPerformed
-     
-    }//GEN-LAST:event_bregisterActionPerformed
 
     private void tpasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tpasswordActionPerformed
         // TODO add your handling code here:
@@ -148,9 +140,9 @@ User userAuthenticated = UserService.authenticate(username, password);
 if (userAuthenticated != null) {
     // Login berhasil
         javax.swing.JOptionPane.showMessageDialog(this, "Login Berhasil!");
-
+        Session.setUser(userAuthenticated); 
         // Buka Dashboard
-        DashboardFrame dash = new DashboardFrame();
+        ContentFrame dash = new ContentFrame();
         dash.setLocationRelativeTo(null); // Tengah layar (opsional)
         dash.setVisible(true);
 
@@ -193,12 +185,11 @@ if (userAuthenticated != null) {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new form_login().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new FormLogin().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton blogin1;
-    private javax.swing.JButton bregister;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
