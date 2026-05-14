@@ -2,6 +2,7 @@ com\mycompany\warehouse\system\DatabaseTest.class
 com\mycompany\warehouse\system\view\ContentFrame.class
 com\mycompany\warehouse\system\view\SupplierPanel.class
 com\mycompany\warehouse\system\view\FormLogin.class
+com\mycompany\warehouse\system\view\DashboardStaff$1.class
 com\mycompany\warehouse\system\view\BarangKeluarPanel.class
 com\mycompany\warehouse\system\PlaceholderTextField.class
 com\mycompany\warehouse\system\view\BarangMasukPanel.class

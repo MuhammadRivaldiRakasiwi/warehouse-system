@@ -25,6 +25,7 @@ public class ContentFrame extends javax.swing.JFrame {
      * 
      */
    // 1. DEKLARASI VARIABEL GLOBAL (Letakkan di bawah nama class)
+    private final DashboardStaff menuDashboardStaff;
     private final BarangPanel menuBarang;
     private final BarangMasukPanel menuBarangMasuk;
     private final BarangKeluarPanel menuBarangKeluar;
@@ -36,12 +37,14 @@ public class ContentFrame extends javax.swing.JFrame {
 
                 // 3. INISIALISASI OBJEK PANEL (Dimasukkan ke dalam constructor)
                 menuBarang = new BarangPanel();
+                menuDashboardStaff = new DashboardStaff();
                 menuBarangMasuk = new BarangMasukPanel();
                 menuBarangKeluar = new BarangKeluarPanel();
                 menuSupplier = new SupplierPanel();
 
                 // 4. MASUKKAN PANEL KE CARDLAYOUT
                 panelContent.add(menuBarang, "cardBarang");
+                panelContent.add(menuDashboardStaff, "dashboardStaff");
                 panelContent.add(menuSupplier, "cardSupplier");
                 panelContent.add(menuBarangMasuk, "cardBarangMasuk");
                 panelContent.add(menuBarangKeluar, "cardBarangKeluar");
@@ -85,6 +88,7 @@ public class ContentFrame extends javax.swing.JFrame {
     }
      // FUNGSI UNTUK MEMUAT DASHBOARD STAFF
         private void loadDashboardStaff() {
+
              DashboardStaff dbStaff = new DashboardStaff();
             panelContent.add(dbStaff, "dashboardStaff");
             CardLayout cl = (CardLayout) panelContent.getLayout();
@@ -100,7 +104,8 @@ public class ContentFrame extends javax.swing.JFrame {
              DashboardAdmin dbAdmin = new DashboardAdmin();
             panelContent.add(dbAdmin, "dashboardAdmin");
             CardLayout cl = (CardLayout) panelContent.getLayout();
-            cl.show(panelContent, "dashboardAdmin");        }
+            cl.show(panelContent, "dashboardAdmin");        
+        }
      
  
     /**
@@ -111,7 +116,6 @@ public class ContentFrame extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         panelSidebar = new javax.swing.JPanel();
         btnLogout = new javax.swing.JButton();
@@ -131,6 +135,7 @@ public class ContentFrame extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         panelSidebar.setBackground(new java.awt.Color(153, 255, 255));
+        panelSidebar.setForeground(new java.awt.Color(255, 255, 255));
 
         btnLogout.setBackground(new java.awt.Color(255, 51, 51));
         btnLogout.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
@@ -280,7 +285,9 @@ public class ContentFrame extends javax.swing.JFrame {
         CardLayout cl = (CardLayout) panelContent.getLayout();
 
         if (user.getRole().equalsIgnoreCase("staff")) {
-
+            if (DashboardStaff.instance != null) {
+                DashboardStaff.instance.loadData();
+            }
             cl.show(panelContent, "dashboardStaff");
 
         } else {
