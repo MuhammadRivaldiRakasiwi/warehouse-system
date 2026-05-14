@@ -1,6 +1,7 @@
 package com.mycompany.warehouse.system;
 
-import java.util.logging.Level;
+import com.mycompany.warehouse.system.service.UserService;
+import com.mycompany.warehouse.system.model.User;
 import java.util.logging.Logger;
 
 /**
@@ -9,7 +10,7 @@ import java.util.logging.Logger;
  */
 public class DatabaseTest {
     
-    private static final Logger logger = Logger.getLogger(DatabaseTest.class.getName());
+    private  static final Logger logger = Logger.getLogger(DatabaseTest.class.getName());
     
     public static void main(String[] args) {
         System.out.println("=== Warehouse System - Database Test ===\n");
