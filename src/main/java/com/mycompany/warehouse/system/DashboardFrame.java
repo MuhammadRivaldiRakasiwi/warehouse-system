@@ -70,6 +70,7 @@ public class DashboardFrame extends javax.swing.JFrame {
         lbluser = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new java.awt.BorderLayout());
 
         panelSidebar.setBackground(new java.awt.Color(153, 255, 255));
 
@@ -138,7 +139,7 @@ public class DashboardFrame extends javax.swing.JFrame {
 
         panelContent.add(cardBarang, "cardBarang");
 
-        cardDashboard.setLayout(new java.awt.GridLayout(2, 2, 3, 3));
+        cardDashboard.setLayout(new java.awt.GridLayout(2, 2, 5, 5));
 
         jPanel3.setBackground(new java.awt.Color(204, 204, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 204, 255)));
@@ -158,7 +159,7 @@ public class DashboardFrame extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel3)
                     .addComponent(lblsupplier, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(421, Short.MAX_VALUE))
+                .addContainerGap(420, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -167,7 +168,7 @@ public class DashboardFrame extends javax.swing.JFrame {
                 .addComponent(jLabel3)
                 .addGap(18, 18, 18)
                 .addComponent(lblsupplier)
-                .addContainerGap(100, Short.MAX_VALUE))
+                .addContainerGap(99, Short.MAX_VALUE))
         );
 
         cardDashboard.add(jPanel3);
@@ -189,7 +190,7 @@ public class DashboardFrame extends javax.swing.JFrame {
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel6)
                     .addComponent(lbllokasi, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(432, Short.MAX_VALUE))
+                .addContainerGap(431, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -198,7 +199,7 @@ public class DashboardFrame extends javax.swing.JFrame {
                 .addComponent(jLabel6)
                 .addGap(18, 18, 18)
                 .addComponent(lbllokasi)
-                .addContainerGap(112, Short.MAX_VALUE))
+                .addContainerGap(111, Short.MAX_VALUE))
         );
 
         cardDashboard.add(jPanel4);
@@ -230,13 +231,12 @@ public class DashboardFrame extends javax.swing.JFrame {
                 .addComponent(jLabel8)
                 .addGap(18, 18, 18)
                 .addComponent(lblbarang)
-                .addContainerGap(110, Short.MAX_VALUE))
+                .addContainerGap(109, Short.MAX_VALUE))
         );
 
         cardDashboard.add(jPanel6);
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 0));
-        jPanel5.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(51, 204, 255), 1, true));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel1.setText("Total User");
@@ -253,7 +253,7 @@ public class DashboardFrame extends javax.swing.JFrame {
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(lbluser, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
-                .addContainerGap(449, Short.MAX_VALUE))
+                .addContainerGap(448, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -262,7 +262,7 @@ public class DashboardFrame extends javax.swing.JFrame {
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
                 .addComponent(lbluser)
-                .addContainerGap(102, Short.MAX_VALUE))
+                .addContainerGap(101, Short.MAX_VALUE))
         );
 
         cardDashboard.add(jPanel5);
