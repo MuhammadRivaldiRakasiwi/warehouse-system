@@ -12,6 +12,7 @@ com\mycompany\warehouse\system\view\SupplierPanel$1.class
 com\mycompany\warehouse\system\HistoryFrame.class
 com\mycompany\warehouse\system\service\UserService.class
 com\mycompany\warehouse\system\service\PasswordHashGenerator.class
+com\mycompany\warehouse\system\LocationPanel.class
 com\mycompany\warehouse\system\view\DashboardStaff.class
 com\mycompany\warehouse\system\PlaceholderPasswordField.class
 com\mycompany\warehouse\system\service\DashboardService.class
