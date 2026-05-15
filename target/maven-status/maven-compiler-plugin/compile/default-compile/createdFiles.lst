@@ -12,7 +12,9 @@ com\mycompany\warehouse\system\model\User.class
 com\mycompany\warehouse\system\view\SupplierPanel$1.class
 com\mycompany\warehouse\system\HistoryFrame.class
 com\mycompany\warehouse\system\service\UserService.class
+com\mycompany\warehouse\system\view\DashboardAdmin$1.class
 com\mycompany\warehouse\system\service\PasswordHashGenerator.class
+com\mycompany\warehouse\system\LocationPanel.class
 com\mycompany\warehouse\system\view\DashboardStaff.class
 com\mycompany\warehouse\system\PlaceholderPasswordField.class
 com\mycompany\warehouse\system\service\DashboardService.class
@@ -20,6 +22,7 @@ com\mycompany\warehouse\system\view\BarangPanel$1.class
 com\mycompany\warehouse\system\WarehouseSystem.class
 com\mycompany\warehouse\system\testpushriri.class
 com\mycompany\warehouse\system\view\DashboardAdmin.class
+com\mycompany\warehouse\system\view\DashboardAdmin$2.class
 com\mycompany\warehouse\system\view\SupplierPanel$2.class
 com\mycompany\warehouse\system\view\BarangPanel.class
 com\mycompany\warehouse\system\view\BarangMasukPanel$1.class

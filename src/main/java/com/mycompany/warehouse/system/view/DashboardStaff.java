@@ -26,20 +26,22 @@ public class DashboardStaff extends javax.swing.JPanel {
         initComponents();
         loadData();
         instance = this;
-        LTotalBarang.setText(String.valueOf(DashboardService.getTotalItems()));
+       loadDataCount();
+    }
+public final void loadDataCount(){
+     LTotalBarang.setText(String.valueOf(DashboardService.getTotalItemsInventory()));
         LBarangMasuk.setText(String.valueOf(DashboardService.getTotalItemsMasukHariIni()));
         LBarangKeluar.setText(String.valueOf(DashboardService.getTotalItemsKeluarHariIni()));
         LBarangHampirHabis.setText(String.valueOf(DashboardService.getTotalItemsHampirHabis()));
-    }
-
+}
        public final void loadData() { 
-    DefaultTableModel model = new DefaultTableModel() {
-        // Best practice: Membuat sel tabel tidak bisa diedit secara manual oleh user
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
+            DefaultTableModel model = new DefaultTableModel() {
+                // Best practice: Membuat sel tabel tidak bisa diedit secara manual oleh user
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
     
     // Tambahkan kolom ID di index 0 
     model.addColumn("ID"); 

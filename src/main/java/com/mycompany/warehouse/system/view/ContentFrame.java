@@ -80,7 +80,6 @@ public class ContentFrame extends javax.swing.JFrame {
                 btnMBarangMasuk.setVisible(false); 
                 btnMBarangKeluar.setVisible(false); 
                 btnMTransferBarang.setVisible(false);
-                btnMStockHistory.setVisible(false);
                
                 loadDashboardAdmin(); // Memuat panel admin
             } 
@@ -127,7 +126,6 @@ public class ContentFrame extends javax.swing.JFrame {
         btnMBarangMasuk = new javax.swing.JButton();
         btnMBarangKeluar = new javax.swing.JButton();
         btnMTransferBarang = new javax.swing.JButton();
-        btnMStockHistory = new javax.swing.JButton();
         LTransaction = new javax.swing.JLabel();
         LMaster = new javax.swing.JLabel();
         panelContent = new javax.swing.JPanel();
@@ -178,10 +176,6 @@ public class ContentFrame extends javax.swing.JFrame {
         btnMTransferBarang.setText("Transfer Barang");
         btnMTransferBarang.addActionListener(this::btnMTransferBarangActionPerformed);
 
-        btnMStockHistory.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnMStockHistory.setText("Stock History");
-        btnMStockHistory.addActionListener(this::btnMStockHistoryActionPerformed);
-
         LTransaction.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         LTransaction.setForeground(new java.awt.Color(43, 146, 229));
         LTransaction.setText("Transaction");
@@ -202,7 +196,6 @@ public class ContentFrame extends javax.swing.JFrame {
             .addComponent(btnMBarangMasuk, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(btnMBarangKeluar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(btnMTransferBarang, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btnMStockHistory, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(panelSidebarLayout.createSequentialGroup()
                 .addGroup(panelSidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelSidebarLayout.createSequentialGroup()
@@ -239,9 +232,7 @@ public class ContentFrame extends javax.swing.JFrame {
                 .addComponent(btnMBarangKeluar, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnMTransferBarang, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnMStockHistory, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(41, 41, 41)
+                .addGap(70, 70, 70)
                 .addComponent(btnLogout)
                 .addContainerGap(90, Short.MAX_VALUE))
         );
@@ -287,10 +278,13 @@ public class ContentFrame extends javax.swing.JFrame {
         if (user.getRole().equalsIgnoreCase("staff")) {
             if (DashboardStaff.instance != null) {
                 DashboardStaff.instance.loadData();
+                DashboardStaff.instance.loadDataCount();
             }
             cl.show(panelContent, "dashboardStaff");
 
         } else {
+              DashboardStaff.instance.loadData();
+                DashboardStaff.instance.loadDataCount();
             cl.show(panelContent, "dashboardAdmin");
         }
 
@@ -324,10 +318,6 @@ public class ContentFrame extends javax.swing.JFrame {
     private void btnMTransferBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMTransferBarangActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnMTransferBarangActionPerformed
-
-    private void btnMStockHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMStockHistoryActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnMStockHistoryActionPerformed
 
     private void btnMSupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMSupplierActionPerformed
         CardLayout cl = (CardLayout) panelContent.getLayout();
@@ -382,7 +372,6 @@ private void setMenuColor(JButton activeBtn) {
     private javax.swing.JButton btnMBarangMasuk;
     private javax.swing.JButton btnMDashboard;
     private javax.swing.JButton btnMLokasi;
-    private javax.swing.JButton btnMStockHistory;
     private javax.swing.JButton btnMSupplier;
     private javax.swing.JButton btnMTransferBarang;
     private javax.swing.JButton btnMUser;

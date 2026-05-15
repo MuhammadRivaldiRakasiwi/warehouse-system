@@ -49,7 +49,6 @@
               <Component id="btnMBarangMasuk" alignment="0" max="32767" attributes="0"/>
               <Component id="btnMBarangKeluar" alignment="0" max="32767" attributes="0"/>
               <Component id="btnMTransferBarang" alignment="0" max="32767" attributes="0"/>
-              <Component id="btnMStockHistory" alignment="0" max="32767" attributes="0"/>
               <Group type="102" attributes="0">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
@@ -92,9 +91,7 @@
                   <Component id="btnMBarangKeluar" min="-2" pref="23" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="btnMTransferBarang" min="-2" pref="23" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Component id="btnMStockHistory" min="-2" pref="23" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="70" max="-2" attributes="0"/>
                   <Component id="btnLogout" min="-2" max="-2" attributes="0"/>
                   <EmptySpace pref="90" max="32767" attributes="0"/>
               </Group>
@@ -214,17 +211,6 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnMTransferBarangActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JButton" name="btnMStockHistory">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="12" style="1"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Stock History"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnMStockHistoryActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="LTransaction">
