@@ -128,7 +128,7 @@ public class DashboardStaff extends javax.swing.JPanel {
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(15, 23, 42));
-        jLabel4.setText("Barang Hampir Habis < 10");
+        jLabel4.setText("Barang Hampir Habis <= 10");
 
         LBarangHampirHabis.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         LBarangHampirHabis.setForeground(new java.awt.Color(15, 23, 42));

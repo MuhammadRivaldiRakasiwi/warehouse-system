@@ -48,7 +48,7 @@ public class DashboardService {
         return getCount(" SELECT COUNT(*) FROM outbound_transactions it WHERE DATE(created_at) = CURDATE()");
     }
       public static int getTotalItemsHampirHabis() {
-        return getCount(" SELECT COUNT(*) FROM inventory i where  i.stok_terkini  < 10 ");
+        return getCount(" SELECT COUNT(*) FROM inventory i where  i.stok_terkini  <= 10 ");
     }
     
      
