@@ -1,5 +1,6 @@
 com\mycompany\warehouse\system\DatabaseTest.class
 com\mycompany\warehouse\system\view\ContentFrame.class
+com\mycompany\warehouse\system\view\DashboardManager$1.class
 com\mycompany\warehouse\system\view\SupplierPanel.class
 com\mycompany\warehouse\system\view\FormLogin.class
 com\mycompany\warehouse\system\view\DashboardStaff$1.class
@@ -8,6 +9,7 @@ com\mycompany\warehouse\system\PlaceholderTextField.class
 com\mycompany\warehouse\system\view\BarangMasukPanel.class
 com\mycompany\warehouse\system\service\Session.class
 com\mycompany\warehouse\system\belajar_vivi.class
+com\mycompany\warehouse\system\view\DashboardManager$4.class
 com\mycompany\warehouse\system\model\User.class
 com\mycompany\warehouse\system\view\SupplierPanel$1.class
 com\mycompany\warehouse\system\HistoryFrame.class
@@ -17,6 +19,8 @@ com\mycompany\warehouse\system\service\PasswordHashGenerator.class
 com\mycompany\warehouse\system\LocationPanel.class
 com\mycompany\warehouse\system\view\DashboardStaff.class
 com\mycompany\warehouse\system\PlaceholderPasswordField.class
+com\mycompany\warehouse\system\view\DashboardManager$2.class
+com\mycompany\warehouse\system\view\DashboardManager.class
 com\mycompany\warehouse\system\service\DashboardService.class
 com\mycompany\warehouse\system\view\BarangPanel$1.class
 com\mycompany\warehouse\system\WarehouseSystem.class
@@ -28,5 +32,6 @@ com\mycompany\warehouse\system\view\BarangPanel.class
 com\mycompany\warehouse\system\view\BarangMasukPanel$1.class
 com\mycompany\warehouse\system\belajar.class
 com\mycompany\warehouse\system\HistoryPanel.class
+com\mycompany\warehouse\system\view\DashboardManager$3.class
 com\mycompany\warehouse\system\DatabaseConfig.class
 com\mycompany\warehouse\system\Alina.class

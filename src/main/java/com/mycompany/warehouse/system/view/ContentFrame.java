@@ -26,6 +26,7 @@ public class ContentFrame extends javax.swing.JFrame {
      */
    // 1. DEKLARASI VARIABEL GLOBAL (Letakkan di bawah nama class)
     private final DashboardStaff menuDashboardStaff;
+     private final DashboardManager menuDashboardManager;
     private final BarangPanel menuBarang;
     private final BarangMasukPanel menuBarangMasuk;
     private final BarangKeluarPanel menuBarangKeluar;
@@ -38,6 +39,7 @@ public class ContentFrame extends javax.swing.JFrame {
                 // 3. INISIALISASI OBJEK PANEL (Dimasukkan ke dalam constructor)
                 menuBarang = new BarangPanel();
                 menuDashboardStaff = new DashboardStaff();
+                  menuDashboardManager = new DashboardManager();
                 menuBarangMasuk = new BarangMasukPanel();
                 menuBarangKeluar = new BarangKeluarPanel();
                 menuSupplier = new SupplierPanel();
@@ -45,6 +47,7 @@ public class ContentFrame extends javax.swing.JFrame {
                 // 4. MASUKKAN PANEL KE CARDLAYOUT
                 panelContent.add(menuBarang, "cardBarang");
                 panelContent.add(menuDashboardStaff, "dashboardStaff");
+                panelContent.add(menuDashboardManager, "dashboardManager");
                 panelContent.add(menuSupplier, "cardSupplier");
                 panelContent.add(menuBarangMasuk, "cardBarangMasuk");
                 panelContent.add(menuBarangKeluar, "cardBarangKeluar");
@@ -71,10 +74,19 @@ public class ContentFrame extends javax.swing.JFrame {
                 btnMLokasi.setVisible(false); 
                 btnMSupplier.setVisible(false); 
 
-                loadDashboardStaff(); // Memuat panel staff
-            } else if (role.equalsIgnoreCase("spv")) {
-                // Tambahkan logika batasan menu untuk SPV di sini jika ada
-                // Contoh: loadDashboardSPV();
+                loadDashboardStaff(); 
+            } else if (role.equalsIgnoreCase("manager")) {
+                    LMaster.setVisible(false); 
+                btnMUser.setVisible(false); 
+                btnMBarang.setVisible(false); 
+                btnMLokasi.setVisible(false); 
+                btnMSupplier.setVisible(false); 
+                  LTransaction.setVisible(false); 
+                btnMBarangMasuk.setVisible(false); 
+                btnMBarangKeluar.setVisible(false); 
+                btnMTransferBarang.setVisible(false);
+                
+                loadDashboardManager();
             } else { 
                 LTransaction.setVisible(false); 
                 btnMBarangMasuk.setVisible(false); 
@@ -85,16 +97,7 @@ public class ContentFrame extends javax.swing.JFrame {
             } 
         } 
     }
-     // FUNGSI UNTUK MEMUAT DASHBOARD STAFF
-        private void loadDashboardStaff() {
-
-             DashboardStaff dbStaff = new DashboardStaff();
-            panelContent.add(dbStaff, "dashboardStaff");
-            CardLayout cl = (CardLayout) panelContent.getLayout();
-            cl.show(panelContent, "dashboardStaff");
-        }
-
-        // FUNGSI UNTUK MEMUAT DASHBOARD ADMIN
+      // FUNGSI UNTUK MEMUAT DASHBOARD ADMIN
         private void loadDashboardAdmin() {   
 //        lbluser.setText(String.valueOf(DashboardService.getTotalUsers()));
 //        lblsupplier.setText(String.valueOf(DashboardService.getTotalSuppliers()));
@@ -105,6 +108,27 @@ public class ContentFrame extends javax.swing.JFrame {
             CardLayout cl = (CardLayout) panelContent.getLayout();
             cl.show(panelContent, "dashboardAdmin");        
         }
+        
+          // FUNGSI UNTUK MEMUAT DASHBOARD STAFF
+        private void loadDashboardManager() {
+
+             DashboardManager dbManager = new DashboardManager();
+            panelContent.add(dbManager, "dashboardManager");
+            CardLayout cl = (CardLayout) panelContent.getLayout();
+            cl.show(panelContent, "dashboardManager");
+        }
+     // FUNGSI UNTUK MEMUAT DASHBOARD STAFF
+        private void loadDashboardStaff() {
+
+             DashboardStaff dbStaff = new DashboardStaff();
+            panelContent.add(dbStaff, "dashboardStaff");
+            CardLayout cl = (CardLayout) panelContent.getLayout();
+            cl.show(panelContent, "dashboardStaff");
+        }
+        
+        
+
+       
      
  
     /**
@@ -282,9 +306,17 @@ public class ContentFrame extends javax.swing.JFrame {
             }
             cl.show(panelContent, "dashboardStaff");
 
+        }else if (user.getRole().equalsIgnoreCase("manager")) {
+            if (DashboardManager.instance != null) {
+//                DashboardManager.instance.loadDataInventory();
+                DashboardManager.instance.loadDataCount();
+            }
+            cl.show(panelContent, "dashboardManager");
+
         } else {
-              DashboardStaff.instance.loadData();
-                DashboardStaff.instance.loadDataCount();
+              DashboardAdmin.instance.loadDataInventory();
+              DashboardAdmin.instance.loadDataAktifitas();
+                DashboardAdmin.instance.loadDataCount();
             cl.show(panelContent, "dashboardAdmin");
         }
 
