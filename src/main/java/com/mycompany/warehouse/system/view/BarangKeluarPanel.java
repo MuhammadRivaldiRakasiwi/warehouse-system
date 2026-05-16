@@ -35,37 +35,24 @@ public class BarangKeluarPanel extends javax.swing.JPanel {
             generateNomorPengeluaran();
     }
     private void generateNomorPengeluaran() {
-        try {
-
-            Connection conn =
-                    DatabaseConfig.getConnection();
-
-            String sql = """
-                    SELECT COUNT(*) + 1 as total
-                    FROM outbound_transactions
-                    """;
-
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs =
-                    ps.executeQuery();
-            if (rs.next()) {
-                int nomor =
-                        rs.getInt("total");
-                String urutan =
-                        String.format("%03d", nomor);
-                String tahun =
-                        new SimpleDateFormat("yyyy")
-                                .format(
-                                        new java.util.Date()
-                                );
-                labelNoPengeluaran.setText(
-                        "DO-" + tahun + "-" + urutan
-               );
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    try {
+        Connection conn = DatabaseConfig.getConnection();
+        String sql = """
+            SELECT COUNT(*) + 1 as total 
+            FROM outbound_transactions
+            """;
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            int nomor = rs.getInt("total");
+            String nomorFormat = String.format("DO-2026-%03d", nomor);
+            labelNoPengeluaran.setText(nomorFormat);
         }
-  }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }    
+   }
+
 public void loadBarangFromInventory() {
 
     try {

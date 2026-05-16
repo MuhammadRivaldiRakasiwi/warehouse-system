@@ -26,29 +26,30 @@ public class BarangPanel extends javax.swing.JPanel {
         initComponents();
             loadData(); // Tambahkan ini
     }
-public final void loadData() {
-    DefaultTableModel model = new DefaultTableModel();
-    // Tambahkan kolom ID di index 0
-    model.addColumn("ID"); model.addColumn("Kode"); model.addColumn("Nama"); 
-    model.addColumn("Kategori"); model.addColumn("Satuan");
-    // (Kolom Berat dst opsional ditampilkan di UI, tapi wajib ada di model)
+    public final void loadData() {
+        DefaultTableModel model = new DefaultTableModel();
+        // Tambahkan kolom ID di index 0
+        model.addColumn("ID"); model.addColumn("Kode"); model.addColumn("Nama"); 
+        model.addColumn("Kategori"); model.addColumn("Satuan");
+        // (Kolom Berat dst opsional ditampilkan di UI, tapi wajib ada di model)
 
-    try (Connection conn = DatabaseConfig.getConnection()) {
-        String sql = "SELECT id, kode_item, nama_item, kategori, satuan, berat, panjang, lebar, tinggi, minimum_stok FROM items WHERE status_aktif = 1";
-        ResultSet rs = conn.createStatement().executeQuery(sql);
-        while (rs.next()) {
-            model.addRow(new Object[]{
-                rs.getInt("id"), rs.getString("kode_item"), rs.getString("nama_item"),
-                rs.getString("kategori"), rs.getString("satuan"),
-                rs.getInt("berat"), rs.getInt("panjang"), rs.getInt("lebar"), 
-                rs.getInt("tinggi"), rs.getInt("minimum_stok")
-            });
-        }
-        tableBarang.setModel(model);
-        // Sembunyikan kolom ID (Index 0)
-        tableBarang.getColumnModel().getColumn(0).setMinWidth(0);
-        tableBarang.getColumnModel().getColumn(0).setMaxWidth(0);
-    } catch (SQLException e) { JOptionPane.showMessageDialog(null, e.getMessage()); }
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            String sql = "SELECT id, kode_item, nama_item, kategori, satuan, berat, panjang, lebar, tinggi, minimum_stok FROM items WHERE status_aktif = 1";
+            ResultSet rs = conn.createStatement().executeQuery(sql);
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getInt("id"), rs.getString("kode_item"), rs.getString("nama_item"),
+                    rs.getString("kategori"), rs.getString("satuan"),
+                    rs.getInt("berat"), rs.getInt("panjang"), rs.getInt("lebar"), 
+                    rs.getInt("tinggi"), rs.getInt("minimum_stok")
+                });
+            }
+            tableBarang.setModel(model);
+            // Sembunyikan kolom ID (Index 0)
+            tableBarang.getColumnModel().getColumn(0).setMinWidth(0);
+            tableBarang.getColumnModel().getColumn(0).setMaxWidth(0);
+        } catch (SQLException e) { JOptionPane.showMessageDialog(null, e.getMessage()); 
+    }
 
     }
     /**
