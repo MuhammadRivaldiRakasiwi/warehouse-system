@@ -29,7 +29,7 @@ public class UserService {
     }
 
     String cleanUsername = username.trim();
-    String query = "SELECT id, username, email, role, password_hash FROM users WHERE username = ?";
+    String query = "SELECT id, username, email,nama_lengkap, role, password_hash FROM users WHERE username = ?";
     
     try (Connection conn = DatabaseConfig.getConnection(); 
          PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -46,6 +46,7 @@ public class UserService {
                 user.setId(rs.getInt("id"));
                 user.setUsername(rs.getString("username"));
                 user.setRole(rs.getString("role"));
+                user.setNamaLengkap(rs.getString("nama_lengkap")); 
                 return user;
             }
         }
