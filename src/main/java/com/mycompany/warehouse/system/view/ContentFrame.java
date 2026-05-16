@@ -25,6 +25,8 @@ public class ContentFrame extends javax.swing.JFrame {
      * 
      */
    // 1. DEKLARASI VARIABEL GLOBAL (Letakkan di bawah nama class)
+    private final DashboardStaff menuDashboardStaff;
+     private final DashboardManager menuDashboardManager;
     private final BarangPanel menuBarang;
     private final BarangMasukPanel menuBarangMasuk;
     private final BarangKeluarPanel menuBarangKeluar;
@@ -36,12 +38,16 @@ public class ContentFrame extends javax.swing.JFrame {
 
                 // 3. INISIALISASI OBJEK PANEL (Dimasukkan ke dalam constructor)
                 menuBarang = new BarangPanel();
+                menuDashboardStaff = new DashboardStaff();
+                  menuDashboardManager = new DashboardManager();
                 menuBarangMasuk = new BarangMasukPanel();
                 menuBarangKeluar = new BarangKeluarPanel();
                 menuSupplier = new SupplierPanel();
 
                 // 4. MASUKKAN PANEL KE CARDLAYOUT
                 panelContent.add(menuBarang, "cardBarang");
+                panelContent.add(menuDashboardStaff, "dashboardStaff");
+                panelContent.add(menuDashboardManager, "dashboardManager");
                 panelContent.add(menuSupplier, "cardSupplier");
                 panelContent.add(menuBarangMasuk, "cardBarangMasuk");
                 panelContent.add(menuBarangKeluar, "cardBarangKeluar");
@@ -68,30 +74,30 @@ public class ContentFrame extends javax.swing.JFrame {
                 btnMLokasi.setVisible(false); 
                 btnMSupplier.setVisible(false); 
 
-                loadDashboardStaff(); // Memuat panel staff
-            } else if (role.equalsIgnoreCase("spv")) {
-                // Tambahkan logika batasan menu untuk SPV di sini jika ada
-                // Contoh: loadDashboardSPV();
+                loadDashboardStaff(); 
+            } else if (role.equalsIgnoreCase("manager")) {
+                    LMaster.setVisible(false); 
+                btnMUser.setVisible(false); 
+                btnMBarang.setVisible(false); 
+                btnMLokasi.setVisible(false); 
+                btnMSupplier.setVisible(false); 
+                  LTransaction.setVisible(false); 
+                btnMBarangMasuk.setVisible(false); 
+                btnMBarangKeluar.setVisible(false); 
+                btnMTransferBarang.setVisible(false);
+                
+                loadDashboardManager();
             } else { 
                 LTransaction.setVisible(false); 
                 btnMBarangMasuk.setVisible(false); 
                 btnMBarangKeluar.setVisible(false); 
                 btnMTransferBarang.setVisible(false);
-                btnMStockHistory.setVisible(false);
                
                 loadDashboardAdmin(); // Memuat panel admin
             } 
         } 
     }
-     // FUNGSI UNTUK MEMUAT DASHBOARD STAFF
-        private void loadDashboardStaff() {
-             DashboardStaff dbStaff = new DashboardStaff();
-            panelContent.add(dbStaff, "dashboardStaff");
-            CardLayout cl = (CardLayout) panelContent.getLayout();
-            cl.show(panelContent, "dashboardStaff");
-        }
-
-        // FUNGSI UNTUK MEMUAT DASHBOARD ADMIN
+      // FUNGSI UNTUK MEMUAT DASHBOARD ADMIN
         private void loadDashboardAdmin() {   
 //        lbluser.setText(String.valueOf(DashboardService.getTotalUsers()));
 //        lblsupplier.setText(String.valueOf(DashboardService.getTotalSuppliers()));
@@ -100,7 +106,29 @@ public class ContentFrame extends javax.swing.JFrame {
              DashboardAdmin dbAdmin = new DashboardAdmin();
             panelContent.add(dbAdmin, "dashboardAdmin");
             CardLayout cl = (CardLayout) panelContent.getLayout();
-            cl.show(panelContent, "dashboardAdmin");        }
+            cl.show(panelContent, "dashboardAdmin");        
+        }
+        
+          // FUNGSI UNTUK MEMUAT DASHBOARD STAFF
+        private void loadDashboardManager() {
+
+             DashboardManager dbManager = new DashboardManager();
+            panelContent.add(dbManager, "dashboardManager");
+            CardLayout cl = (CardLayout) panelContent.getLayout();
+            cl.show(panelContent, "dashboardManager");
+        }
+     // FUNGSI UNTUK MEMUAT DASHBOARD STAFF
+        private void loadDashboardStaff() {
+
+             DashboardStaff dbStaff = new DashboardStaff();
+            panelContent.add(dbStaff, "dashboardStaff");
+            CardLayout cl = (CardLayout) panelContent.getLayout();
+            cl.show(panelContent, "dashboardStaff");
+        }
+        
+        
+
+       
      
  
     /**
@@ -111,7 +139,6 @@ public class ContentFrame extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         panelSidebar = new javax.swing.JPanel();
         btnLogout = new javax.swing.JButton();
@@ -123,7 +150,6 @@ public class ContentFrame extends javax.swing.JFrame {
         btnMBarangMasuk = new javax.swing.JButton();
         btnMBarangKeluar = new javax.swing.JButton();
         btnMTransferBarang = new javax.swing.JButton();
-        btnMStockHistory = new javax.swing.JButton();
         LTransaction = new javax.swing.JLabel();
         LMaster = new javax.swing.JLabel();
         panelContent = new javax.swing.JPanel();
@@ -131,6 +157,7 @@ public class ContentFrame extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         panelSidebar.setBackground(new java.awt.Color(153, 255, 255));
+        panelSidebar.setForeground(new java.awt.Color(255, 255, 255));
 
         btnLogout.setBackground(new java.awt.Color(255, 51, 51));
         btnLogout.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
@@ -173,10 +200,6 @@ public class ContentFrame extends javax.swing.JFrame {
         btnMTransferBarang.setText("Transfer Barang");
         btnMTransferBarang.addActionListener(this::btnMTransferBarangActionPerformed);
 
-        btnMStockHistory.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnMStockHistory.setText("Stock History");
-        btnMStockHistory.addActionListener(this::btnMStockHistoryActionPerformed);
-
         LTransaction.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         LTransaction.setForeground(new java.awt.Color(43, 146, 229));
         LTransaction.setText("Transaction");
@@ -197,7 +220,6 @@ public class ContentFrame extends javax.swing.JFrame {
             .addComponent(btnMBarangMasuk, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(btnMBarangKeluar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(btnMTransferBarang, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btnMStockHistory, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(panelSidebarLayout.createSequentialGroup()
                 .addGroup(panelSidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelSidebarLayout.createSequentialGroup()
@@ -234,9 +256,7 @@ public class ContentFrame extends javax.swing.JFrame {
                 .addComponent(btnMBarangKeluar, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnMTransferBarang, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnMStockHistory, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(41, 41, 41)
+                .addGap(70, 70, 70)
                 .addComponent(btnLogout)
                 .addContainerGap(90, Short.MAX_VALUE))
         );
@@ -280,10 +300,23 @@ public class ContentFrame extends javax.swing.JFrame {
         CardLayout cl = (CardLayout) panelContent.getLayout();
 
         if (user.getRole().equalsIgnoreCase("staff")) {
-
+            if (DashboardStaff.instance != null) {
+                DashboardStaff.instance.loadData();
+                DashboardStaff.instance.loadDataCount();
+            }
             cl.show(panelContent, "dashboardStaff");
 
+        }else if (user.getRole().equalsIgnoreCase("manager")) {
+            if (DashboardManager.instance != null) {
+//                DashboardManager.instance.loadDataInventory();
+                DashboardManager.instance.loadDataCount();
+            }
+            cl.show(panelContent, "dashboardManager");
+
         } else {
+              DashboardAdmin.instance.loadDataInventory();
+              DashboardAdmin.instance.loadDataAktifitas();
+                DashboardAdmin.instance.loadDataCount();
             cl.show(panelContent, "dashboardAdmin");
         }
 
@@ -317,10 +350,6 @@ public class ContentFrame extends javax.swing.JFrame {
     private void btnMTransferBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMTransferBarangActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnMTransferBarangActionPerformed
-
-    private void btnMStockHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMStockHistoryActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnMStockHistoryActionPerformed
 
     private void btnMSupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMSupplierActionPerformed
         CardLayout cl = (CardLayout) panelContent.getLayout();
@@ -375,7 +404,6 @@ private void setMenuColor(JButton activeBtn) {
     private javax.swing.JButton btnMBarangMasuk;
     private javax.swing.JButton btnMDashboard;
     private javax.swing.JButton btnMLokasi;
-    private javax.swing.JButton btnMStockHistory;
     private javax.swing.JButton btnMSupplier;
     private javax.swing.JButton btnMTransferBarang;
     private javax.swing.JButton btnMUser;
