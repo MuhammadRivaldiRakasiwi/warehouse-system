@@ -41,4 +41,26 @@ public class DashboardService {
     public static int getTotalItems() {
         return getCount("SELECT COUNT(*) FROM items WHERE status_aktif = 1");
     }
+     public static int getTotalItemsMasuk() {
+        return getCount(" SELECT COUNT(*) FROM inbound_transactions it ");
+    }
+    public static int getTotalItemsKeluar() {
+        return getCount(" SELECT COUNT(*) FROM outbound_transactions it ");
+    }
+     public static int getTotalItemsHampirHabis() {
+        return getCount(" SELECT COUNT(*) FROM inventory i where  i.stok_terkini  <= 10 ");
+    }
+    public static int getTotalItemsMasukHariIni() {
+        return getCount(" SELECT COUNT(*) FROM inbound_transactions it WHERE DATE(created_at) = CURDATE()");
+    }
+    public static int getTotalItemsKeluarHariIni() {
+        return getCount(" SELECT COUNT(*) FROM outbound_transactions it WHERE DATE(created_at) = CURDATE()");
+    }
+   
+      
+    public static int getTotalItemsInventory() {
+        return getCount(" SELECT COUNT(*) FROM inventory where stok_terkini > 0");
+    }
+    
+     
 }
