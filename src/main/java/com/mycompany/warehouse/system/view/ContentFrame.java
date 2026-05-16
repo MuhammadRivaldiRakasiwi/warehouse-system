@@ -35,7 +35,7 @@ public class ContentFrame extends javax.swing.JFrame {
     // 2. CONSTRUCTOR UTAMA
     public ContentFrame() {
                 initComponents();
-
+setSkalaGambar();
                 // 3. INISIALISASI OBJEK PANEL (Dimasukkan ke dalam constructor)
                 menuBarang = new BarangPanel();
                 menuDashboardStaff = new DashboardStaff();
@@ -66,14 +66,14 @@ public class ContentFrame extends javax.swing.JFrame {
          User user = Session.getUser(); 
         if (user != null) { 
             String role = user.getRole(); 
-
+            LNamaLengkap.setText(user.getNamaLengkap());
             if (role.equalsIgnoreCase("staff")) { 
                 LMaster.setVisible(false); 
                 btnMUser.setVisible(false); 
                 btnMBarang.setVisible(false); 
                 btnMLokasi.setVisible(false); 
                 btnMSupplier.setVisible(false); 
-
+                
                 loadDashboardStaff(); 
             } else if (role.equalsIgnoreCase("manager")) {
                     LMaster.setVisible(false); 
@@ -85,7 +85,7 @@ public class ContentFrame extends javax.swing.JFrame {
                 btnMBarangMasuk.setVisible(false); 
                 btnMBarangKeluar.setVisible(false); 
                 btnMTransferBarang.setVisible(false);
-                
+               
                 loadDashboardManager();
             } else { 
                 LTransaction.setVisible(false); 
@@ -140,8 +140,13 @@ public class ContentFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        panelSidebar = new javax.swing.JPanel();
+        panelNavbar = new javax.swing.JPanel();
         btnLogout = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        LNamaLengkap = new javax.swing.JLabel();
+        LGambar = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        panelSidebar = new javax.swing.JPanel();
         btnMBarang = new javax.swing.JButton();
         btnMLokasi = new javax.swing.JButton();
         btnMDashboard = new javax.swing.JButton();
@@ -156,14 +161,74 @@ public class ContentFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        panelSidebar.setBackground(new java.awt.Color(153, 255, 255));
-        panelSidebar.setForeground(new java.awt.Color(255, 255, 255));
+        panelNavbar.setBackground(new java.awt.Color(153, 255, 255));
+        panelNavbar.setPreferredSize(new java.awt.Dimension(200, 43));
 
         btnLogout.setBackground(new java.awt.Color(255, 51, 51));
         btnLogout.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
         btnLogout.setForeground(new java.awt.Color(255, 255, 255));
         btnLogout.setText("Logout");
         btnLogout.addActionListener(this::btnLogoutActionPerformed);
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(23, 81, 141));
+        jLabel1.setText("Hi,");
+
+        LNamaLengkap.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        LNamaLengkap.setForeground(new java.awt.Color(23, 81, 141));
+        LNamaLengkap.setText("Manager");
+
+        LGambar.setIcon(new javax.swing.ImageIcon("C:\\Users\\ndesc\\KULIAH\\JAVA\\warehouse-system\\src\\LogoWarehouse.png")); // NOI18N
+        LGambar.setText("jLabel4");
+        LGambar.setPreferredSize(new java.awt.Dimension(270, 150));
+
+        jLabel2.setFont(new java.awt.Font("Rockwell", 1, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(23, 81, 141));
+        jLabel2.setText("WAREHOUSE");
+
+        javax.swing.GroupLayout panelNavbarLayout = new javax.swing.GroupLayout(panelNavbar);
+        panelNavbar.setLayout(panelNavbarLayout);
+        panelNavbarLayout.setHorizontalGroup(
+            panelNavbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelNavbarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(LGambar, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(24, 24, 24)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(LNamaLengkap, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+                .addComponent(btnLogout)
+                .addGap(16, 16, 16))
+        );
+        panelNavbarLayout.setVerticalGroup(
+            panelNavbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelNavbarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelNavbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(LGambar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelNavbarLayout.createSequentialGroup()
+                        .addGroup(panelNavbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelNavbarLayout.createSequentialGroup()
+                                .addComponent(btnLogout)
+                                .addGap(0, 8, Short.MAX_VALUE))
+                            .addGroup(panelNavbarLayout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addGroup(panelNavbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(LNamaLengkap, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(panelNavbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel2)))))
+                        .addContainerGap())))
+        );
+
+        getContentPane().add(panelNavbar, java.awt.BorderLayout.PAGE_START);
+
+        panelSidebar.setBackground(new java.awt.Color(153, 255, 255));
+        panelSidebar.setForeground(new java.awt.Color(255, 255, 255));
+        panelSidebar.setPreferredSize(new java.awt.Dimension(150, 373));
 
         btnMBarang.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnMBarang.setText("Barang");
@@ -219,18 +284,15 @@ public class ContentFrame extends javax.swing.JFrame {
             .addComponent(btnMSupplier, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(btnMBarangMasuk, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(btnMBarangKeluar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btnMTransferBarang, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnMTransferBarang, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
             .addGroup(panelSidebarLayout.createSequentialGroup()
                 .addGroup(panelSidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelSidebarLayout.createSequentialGroup()
-                        .addGap(24, 24, 24)
+                        .addGap(40, 40, 40)
                         .addComponent(LTransaction))
                     .addGroup(panelSidebarLayout.createSequentialGroup()
-                        .addGap(39, 39, 39)
-                        .addComponent(LMaster))
-                    .addGroup(panelSidebarLayout.createSequentialGroup()
-                        .addGap(21, 21, 21)
-                        .addComponent(btnLogout)))
+                        .addGap(53, 53, 53)
+                        .addComponent(LMaster)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelSidebarLayout.setVerticalGroup(
@@ -256,39 +318,18 @@ public class ContentFrame extends javax.swing.JFrame {
                 .addComponent(btnMBarangKeluar, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnMTransferBarang, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(70, 70, 70)
-                .addComponent(btnLogout)
-                .addContainerGap(90, Short.MAX_VALUE))
+                .addContainerGap(80, Short.MAX_VALUE))
         );
 
         getContentPane().add(panelSidebar, java.awt.BorderLayout.LINE_START);
 
         panelContent.setBackground(new java.awt.Color(51, 51, 51));
+        panelContent.setPreferredSize(new java.awt.Dimension(400, 211));
         panelContent.setLayout(new java.awt.CardLayout());
         getContentPane().add(panelContent, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
-      // 1. Konfirmasi ke user agar tidak tidak sengaja logout
-        int opsi = javax.swing.JOptionPane.showConfirmDialog(this, 
-                "Apakah Anda yakin ingin logout?", "Konfirmasi Logout", 
-                javax.swing.JOptionPane.YES_NO_OPTION);
-
-        if (opsi == javax.swing.JOptionPane.YES_OPTION) {
-            // 2. Bersihkan data user dari Session
-            com.mycompany.warehouse.system.service.Session.clear();
-            
-
-            // 3. Tampilkan kembali form Login
-            new com.mycompany.warehouse.system.view.FormLogin().setVisible(true);
-
-            // 4. Tutup dashboard saat ini
-            this.dispose();
-        } // Menutup aplikasi
-
-    }//GEN-LAST:event_btnLogoutActionPerformed
 
     private void btnMLokasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMLokasiActionPerformed
         // TODO add your handling code here:
@@ -356,6 +397,24 @@ public class ContentFrame extends javax.swing.JFrame {
         cl.show(panelContent, "cardSupplier");
          setMenuColor(btnMSupplier); 
     }//GEN-LAST:event_btnMSupplierActionPerformed
+
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        // 1. Konfirmasi ke user agar tidak tidak sengaja logout
+        int opsi = javax.swing.JOptionPane.showConfirmDialog(this,
+            "Apakah Anda yakin ingin logout?", "Konfirmasi Logout",
+            javax.swing.JOptionPane.YES_NO_OPTION);
+
+        if (opsi == javax.swing.JOptionPane.YES_OPTION) {
+            // 2. Bersihkan data user dari Session
+            com.mycompany.warehouse.system.service.Session.clear();
+
+            // 3. Tampilkan kembali form Login
+            new com.mycompany.warehouse.system.view.FormLogin().setVisible(true);
+
+            // 4. Tutup dashboard saat ini
+            this.dispose();
+        } // Menutup aplikasi
+    }//GEN-LAST:event_btnLogoutActionPerformed
 private void setMenuColor(JButton activeBtn) {
      // Contoh menggunakan Opsi 1 (Kontras Profesional)
     Color warnaSidebar = new Color(153, 255, 255);
@@ -391,12 +450,27 @@ private void setMenuColor(JButton activeBtn) {
     activeBtn.setBackground(warnaAktif);
     activeBtn.setForeground(teksPutih); // Ubah teks jadi putih agar kontras
 }
+
+private void setSkalaGambar() {
+         // Mengambil ikon asli dari label
+    ImageIcon iconAsli = new ImageIcon(getClass().getResource("/logo1.png"));
+    
+    // Mengubah ukuran gambar sesuai ukuran label saat ini
+    java.awt.Image img = iconAsli.getImage();
+    
+    
+    // Memasang kembali gambar yang sudah di-resize ke label
+    LGambar.setIcon(new ImageIcon(img));
+}
+
     /**
      * @param args the command line arguments
      */
   
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel LGambar;
     private javax.swing.JLabel LMaster;
+    private javax.swing.JLabel LNamaLengkap;
     private javax.swing.JLabel LTransaction;
     private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnMBarang;
@@ -407,7 +481,10 @@ private void setMenuColor(JButton activeBtn) {
     private javax.swing.JButton btnMSupplier;
     private javax.swing.JButton btnMTransferBarang;
     private javax.swing.JButton btnMUser;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel panelContent;
+    private javax.swing.JPanel panelNavbar;
     private javax.swing.JPanel panelSidebar;
     // End of variables declaration//GEN-END:variables
 }
