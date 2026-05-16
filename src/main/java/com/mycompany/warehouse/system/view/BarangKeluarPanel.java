@@ -1,0 +1,827 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
+ */
+package com.mycompany.warehouse.system.view;
+import com.mycompany.warehouse.system.DatabaseConfig;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import java.text.SimpleDateFormat;
+
+import java.util.HashMap;
+
+import javax.swing.JOptionPane;
+/**
+ *
+ * @author ndesc
+ */
+public class BarangKeluarPanel extends javax.swing.JPanel {
+    private final HashMap<String, Integer> itemMap = new HashMap<>();
+    private final HashMap<String, Integer> locationMap = new HashMap<>();
+    /**
+     * Creates new form BarangKeluarPanel
+     */
+    public BarangKeluarPanel() {
+        initComponents();
+         inputTanggalKirim.setDateFormatString("yyyy-MM-dd");
+         inputTanggalKirim.getDateEditor().setEnabled(false);
+         inputTanggalKirim.setDate(new java.util.Date());
+         
+            loadBarangFromInventory();
+            generateNomorPengeluaran();
+    }
+    private void generateNomorPengeluaran() {
+    try {
+        Connection conn = DatabaseConfig.getConnection();
+        String sql = """
+            SELECT COUNT(*) + 1 as total 
+            FROM outbound_transactions
+            """;
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            int nomor = rs.getInt("total");
+            String nomorFormat = String.format("DO-2026-%03d", nomor);
+            labelNoPengeluaran.setText(nomorFormat);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }    
+   }
+
+public void loadBarangFromInventory() {
+
+    try {
+
+        Connection conn = DatabaseConfig.getConnection();
+
+        String sql = """
+                SELECT DISTINCT items.id,items.nama_item
+                              FROM inventory
+                                JOIN items
+                                    ON inventory.item_id = items.id
+                                WHERE inventory.stok_terkini > 0
+                                ORDER BY items.nama_item
+                """;
+
+        PreparedStatement ps = conn.prepareStatement(sql);
+
+        ResultSet rs = ps.executeQuery();
+        inputNamaBarang.removeAllItems();
+        itemMap.clear();
+        
+        while (rs.next()) {
+            int itemId = rs.getInt("id");
+            String namaItem =  rs.getString("nama_item");
+            itemMap.put(namaItem,itemId);
+            inputNamaBarang.addItem(namaItem);
+         
+        }
+
+   
+    } catch (Exception e) {
+
+        e.printStackTrace();
+    }
+}
+private void loadLokasiByItem(int itemId) {
+
+    try {
+        Connection conn =
+                DatabaseConfig.getConnection();
+
+        String sql = """
+          SELECT
+          inventory.location_id,
+                     inventory.stok_terkini,
+                     locations.kode_lokasi 
+                     FROM inventory
+                     JOIN locations
+                     ON inventory.location_id = locations.id
+                     WHERE inventory.item_id = ?
+                     AND inventory.stok_terkini > 0                                  
+                """;
+
+        PreparedStatement ps =
+                conn.prepareStatement(sql);
+
+        ps.setInt(1, itemId);
+
+        ResultSet rs =  ps.executeQuery();
+
+        inputLokasi.removeAllItems();
+
+        locationMap.clear();
+
+        while (rs.next()) {
+
+            int locationId = rs.getInt("location_id");
+            String lokasi = rs.getString("kode_lokasi");
+            int stock =  rs.getInt("stok_terkini");
+            /*
+             tampilkan stock
+             */
+            String display =
+                    lokasi
+                    + " (Stock: "
+                    + stock
+                    + ")";
+
+            inputLokasi.addItem(display);
+
+            locationMap.put( display,locationId);
+        }
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+    }
+}
+
+private int getCurrentStock( int itemId,int locationId) {
+
+    try {
+
+        Connection conn = DatabaseConfig.getConnection();
+
+        String sql = """
+                SELECT stok_terkini
+                FROM inventory
+                WHERE item_id = ?
+                AND location_id = ?
+                """;
+
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, itemId);
+        ps.setInt(2, locationId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("stok_terkini");
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        labelNoPengeluaran = new javax.swing.JLabel();
+        inputTanggalKirim = new com.toedter.calendar.JDateChooser();
+        inputPenerima = new javax.swing.JTextField();
+        inputNamaBarang = new javax.swing.JComboBox<>();
+        inputQty = new javax.swing.JSpinner();
+        inputLokasi = new javax.swing.JComboBox<>();
+        btnKirim = new javax.swing.JButton();
+        inputTujuan = new javax.swing.JTextField();
+
+        setPreferredSize(new java.awt.Dimension(509, 464));
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("Input Barang Keluar");
+
+        jLabel2.setText("No Pengeluaran                   :");
+
+        jLabel3.setText("Tanggal Kirim                       :");
+
+        jLabel4.setText("Tujuan                                  :");
+
+        jLabel5.setText("Penerima Requestor             :");
+
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel6.setText("Barang");
+
+        jLabel7.setText("Nama Barang                        :");
+
+        jLabel8.setText("Qty                                      :");
+
+        jLabel9.setText("Lokasi                                  :");
+
+        labelNoPengeluaran.setText("DO-2026-001");
+
+        inputPenerima.addActionListener(this::inputPenerimaActionPerformed);
+
+        inputNamaBarang.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        inputNamaBarang.addActionListener(this::inputNamaBarangActionPerformed);
+
+        inputLokasi.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "LOC-A-01-1", "LOC-A-01-2", "LOC-A-01-3" }));
+
+        btnKirim.setBackground(new java.awt.Color(39, 174, 96));
+        btnKirim.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnKirim.setForeground(new java.awt.Color(255, 255, 255));
+        btnKirim.setText("Kirim");
+        btnKirim.addActionListener(this::btnKirimActionPerformed);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(76, 76, 76)
+                .addComponent(jLabel1))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(76, 76, 76)
+                .addComponent(jLabel2)
+                .addGap(18, 18, 18)
+                .addComponent(labelNoPengeluaran))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(76, 76, 76)
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(inputTanggalKirim, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(76, 76, 76)
+                .addComponent(jLabel4)
+                .addGap(18, 18, 18)
+                .addComponent(inputTujuan, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(76, 76, 76)
+                .addComponent(jLabel5)
+                .addGap(19, 19, 19)
+                .addComponent(inputPenerima, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(76, 76, 76)
+                .addComponent(jLabel6))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(76, 76, 76)
+                .addComponent(jLabel7)
+                .addGap(23, 23, 23)
+                .addComponent(inputNamaBarang, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(76, 76, 76)
+                .addComponent(jLabel8)
+                .addGap(28, 28, 28)
+                .addComponent(inputQty, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(76, 76, 76)
+                .addComponent(jLabel9)
+                .addGap(28, 28, 28)
+                .addComponent(inputLokasi, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(324, 324, 324)
+                .addComponent(btnKirim))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(jLabel1)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(4, 4, 4)
+                        .addComponent(labelNoPengeluaran)))
+                .addGap(6, 6, 6)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(inputTanggalKirim, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(6, 6, 6)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(inputTujuan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(6, 6, 6)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(1, 1, 1)
+                        .addComponent(inputPenerima, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel6)
+                .addGap(15, 15, 15)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputNamaBarang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(9, 9, 9)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(1, 1, 1)
+                        .addComponent(inputQty, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(6, 6, 6)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(1, 1, 1)
+                        .addComponent(inputLokasi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(12, 12, 12)
+                .addComponent(btnKirim))
+        );
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void inputPenerimaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputPenerimaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_inputPenerimaActionPerformed
+
+    private void inputNamaBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputNamaBarangActionPerformed
+         if (inputNamaBarang.getSelectedItem() == null) {
+            return;
+        }
+
+        String namaBarang = inputNamaBarang.getSelectedItem().toString();
+        int itemId = itemMap.get(namaBarang);
+        loadLokasiByItem(itemId);
+    }//GEN-LAST:event_inputNamaBarangActionPerformed
+
+    private void btnKirimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKirimActionPerformed
+         Connection conn = null;
+
+    try {
+
+        /*
+         ============================
+         VALIDASI
+         ============================
+         */
+        if (inputTujuan.getText().trim().isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Tujuan wajib diisi"
+            );
+            return;
+        }
+
+        if (inputPenerima.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Penerima requestor wajib diisi"
+            );
+            return;
+        }
+        int qty =
+                Integer.parseInt(
+                        inputQty
+                                .getValue()
+                                .toString()
+                );
+
+        if (qty <= 0) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Qty harus lebih dari 0"
+            );
+
+            return;
+        }
+
+        /*
+         ============================
+         AMBIL DATA FORM
+         ============================
+         */
+        String namaBarang =
+                inputNamaBarang
+                        .getSelectedItem()
+                        .toString();
+
+        String lokasiDisplay =
+                inputLokasi
+                        .getSelectedItem()
+                        .toString();
+
+        int itemId =
+                itemMap.get(namaBarang);
+
+        int locationId =
+                locationMap.get(lokasiDisplay);
+
+        int currentStock =
+                getCurrentStock(
+                        itemId,
+                        locationId
+                );
+
+        /*
+         VALIDASI STOCK
+         */
+        if (qty > currentStock) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Qty melebihi stock tersedia"
+            );
+
+            return;
+        }
+
+        String nomorPengeluaran =
+                labelNoPengeluaran.getText();
+
+        String tujuan =
+                inputTujuan.getText();
+
+        String penerima =inputPenerima.getText();
+        String noOrder = generateNoOrder();
+        String noSuratJalan =generateNoSuratJalan();
+        String catatan = null;
+        String tanggalKeluar =
+                new SimpleDateFormat(
+                        "yyyy-MM-dd"
+                ).format(
+                        inputTanggalKirim.getDate()
+                );
+
+        /*
+         ============================
+         DATABASE
+         ============================
+         */
+        conn =
+                DatabaseConfig.getConnection();
+
+        conn.setAutoCommit(false);
+
+        /*
+         ============================
+         INSERT OUTBOUND
+         ============================
+         */
+        String outboundSql = """
+                INSERT INTO outbound_transactions
+                (
+                    nomor_pengeluaran,
+                    no_order,
+                    tanggal_keluar,
+                    tujuan,
+                    penerima_requestor,
+                    item_id,
+                    qty,
+                    no_surat_jalan,
+                    catatan
+                )
+                VALUES
+                (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        PreparedStatement psOutbound =
+                conn.prepareStatement(outboundSql);
+
+        psOutbound.setString(
+                1,
+                nomorPengeluaran
+        );
+
+        psOutbound.setString(
+                2,
+                noOrder
+        );
+
+        psOutbound.setString(
+                3,
+                tanggalKeluar
+        );
+
+        psOutbound.setString(
+                4,
+                tujuan
+        );
+
+        psOutbound.setString(
+                5,
+                penerima
+        );
+
+        psOutbound.setInt(
+                6,
+                itemId
+        );
+
+        psOutbound.setInt(
+                7,
+                qty
+        );
+
+        psOutbound.setString(
+                8,
+                noSuratJalan
+        );
+
+        psOutbound.setNull(
+                9,
+                java.sql.Types.VARCHAR
+        );
+
+        psOutbound.executeUpdate();
+
+        /*
+         ============================
+         UPDATE INVENTORY
+         ============================
+         */
+        int stockSesudah =
+                currentStock - qty;
+
+        String updateInventorySql = """
+                UPDATE inventory
+                SET stok_terkini = ?
+                WHERE item_id = ?
+                AND location_id = ?
+                """;
+
+        PreparedStatement psUpdate =
+                conn.prepareStatement(
+                        updateInventorySql
+                );
+
+        psUpdate.setInt(
+                1,
+                stockSesudah
+        );
+
+        psUpdate.setInt(
+                2,
+                itemId
+        );
+
+        psUpdate.setInt(
+                3,
+                locationId
+        );
+
+        psUpdate.executeUpdate();
+
+        /*
+         ============================
+         INSERT STOCK HISTORY
+         ============================
+         */
+        String historySql = """
+                INSERT INTO stock_history
+                (
+                    jenis_transaksi,
+                    nomor_referensi,
+                    item_id,
+                    location_id,
+                    qty,
+                    stock_sebelum,
+                    stock_sesudah
+                )
+                VALUES
+                (?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        PreparedStatement psHistory =
+                conn.prepareStatement(historySql);
+
+        psHistory.setString(
+                1,
+                "outbound"
+        );
+
+        psHistory.setString(
+                2,
+                nomorPengeluaran
+        );
+
+        psHistory.setInt(
+                3,
+                itemId
+        );
+
+        psHistory.setInt(
+                4,
+                locationId
+        );
+
+        psHistory.setInt(
+                5,
+                qty
+        );
+
+        psHistory.setInt(
+                6,
+                currentStock
+        );
+
+        psHistory.setInt(
+                7,
+                stockSesudah
+        );
+
+        psHistory.executeUpdate();
+
+        /*
+         ============================
+         COMMIT
+         ============================
+         */
+        conn.commit();
+        clearForm();
+        JOptionPane.showMessageDialog(
+                this,
+                "Barang keluar berhasil"
+        );
+        
+        generateNomorPengeluaran();
+
+        loadBarangFromInventory();
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+
+        try {
+
+            if (conn != null) {
+
+                conn.rollback();
+            }
+
+        } catch (SQLException ex) {
+
+            ex.printStackTrace();
+        }
+
+        JOptionPane.showMessageDialog(
+                this,
+               "Transaction gagal"
+        );
+    } finally {
+        try {
+            if (conn != null) {
+                conn.setAutoCommit(true);
+                conn.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    }//GEN-LAST:event_btnKirimActionPerformed
+private String generateNoOrder() {
+
+    try {
+
+        Connection conn =
+                DatabaseConfig.getConnection();
+
+        String tahun =
+                new SimpleDateFormat("yyyy")
+                        .format(
+                                new java.util.Date()
+                        );
+
+        String sql = """
+                SELECT COUNT(*) + 1 as total
+                FROM outbound_transactions
+                """;
+
+        PreparedStatement ps =
+                conn.prepareStatement(sql);
+
+        ResultSet rs =
+                ps.executeQuery();
+
+        if (rs.next()) {
+
+            int nomor =
+                    rs.getInt("total");
+
+            String urutan =
+                    String.format("%03d", nomor);
+
+            return "REQ-"
+                    + tahun
+                    + "-"
+                    + urutan;
+        }
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+    }
+
+    return "REQ-ERROR";
+}
+
+    private String generateNoSuratJalan() {
+
+        try {
+
+            Connection conn =
+                    DatabaseConfig.getConnection();
+
+            String tahun =
+                    new SimpleDateFormat("yyyy")
+                            .format(
+                                    new java.util.Date()
+                            );
+
+            String sql = """
+                    SELECT COUNT(*) + 1 as total
+                    FROM outbound_transactions
+                    """;
+
+            PreparedStatement ps =
+                    conn.prepareStatement(sql);
+
+            ResultSet rs =
+                    ps.executeQuery();
+
+            if (rs.next()) {
+
+                int nomor =
+                        rs.getInt("total");
+
+                String urutan =
+                        String.format("%03d", nomor);
+
+                return "SJ-"
+                        + tahun
+                        + "-"
+                        + urutan;
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
+        return "SJ-ERROR";
+    }
+    private void clearForm() {
+        /*
+         ============================
+         CLEAR TEXTFIELD
+         ============================
+         */
+        inputTujuan.setText("");
+        inputPenerima.setText("");
+        /*
+         ============================
+         RESET QTY
+         ============================
+         */
+        inputQty.setValue(0);
+
+        /*
+         ============================
+         RESET DATE
+         ============================
+         */
+        inputTanggalKirim.setDate(
+                new java.util.Date()
+        );
+
+        /*
+         ============================
+         RESET COMBOBOX
+         ============================
+         */
+        if (inputNamaBarang.getItemCount() > 0) {
+            inputNamaBarang.setSelectedIndex(0);
+        }
+        if (inputLokasi.getItemCount() > 0) {
+            inputLokasi.setSelectedIndex(0);
+        }
+    }
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnKirim;
+    private javax.swing.JComboBox<String> inputLokasi;
+    private javax.swing.JComboBox<String> inputNamaBarang;
+    private javax.swing.JTextField inputPenerima;
+    private javax.swing.JSpinner inputQty;
+    private com.toedter.calendar.JDateChooser inputTanggalKirim;
+    private javax.swing.JTextField inputTujuan;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel labelNoPengeluaran;
+    // End of variables declaration//GEN-END:variables
+}

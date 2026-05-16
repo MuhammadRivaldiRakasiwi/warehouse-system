@@ -4,6 +4,7 @@
 
 package com.mycompany.warehouse.system;
 
+import com.mycompany.warehouse.system.view.FormLogin;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,7 +32,7 @@ public class WarehouseSystem {
         
         // Show login form
         java.awt.EventQueue.invokeLater(() -> {
-            form_login loginForm = new form_login();
+            FormLogin loginForm = new FormLogin();
             loginForm.setVisible(true);
             logger.log(Level.INFO, "Login form displayed");
         });
