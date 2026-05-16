@@ -1,11 +1,6 @@
-C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\Alina.java
-C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\belajar.java
-C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\belajar_vivi.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\DatabaseConfig.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\DatabaseTest.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\HistoryFrame.java
-C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\HistoryPanel.java
-C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\LocationPanel.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\model\User.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\PlaceholderPasswordField.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\PlaceholderTextField.java
@@ -13,7 +8,6 @@ C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehous
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\service\PasswordHashGenerator.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\service\Session.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\service\UserService.java
-C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\testpushriri.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\view\BarangKeluarPanel.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\view\BarangMasukPanel.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\view\BarangPanel.java
@@ -22,5 +16,7 @@ C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehous
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\view\DashboardManager.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\view\DashboardStaff.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\view\FormLogin.java
+C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\view\HistoryPanel.java
+C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\view\LocationPanel.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\view\SupplierPanel.java
 C:\Users\ndesc\KULIAH\JAVA\warehouse-system\src\main\java\com\mycompany\warehouse\system\WarehouseSystem.java
