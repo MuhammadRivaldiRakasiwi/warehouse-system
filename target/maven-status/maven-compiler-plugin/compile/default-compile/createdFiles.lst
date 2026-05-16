@@ -29,5 +29,6 @@ com\mycompany\warehouse\system\view\DashboardAdmin$2.class
 com\mycompany\warehouse\system\view\SupplierPanel$2.class
 com\mycompany\warehouse\system\view\BarangPanel.class
 com\mycompany\warehouse\system\view\BarangMasukPanel$1.class
+com\mycompany\warehouse\system\view\UserPanel.class
 com\mycompany\warehouse\system\view\DashboardManager$3.class
 com\mycompany\warehouse\system\DatabaseConfig.class
