@@ -52,7 +52,7 @@ public class HistoryPanel extends javax.swing.JPanel {
         jLabel2.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         jLabel2.setText("Table History");
 
-        jTable1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jTable1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
@@ -64,7 +64,7 @@ public class HistoryPanel extends javax.swing.JPanel {
                 "No", "Waktu Kejadian", "User", "Aktifitas", "Detail"
             }
         ));
-        jTable1.setGridColor(new java.awt.Color(0, 0, 0));
+        jTable1.setGridColor(new java.awt.Color(197, 203, 209));
         jTable1.setShowGrid(true);
         jScrollPane1.setViewportView(jTable1);
 
@@ -121,8 +121,8 @@ public class HistoryPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
                 .addGap(25, 25, 25)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(46, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(52, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

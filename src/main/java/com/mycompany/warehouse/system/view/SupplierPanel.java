@@ -173,12 +173,14 @@ public class SupplierPanel extends javax.swing.JPanel {
         jButton2.setFont(new java.awt.Font("Inter Medium", 0, 12)); // NOI18N
         jButton2.setForeground(new java.awt.Color(255, 255, 255));
         jButton2.setText("Simpan Data");
+        jButton2.setBorderPainted(false);
         jButton2.addActionListener(this::jButton2ActionPerformed);
 
         jButton5.setBackground(new java.awt.Color(51, 0, 102));
         jButton5.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
         jButton5.setForeground(new java.awt.Color(255, 255, 255));
         jButton5.setText("Reset");
+        jButton5.setBorderPainted(false);
         jButton5.addActionListener(this::jButton5ActionPerformed);
 
         jLabel29.setText("Kategori Produk");
