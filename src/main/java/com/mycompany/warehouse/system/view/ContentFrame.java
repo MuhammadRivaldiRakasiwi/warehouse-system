@@ -48,7 +48,7 @@ setSkalaGambar();
                 panelContent.add(menuBarang, "cardBarang");
                 panelContent.add(menuDashboardStaff, "dashboardStaff");
                 panelContent.add(menuDashboardManager, "dashboardManager");
-                panelContent.add(menuSupplier, "cardSupplier");
+                panelContent.add(menuSupplier.asScrollable(), "cardSupplier");
                 panelContent.add(menuBarangMasuk, "cardBarangMasuk");
                 panelContent.add(menuBarangKeluar, "cardBarangKeluar");
                 
@@ -455,6 +455,7 @@ setSkalaGambar();
         CardLayout cl = (CardLayout) panelContent.getLayout();
         cl.show(panelContent, "cardSupplier");
          setMenuColor(btnMSupplier); 
+         menuSupplier.loadData();
     }//GEN-LAST:event_btnMSupplierActionPerformed
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
@@ -547,4 +548,9 @@ private void setSkalaGambar() {
     private javax.swing.JPanel panelNavbar;
     private javax.swing.JPanel panelSidebar;
     // End of variables declaration//GEN-END:variables
+
+    // Variabel tambahan (tidak di-generate oleh Form Editor)
+    private final javax.swing.JLabel LNamaLengkap = new javax.swing.JLabel();
+    private final javax.swing.JLabel LTransaction = new javax.swing.JLabel();
+    private final javax.swing.JLabel LGambar = new javax.swing.JLabel();
 }
