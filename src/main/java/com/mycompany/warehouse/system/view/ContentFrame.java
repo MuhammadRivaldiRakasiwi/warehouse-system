@@ -141,11 +141,9 @@ setSkalaGambar();
     private void initComponents() {
 
         panelNavbar = new javax.swing.JPanel();
-        btnLogout = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        LNamaLengkap = new javax.swing.JLabel();
-        LGambar = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
         panelSidebar = new javax.swing.JPanel();
         btnMBarang = new javax.swing.JButton();
         btnMLokasi = new javax.swing.JButton();
@@ -155,152 +153,209 @@ setSkalaGambar();
         btnMBarangMasuk = new javax.swing.JButton();
         btnMBarangKeluar = new javax.swing.JButton();
         btnMTransferBarang = new javax.swing.JButton();
-        LTransaction = new javax.swing.JLabel();
         LMaster = new javax.swing.JLabel();
+        btnLogout = new javax.swing.JButton();
+        LMaster1 = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        jSeparator2 = new javax.swing.JSeparator();
         panelContent = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        panelNavbar.setBackground(new java.awt.Color(153, 255, 255));
+        panelNavbar.setBackground(new java.awt.Color(255, 255, 255));
         panelNavbar.setPreferredSize(new java.awt.Dimension(200, 43));
 
-        btnLogout.setBackground(new java.awt.Color(255, 51, 51));
-        btnLogout.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
-        btnLogout.setForeground(new java.awt.Color(255, 255, 255));
-        btnLogout.setText("Logout");
-        btnLogout.addActionListener(this::btnLogoutActionPerformed);
+        jLabel2.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel2.setFont(new java.awt.Font("Urbanist Black", 0, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(51, 0, 102));
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel2.setText("Gudangin.aja");
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(23, 81, 141));
-        jLabel1.setText("Hi,");
+        jLabel3.setFont(new java.awt.Font("Urbanist", 1, 12)); // NOI18N
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel3.setText("Admin1");
 
-        LNamaLengkap.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        LNamaLengkap.setForeground(new java.awt.Color(23, 81, 141));
-        LNamaLengkap.setText("Manager");
-
-        LGambar.setIcon(new javax.swing.ImageIcon("C:\\Users\\ndesc\\KULIAH\\JAVA\\warehouse-system\\src\\LogoWarehouse.png")); // NOI18N
-        LGambar.setText("jLabel4");
-        LGambar.setPreferredSize(new java.awt.Dimension(270, 150));
-
-        jLabel2.setFont(new java.awt.Font("Rockwell", 1, 14)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(23, 81, 141));
-        jLabel2.setText("WAREHOUSE");
+        jLabel1.setFont(new java.awt.Font("Urbanist", 0, 10)); // NOI18N
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel1.setText("admin1@gmail.com");
 
         javax.swing.GroupLayout panelNavbarLayout = new javax.swing.GroupLayout(panelNavbar);
         panelNavbar.setLayout(panelNavbarLayout);
         panelNavbarLayout.setHorizontalGroup(
             panelNavbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelNavbarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(LGambar, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(24, 24, 24)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(LNamaLengkap, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
-                .addComponent(btnLogout)
-                .addGap(16, 16, 16))
+                .addGap(15, 15, 15)
+                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 296, Short.MAX_VALUE)
+                .addGroup(panelNavbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(34, 34, 34))
         );
         panelNavbarLayout.setVerticalGroup(
             panelNavbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelNavbarLayout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(panelNavbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(LGambar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelNavbarLayout.createSequentialGroup()
-                        .addGroup(panelNavbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelNavbarLayout.createSequentialGroup()
-                                .addComponent(btnLogout)
-                                .addGap(0, 8, Short.MAX_VALUE))
-                            .addGroup(panelNavbarLayout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addGroup(panelNavbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(LNamaLengkap, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addGroup(panelNavbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel2)))))
-                        .addContainerGap())))
+                        .addComponent(jLabel2)
+                        .addGap(14, 14, 14))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelNavbarLayout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addGap(0, 0, 0)
+                        .addComponent(jLabel1)
+                        .addContainerGap(8, Short.MAX_VALUE))))
         );
 
         getContentPane().add(panelNavbar, java.awt.BorderLayout.PAGE_START);
 
-        panelSidebar.setBackground(new java.awt.Color(153, 255, 255));
+        panelSidebar.setBackground(new java.awt.Color(51, 0, 102));
         panelSidebar.setForeground(new java.awt.Color(255, 255, 255));
         panelSidebar.setPreferredSize(new java.awt.Dimension(150, 373));
 
-        btnMBarang.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnMBarang.setBackground(new java.awt.Color(51, 0, 102));
+        btnMBarang.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
+        btnMBarang.setForeground(new java.awt.Color(255, 255, 255));
         btnMBarang.setText("Barang");
+        btnMBarang.setBorderPainted(false);
+        btnMBarang.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnMBarang.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        btnMBarang.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMBarang.addActionListener(this::btnMBarangActionPerformed);
 
-        btnMLokasi.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnMLokasi.setBackground(new java.awt.Color(51, 0, 102));
+        btnMLokasi.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
+        btnMLokasi.setForeground(new java.awt.Color(255, 255, 255));
         btnMLokasi.setText("Lokasi");
+        btnMLokasi.setBorderPainted(false);
+        btnMLokasi.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnMLokasi.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        btnMLokasi.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMLokasi.addActionListener(this::btnMLokasiActionPerformed);
 
-        btnMDashboard.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnMDashboard.setBackground(new java.awt.Color(79, 0, 158));
+        btnMDashboard.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
+        btnMDashboard.setForeground(new java.awt.Color(255, 255, 255));
         btnMDashboard.setText("Dashboard");
+        btnMDashboard.setBorderPainted(false);
+        btnMDashboard.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnMDashboard.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        btnMDashboard.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMDashboard.addActionListener(this::btnMDashboardActionPerformed);
 
-        btnMUser.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnMUser.setBackground(new java.awt.Color(51, 0, 102));
+        btnMUser.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
+        btnMUser.setForeground(new java.awt.Color(255, 255, 255));
         btnMUser.setText("User");
+        btnMUser.setBorderPainted(false);
+        btnMUser.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnMUser.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        btnMUser.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMUser.setMaximumSize(new java.awt.Dimension(89, 23));
         btnMUser.setPreferredSize(new java.awt.Dimension(89, 23));
 
-        btnMSupplier.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnMSupplier.setBackground(new java.awt.Color(51, 0, 102));
+        btnMSupplier.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
+        btnMSupplier.setForeground(new java.awt.Color(255, 255, 255));
         btnMSupplier.setText("Supplier");
+        btnMSupplier.setBorderPainted(false);
+        btnMSupplier.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnMSupplier.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        btnMSupplier.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMSupplier.setMaximumSize(new java.awt.Dimension(89, 23));
         btnMSupplier.setPreferredSize(new java.awt.Dimension(89, 23));
         btnMSupplier.addActionListener(this::btnMSupplierActionPerformed);
 
-        btnMBarangMasuk.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnMBarangMasuk.setBackground(new java.awt.Color(51, 0, 102));
+        btnMBarangMasuk.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
+        btnMBarangMasuk.setForeground(new java.awt.Color(255, 255, 255));
         btnMBarangMasuk.setText("Barang Masuk");
+        btnMBarangMasuk.setBorderPainted(false);
+        btnMBarangMasuk.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnMBarangMasuk.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        btnMBarangMasuk.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMBarangMasuk.addActionListener(this::btnMBarangMasukActionPerformed);
 
-        btnMBarangKeluar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnMBarangKeluar.setBackground(new java.awt.Color(51, 0, 102));
+        btnMBarangKeluar.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
+        btnMBarangKeluar.setForeground(new java.awt.Color(255, 255, 255));
         btnMBarangKeluar.setText("Barang Keluar");
+        btnMBarangKeluar.setBorderPainted(false);
+        btnMBarangKeluar.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnMBarangKeluar.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        btnMBarangKeluar.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMBarangKeluar.addActionListener(this::btnMBarangKeluarActionPerformed);
 
-        btnMTransferBarang.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnMTransferBarang.setBackground(new java.awt.Color(51, 0, 102));
+        btnMTransferBarang.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
+        btnMTransferBarang.setForeground(new java.awt.Color(255, 255, 255));
         btnMTransferBarang.setText("Transfer Barang");
+        btnMTransferBarang.setBorderPainted(false);
+        btnMTransferBarang.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnMTransferBarang.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        btnMTransferBarang.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMTransferBarang.addActionListener(this::btnMTransferBarangActionPerformed);
 
-        LTransaction.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        LTransaction.setForeground(new java.awt.Color(43, 146, 229));
-        LTransaction.setText("Transaction");
+        LMaster.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
+        LMaster.setForeground(new java.awt.Color(217, 185, 252));
+        LMaster.setText("Data Master");
+        LMaster.setEnabled(false);
 
-        LMaster.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        LMaster.setForeground(new java.awt.Color(43, 146, 229));
-        LMaster.setText("Master");
+        btnLogout.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
+        btnLogout.setForeground(new java.awt.Color(51, 0, 102));
+        btnLogout.setText("Logout");
+        btnLogout.setBorderPainted(false);
+        btnLogout.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnLogout.setMargin(new java.awt.Insets(2, 6, 2, 6));
+        btnLogout.addActionListener(this::btnLogoutActionPerformed);
+
+        LMaster1.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
+        LMaster1.setForeground(new java.awt.Color(217, 185, 252));
+        LMaster1.setText("Logistik");
+        LMaster1.setEnabled(false);
+
+        jSeparator1.setForeground(new java.awt.Color(86, 0, 172));
+
+        jSeparator2.setForeground(new java.awt.Color(86, 0, 172));
 
         javax.swing.GroupLayout panelSidebarLayout = new javax.swing.GroupLayout(panelSidebar);
         panelSidebar.setLayout(panelSidebarLayout);
         panelSidebarLayout.setHorizontalGroup(
             panelSidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(btnMLokasi, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btnMDashboard, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btnMBarang, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btnMUser, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btnMSupplier, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btnMBarangMasuk, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btnMBarangKeluar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btnMTransferBarang, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
-            .addGroup(panelSidebarLayout.createSequentialGroup()
-                .addGroup(panelSidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelSidebarLayout.createSequentialGroup()
+                .addGroup(panelSidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelSidebarLayout.createSequentialGroup()
+                        .addGap(14, 14, 14)
+                        .addGroup(panelSidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelSidebarLayout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(btnMUser, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(panelSidebarLayout.createSequentialGroup()
-                        .addGap(40, 40, 40)
-                        .addComponent(LTransaction))
-                    .addGroup(panelSidebarLayout.createSequentialGroup()
-                        .addGap(53, 53, 53)
-                        .addComponent(LMaster)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(panelSidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(LMaster, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(panelSidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(btnMTransferBarang, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
+                                .addComponent(btnMBarangKeluar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnMBarangMasuk, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(LMaster1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnMSupplier, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnMBarang, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnMLokasi, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnMDashboard, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jSeparator2)))))
+                .addGap(14, 14, 14))
         );
         panelSidebarLayout.setVerticalGroup(
             panelSidebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelSidebarLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(15, 15, 15)
                 .addComponent(btnMDashboard)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(LMaster)
                 .addGap(5, 5, 5)
                 .addComponent(btnMUser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -310,15 +365,19 @@ setSkalaGambar();
                 .addComponent(btnMSupplier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnMLokasi, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(LTransaction)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(LMaster1)
+                .addGap(5, 5, 5)
                 .addComponent(btnMBarangMasuk, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnMBarangKeluar, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnMTransferBarang, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(80, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnLogout)
+                .addGap(15, 15, 15))
         );
 
         getContentPane().add(panelSidebar, java.awt.BorderLayout.LINE_START);
@@ -468,10 +527,8 @@ private void setSkalaGambar() {
      */
   
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel LGambar;
     private javax.swing.JLabel LMaster;
-    private javax.swing.JLabel LNamaLengkap;
-    private javax.swing.JLabel LTransaction;
+    private javax.swing.JLabel LMaster1;
     private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnMBarang;
     private javax.swing.JButton btnMBarangKeluar;
@@ -483,6 +540,9 @@ private void setSkalaGambar() {
     private javax.swing.JButton btnMUser;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
     private javax.swing.JPanel panelContent;
     private javax.swing.JPanel panelNavbar;
     private javax.swing.JPanel panelSidebar;
