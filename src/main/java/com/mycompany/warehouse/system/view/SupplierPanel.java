@@ -82,16 +82,13 @@ public class SupplierPanel extends javax.swing.JPanel {
         jScrollPane5 = new javax.swing.JScrollPane();
         jTable4 = new javax.swing.JTable();
         label6 = new java.awt.Label();
-        jLabel1 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(244, 245, 246));
 
         jLabel24.setFont(new java.awt.Font("Urbanist", 1, 16)); // NOI18N
         jLabel24.setText("Manajemen Suplier");
 
-        label7.setBackground(new java.awt.Color(248, 250, 252));
+        label7.setBackground(new java.awt.Color(242, 242, 242));
         label7.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
         label7.setForeground(new java.awt.Color(142, 157, 166));
         label7.setText("Kelola semua data suplier.");
@@ -244,20 +241,6 @@ public class SupplierPanel extends javax.swing.JPanel {
         label6.setForeground(new java.awt.Color(142, 157, 166));
         label6.setText("Total data supplier.");
 
-        jLabel1.setText("Cari data:");
-
-        jButton3.setText("Previous");
-        jButton3.setBorderPainted(false);
-        jButton3.setEnabled(false);
-        jButton3.addActionListener(this::jButton3ActionPerformed);
-
-        jButton1.setBackground(new java.awt.Color(0, 153, 204));
-        jButton1.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("Next");
-        jButton1.setBorderPainted(false);
-        jButton1.addActionListener(this::jButton1ActionPerformed);
-
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
         jPanel8Layout.setHorizontalGroup(
@@ -269,9 +252,7 @@ public class SupplierPanel extends javax.swing.JPanel {
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
-                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
+                .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -362,7 +343,8 @@ public class SupplierPanel extends javax.swing.JPanel {
         rowSorter = new TableRowSorter<>(model);
         jTable4.setRowSorter(rowSorter);
 
-        // Atur lebar kolom proporsional
+        // Atur lebar kolom proporsional, semua kolom auto-resize
+        jTable4.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         int[] weights = {1, 3, 2, 3, 2, 4}; // Kode, Nama, Telp, Email, Kontak, Alamat
         int totalWeight = 0;
         for (int w : weights) totalWeight += w;
@@ -371,7 +353,6 @@ public class SupplierPanel extends javax.swing.JPanel {
         for (int i = 0; i < weights.length && i < jTable4.getColumnCount(); i++) {
             jTable4.getColumnModel().getColumn(i).setPreferredWidth(totalWidth * weights[i] / totalWeight);
         }
-        jTable4.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
 
         // Force warna teks hitam dengan custom renderer
         javax.swing.table.DefaultTableCellRenderer cellRenderer = new javax.swing.table.DefaultTableCellRenderer() {
@@ -391,7 +372,6 @@ public class SupplierPanel extends javax.swing.JPanel {
         // sehingga container fit dengan jumlah baris
         int headerHeight = jTable4.getTableHeader().getPreferredSize().height;
         int contentHeight = model.getRowCount() * jTable4.getRowHeight();
-        // Minimal tampak 1 baris kosong agar tidak collapse total saat data 0
         int minHeight = headerHeight + jTable4.getRowHeight();
         int finalHeight = Math.max(minHeight, headerHeight + contentHeight + 2);
         jScrollPane5.setPreferredSize(new java.awt.Dimension(0, finalHeight));
@@ -565,7 +545,6 @@ public class SupplierPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnHapus;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
