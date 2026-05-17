@@ -17,14 +17,24 @@ import java.sql.PreparedStatement;
  */
 public class DashboardStaff extends javax.swing.JPanel {
     public static DashboardStaff instance;
+    private int currentPage = 1;
+    private final int dataPerPage = 10;
 
+    private int totalData = 0;
+    private int totalPage = 0;
     /**
      * Creates new form DashboardStaff
      */
     public DashboardStaff() {
         
         initComponents();
-        loadData();
+        BNActivity.setOpaque(true);
+        BNActivity.setContentAreaFilled(true);
+
+        BPActivity.setOpaque(true);
+        BPActivity.setContentAreaFilled(true);
+            hitungTotalData();
+          loadDataAktifitas();
         instance = this;
        loadDataCount();
     }
@@ -34,64 +44,246 @@ public final void loadDataCount(){
         LBarangKeluar.setText(String.valueOf(DashboardService.getTotalItemsKeluarHariIni()));
         LBarangHampirHabis.setText(String.valueOf(DashboardService.getTotalItemsHampirHabis()));
 }
-       public final void loadData() { 
-            DefaultTableModel model = new DefaultTableModel() {
-                // Best practice: Membuat sel tabel tidak bisa diedit secara manual oleh user
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    return false;
-                }
-            };
-    
-    // Tambahkan kolom ID di index 0 
-    model.addColumn("ID"); 
-    model.addColumn("Jam"); 
-    model.addColumn("Aktifitas"); 
-    model.addColumn("Barang"); 
-     model.addColumn("Lokasi"); 
-    model.addColumn("Stok Sebelum"); 
-    model.addColumn("Stok Sesudah"); 
-    
+   
+    public final void loadDataAktifitas() {
+
+    DefaultTableModel model = new DefaultTableModel() {
+
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    model.addColumn("ID");
+    model.addColumn("Jam");
+    model.addColumn("Aktifitas");
+    model.addColumn("Barang");
+    model.addColumn("Lokasi");
+    model.addColumn("Stok Sebelum");
+    model.addColumn("Stok Sesudah");
+
+    int offset = (currentPage - 1) * dataPerPage;
+
     String sql = """
-        SELECT sh.id, sh.waktu_transaksi, sh.jenis_transaksi, i.nama_item,l.kode_lokasi, sh.stock_sebelum, sh.stock_sesudah 
-        FROM stock_history sh 
+        SELECT sh.id,
+               sh.waktu_transaksi,
+               sh.jenis_transaksi,
+               i.nama_item,
+               l.kode_lokasi,
+               sh.stock_sebelum,
+               sh.stock_sesudah
+        FROM stock_history sh
         INNER JOIN items i ON sh.item_id = i.id
         INNER JOIN locations l ON sh.location_id = l.id
         ORDER BY sh.id DESC
+        LIMIT ? OFFSET ?
         """;
-        
-        // Menggunakan try-with-resources untuk menutup conn, stmt, dan rs secara otomatis dan aman
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) { 
 
-            while (rs.next()) { 
-                model.addRow(new Object[]{ 
-                    rs.getInt("id"), 
-                    rs.getString("waktu_transaksi"),
-                    rs.getString("jenis_transaksi"), 
-                    rs.getString("nama_item"), 
-                    rs.getString("kode_lokasi"), 
-                    rs.getString("stock_sebelum"), 
-                    rs.getString("stock_sesudah") 
-                }); 
-            } 
+    try (
+        Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)
+    ) {
 
-            // Atur model ke tabel UI
-            TAktifitas.setModel(model); 
+        ps.setInt(1, dataPerPage);
+        ps.setInt(2, offset);
 
-            // Beritahu UI bahwa data telah berubah agar visual langsung ter-render ulang
-            model.fireTableDataChanged();
+        ResultSet rs = ps.executeQuery();
 
-            // Sembunyikan kolom ID (Index 0) secara total agar aman dari resize manual user
-            TAktifitas.getColumnModel().getColumn(0).setMinWidth(0); 
-            TAktifitas.getColumnModel().getColumn(0).setMaxWidth(0); 
-            TAktifitas.getColumnModel().getColumn(0).setPreferredWidth(0);
+        while (rs.next()) {
 
-        } catch (SQLException e) { 
-            JOptionPane.showMessageDialog(null, "Gagal memuat data: " + e.getMessage()); 
-        } 
+            model.addRow(new Object[]{
+                rs.getInt("id"),
+                rs.getString("waktu_transaksi"),
+                rs.getString("jenis_transaksi"),
+                rs.getString("nama_item"),
+                rs.getString("kode_lokasi"),
+                rs.getString("stock_sebelum"),
+                rs.getString("stock_sesudah")
+            });
+        }
+
+        TAktifitas.setModel(model);
+
+        // ===== STYLE TABLE =====
+        TAktifitas.setForeground(new java.awt.Color(33, 37, 41));
+        TAktifitas.setBackground(java.awt.Color.WHITE);
+
+        TAktifitas.setSelectionForeground(java.awt.Color.WHITE);
+        TAktifitas.setSelectionBackground(
+            new java.awt.Color(0, 153, 204)
+        );
+
+        TAktifitas.setGridColor(
+            new java.awt.Color(230, 230, 230)
+        );
+
+        TAktifitas.setRowHeight(31);
+
+        TAktifitas.getTableHeader().setForeground(
+            java.awt.Color.BLACK
+        );
+
+        TAktifitas.getTableHeader().setBackground(
+            new java.awt.Color(245,245,245)
+        );
+
+        // Hide ID
+        TAktifitas.getColumnModel().getColumn(0).setMinWidth(0);
+        TAktifitas.getColumnModel().getColumn(0).setMaxWidth(0);
+        TAktifitas.getColumnModel().getColumn(0).setPreferredWidth(0);
+
+        // ===== UPDATE PAGINATION =====
+        LPActivity.setText(
+            "Page " + currentPage + " / " + totalPage
+        );
+
+        updatePaginationButton();
+
+    } catch (SQLException e) {
+
+        JOptionPane.showMessageDialog(
+            null,
+            "Gagal memuat data: " + e.getMessage()
+        );
     }
+}
+    private void updatePaginationButton() {
+        // PREVIOUS
+           BPActivity.setEnabled(currentPage > 1);
+
+           // NEXT
+           BNActivity.setEnabled(currentPage < totalPage);
+
+           // STYLE PREVIOUS
+           if (BPActivity.isEnabled()) {
+
+               BPActivity.setBackground(
+                   new java.awt.Color(0,153,204)
+               );
+
+               BPActivity.setForeground(java.awt.Color.WHITE);
+
+           } else {
+
+               BPActivity.setBackground(
+                   new java.awt.Color(220, 220, 220)
+               );
+
+               BPActivity.setForeground(
+                   new java.awt.Color(120,120,120)
+               );
+           }
+
+           // STYLE NEXT
+           if (BNActivity.isEnabled()) {
+
+               BNActivity.setBackground(
+                   new java.awt.Color(0,153,204)
+               );
+
+               BNActivity.setForeground(java.awt.Color.WHITE);
+
+           } else {
+
+               BNActivity.setBackground(
+                   new java.awt.Color(220,220,220)
+               );
+
+               BNActivity.setForeground(
+                   new java.awt.Color(120,120,120)
+               );
+           }
+       }
+    
+    private void hitungTotalData() {
+
+    String sql = "SELECT COUNT(*) AS total FROM stock_history";
+
+    try (
+        Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()
+    ) {
+
+        if (rs.next()) {
+
+            totalData = rs.getInt("total");
+
+            totalPage = (int) Math.ceil(
+                (double) totalData / dataPerPage
+            );
+        }
+
+    } catch (Exception e) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            e.getMessage()
+        );
+    }
+}
+         private void cariActivity() {
+
+        String keyword = TSearchActivity.getText();
+
+        DefaultTableModel model =
+            (DefaultTableModel) TAktifitas.getModel();
+
+        model.setRowCount(0);
+
+        try {
+
+            Connection conn = DatabaseConfig.getConnection();
+
+            String sql = """
+                 SELECT sh.id, sh.waktu_transaksi, sh.jenis_transaksi, i.nama_item,l.kode_lokasi, sh.stock_sebelum, sh.stock_sesudah 
+                                  FROM stock_history sh 
+                                  INNER JOIN items i ON sh.item_id = i.id
+                                  INNER JOIN locations l ON sh.location_id = l.id
+                                   WHERE sh.waktu_transaksi  LIKE ?
+                                     OR sh.jenis_transaksi  LIKE ?
+                                     OR i.nama_item  LIKE ?
+                                     OR l.kode_lokasi   LIKE ?
+                                     OR sh.stock_sebelum   LIKE ?
+                                      OR sh.stock_sesudah   LIKE ?
+                                  ORDER BY sh.id DESC
+            """;
+
+            PreparedStatement ps =
+                conn.prepareStatement(sql);
+
+            ps.setString(1, "%" + keyword + "%");
+            ps.setString(2, "%" + keyword + "%");
+            ps.setString(3, "%" + keyword + "%");
+            ps.setString(4, "%" + keyword + "%");
+            ps.setString(5, "%" + keyword + "%");
+            ps.setString(6, "%" + keyword + "%");
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()) {
+
+                model.addRow(new Object[] {
+                        rs.getInt("id"), 
+                      rs.getString("waktu_transaksi"),
+                     rs.getString("jenis_transaksi"), 
+                     rs.getString("nama_item"), 
+                     rs.getString("kode_lokasi"), 
+                     rs.getString("stock_sebelum"), 
+                     rs.getString("stock_sesudah") 
+                });
+            }
+
+        } catch(Exception e) {
+
+            JOptionPane.showMessageDialog(
+                this,
+                e.getMessage()
+            );
+        }
+    }   
+       
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -123,14 +315,14 @@ public final void loadDataCount(){
         label8 = new java.awt.Label();
         jScrollPane1 = new javax.swing.JScrollPane();
         TAktifitas = new javax.swing.JTable();
-        jTextField8 = new javax.swing.JTextField();
-        jLabel13 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        TSearchActivity = new javax.swing.JTextField();
+        LPActivity = new javax.swing.JLabel();
+        BPActivity = new javax.swing.JButton();
+        BNActivity = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        btnSearchActivity = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(248, 250, 252));
-        setForeground(new java.awt.Color(15, 23, 42));
 
         jPanel6.setBackground(new java.awt.Color(248, 250, 252));
         jPanel6.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 20, 10, 20));
@@ -167,7 +359,7 @@ public final void loadDataCount(){
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(LTotalBarang, javax.swing.GroupLayout.DEFAULT_SIZE, 151, Short.MAX_VALUE)
+            .addComponent(LTotalBarang, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -194,7 +386,7 @@ public final void loadDataCount(){
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 151, Short.MAX_VALUE)
+            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
             .addComponent(LBarangMasuk, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
@@ -223,7 +415,7 @@ public final void loadDataCount(){
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, 151, Short.MAX_VALUE)
+            .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
             .addComponent(LBarangKeluar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
@@ -243,7 +435,7 @@ public final void loadDataCount(){
 
         jLabel4.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(119, 130, 153));
-        jLabel4.setText("Barang Hampir Habis");
+        jLabel4.setText("Barang Hampir Habis < 10");
 
         LBarangHampirHabis.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N
         LBarangHampirHabis.setForeground(new java.awt.Color(255, 204, 0));
@@ -253,7 +445,7 @@ public final void loadDataCount(){
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 151, Short.MAX_VALUE)
+            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
             .addComponent(LBarangHampirHabis, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
@@ -273,6 +465,7 @@ public final void loadDataCount(){
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
         jPanel5.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+        jPanel5.setForeground(new java.awt.Color(0, 0, 0));
 
         jLabel25.setFont(new java.awt.Font("Urbanist", 1, 16)); // NOI18N
         jLabel25.setText("Aktifitas Terbaru");
@@ -282,6 +475,7 @@ public final void loadDataCount(){
         label8.setForeground(new java.awt.Color(142, 157, 166));
         label8.setText("Pantau aktivitas gudang.");
 
+        TAktifitas.setBackground(new java.awt.Color(255, 255, 255));
         TAktifitas.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(225, 228, 231)));
         TAktifitas.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
         TAktifitas.setModel(new javax.swing.table.DefaultTableModel(
@@ -302,53 +496,65 @@ public final void loadDataCount(){
         TAktifitas.setShowGrid(true);
         jScrollPane1.setViewportView(TAktifitas);
 
-        jTextField8.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
-        jTextField8.setForeground(new java.awt.Color(196, 206, 215));
-        jTextField8.setHorizontalAlignment(javax.swing.JTextField.LEFT);
-        jTextField8.setToolTipText("");
-        jTextField8.setActionCommand("<Not Set>");
-        jTextField8.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(225, 228, 231), 1, true), javax.swing.BorderFactory.createEmptyBorder(4, 8, 4, 8)));
-        jTextField8.addActionListener(this::jTextField8ActionPerformed);
+        TSearchActivity.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        TSearchActivity.setForeground(new java.awt.Color(0, 0, 0));
+        TSearchActivity.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        TSearchActivity.setToolTipText("");
+        TSearchActivity.setActionCommand("<Not Set>");
+        TSearchActivity.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(225, 228, 231), 1, true), javax.swing.BorderFactory.createEmptyBorder(4, 8, 4, 8)));
+        TSearchActivity.addActionListener(this::TSearchActivityActionPerformed);
+        TSearchActivity.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                TSearchActivityKeyReleased(evt);
+            }
+        });
 
-        jLabel13.setFont(new java.awt.Font("Inter", 0, 10)); // NOI18N
-        jLabel13.setForeground(new java.awt.Color(142, 157, 166));
-        jLabel13.setText("5 dari 10 data ditampilkan");
+        LPActivity.setFont(new java.awt.Font("Inter", 0, 10)); // NOI18N
+        LPActivity.setForeground(new java.awt.Color(142, 157, 166));
+        LPActivity.setText("5 dari 10 data ditampilkan");
 
-        jButton3.setText("Previous");
-        jButton3.setBorderPainted(false);
-        jButton3.setEnabled(false);
-        jButton3.addActionListener(this::jButton3ActionPerformed);
+        BPActivity.setText("Previous");
+        BPActivity.setBorderPainted(false);
+        BPActivity.setEnabled(false);
+        BPActivity.addActionListener(this::BPActivityActionPerformed);
 
-        jButton4.setBackground(new java.awt.Color(0, 153, 204));
-        jButton4.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
-        jButton4.setForeground(new java.awt.Color(255, 255, 255));
-        jButton4.setText("Next");
-        jButton4.setBorderPainted(false);
-        jButton4.addActionListener(this::jButton4ActionPerformed);
+        BNActivity.setBackground(new java.awt.Color(0, 153, 204));
+        BNActivity.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        BNActivity.setForeground(new java.awt.Color(255, 255, 255));
+        BNActivity.setText("Next");
+        BNActivity.setBorderPainted(false);
+        BNActivity.addActionListener(this::BNActivityActionPerformed);
 
         jLabel1.setText("Cari data:");
+
+        btnSearchActivity.setBackground(new java.awt.Color(0, 153, 204));
+        btnSearchActivity.setForeground(new java.awt.Color(255, 255, 255));
+        btnSearchActivity.setText("Cari ");
+        btnSearchActivity.addActionListener(this::btnSearchActivityActionPerformed);
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, 588, Short.MAX_VALUE)
+                .addComponent(LPActivity, javax.swing.GroupLayout.DEFAULT_SIZE, 593, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(BPActivity, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(BNActivity, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(label8, javax.swing.GroupLayout.DEFAULT_SIZE, 521, Short.MAX_VALUE)
-                    .addComponent(jLabel25, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                .addComponent(jScrollPane1)
-                .addGroup(jPanel5Layout.createSequentialGroup()
-                    .addComponent(jLabel1)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                    .addComponent(jTextField8)))
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(label8, javax.swing.GroupLayout.DEFAULT_SIZE, 521, Short.MAX_VALUE)
+                        .addComponent(jLabel25, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(TSearchActivity)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnSearchActivity, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -358,15 +564,16 @@ public final void loadDataCount(){
                 .addComponent(label8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(15, 15, 15)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
+                    .addComponent(TSearchActivity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
+                    .addComponent(btnSearchActivity))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(10, 10, 10)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton4)
-                    .addComponent(jButton3)))
+                    .addComponent(LPActivity, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BNActivity)
+                    .addComponent(BPActivity)))
         );
 
         jPanel8.add(jPanel5, java.awt.BorderLayout.CENTER);
@@ -387,33 +594,53 @@ public final void loadDataCount(){
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField8ActionPerformed
+    private void TSearchActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TSearchActivityActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField8ActionPerformed
+    }//GEN-LAST:event_TSearchActivityActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
+    private void BPActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPActivityActionPerformed
+            if (currentPage > 1) {
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton4ActionPerformed
+            currentPage--;
+
+            loadDataAktifitas();
+        }
+    }//GEN-LAST:event_BPActivityActionPerformed
+
+    private void BNActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BNActivityActionPerformed
+           if (currentPage < totalPage) {
+
+                currentPage++;
+
+                loadDataAktifitas();
+            }
+    }//GEN-LAST:event_BNActivityActionPerformed
+
+    private void TSearchActivityKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchActivityKeyReleased
+
+    }//GEN-LAST:event_TSearchActivityKeyReleased
+
+    private void btnSearchActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActivityActionPerformed
+       cariActivity();
+    }//GEN-LAST:event_btnSearchActivityActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton BNActivity;
+    private javax.swing.JButton BPActivity;
     private javax.swing.JLabel LBarangHampirHabis;
     private javax.swing.JLabel LBarangKeluar;
     private javax.swing.JLabel LBarangMasuk;
+    private javax.swing.JLabel LPActivity;
     private javax.swing.JLabel LTotalBarang;
     private javax.swing.JTable TAktifitas;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
+    private javax.swing.JTextField TSearchActivity;
+    private javax.swing.JButton btnSearchActivity;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
@@ -429,7 +656,6 @@ public final void loadDataCount(){
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField8;
     private java.awt.Label label7;
     private java.awt.Label label8;
     // End of variables declaration//GEN-END:variables
