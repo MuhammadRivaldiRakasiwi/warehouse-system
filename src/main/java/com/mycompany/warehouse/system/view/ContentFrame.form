@@ -46,8 +46,8 @@
                   <Component id="jLabel2" min="-2" pref="120" max="-2" attributes="0"/>
                   <EmptySpace pref="296" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="jLabel1" max="32767" attributes="0"/>
-                      <Component id="jLabel3" max="32767" attributes="0"/>
+                      <Component id="LEmail" max="32767" attributes="0"/>
+                      <Component id="LNamaLengkap" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
               </Group>
@@ -63,9 +63,9 @@
                           <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="1" attributes="0">
-                          <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                          <Component id="LNamaLengkap" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
-                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                          <Component id="LEmail" min="-2" max="-2" attributes="0"/>
                           <EmptySpace pref="9" max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -80,7 +80,7 @@
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Urbanist Black" size="14" style="0"/>
+              <Font name="Urbanist Black" size="14" style="1"/>
             </Property>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="66" green="0" red="33" type="rgb"/>
@@ -89,19 +89,25 @@
             <Property name="text" type="java.lang.String" value="Gudangin.aja"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel3">
+        <Component class="javax.swing.JLabel" name="LNamaLengkap">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Urbanist" size="12" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="66" green="0" red="33" type="rgb"/>
             </Property>
             <Property name="horizontalAlignment" type="int" value="4"/>
             <Property name="text" type="java.lang.String" value="Admin1"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel1">
+        <Component class="javax.swing.JLabel" name="LEmail">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Urbanist" size="10" style="0"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="66" green="0" red="33" type="rgb"/>
             </Property>
             <Property name="horizontalAlignment" type="int" value="4"/>
             <Property name="text" type="java.lang.String" value="admin1@gmail.com"/>
@@ -151,13 +157,13 @@
                                   <Component id="btnMTransferBarang" alignment="1" pref="122" max="32767" attributes="0"/>
                                   <Component id="btnMBarangKeluar" alignment="1" max="32767" attributes="0"/>
                                   <Component id="btnMBarangMasuk" alignment="1" max="32767" attributes="0"/>
-                                  <Component id="LMaster1" alignment="1" min="-2" pref="114" max="-2" attributes="0"/>
+                                  <Component id="LTransaction" alignment="1" min="-2" pref="114" max="-2" attributes="0"/>
                                   <Component id="btnMSupplier" alignment="1" max="32767" attributes="0"/>
                                   <Component id="btnMBarang" alignment="1" max="32767" attributes="0"/>
                                   <Component id="btnMLokasi" alignment="1" max="32767" attributes="0"/>
                                   <Component id="btnMDashboard" alignment="1" max="32767" attributes="0"/>
-                                  <Component id="jSeparator1" alignment="1" max="32767" attributes="0"/>
-                                  <Component id="jSeparator2" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="STransaction" alignment="1" max="32767" attributes="0"/>
+                                  <Component id="SMaster" alignment="0" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -172,7 +178,7 @@
                   <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
                   <Component id="btnMDashboard" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="jSeparator2" min="-2" pref="10" max="-2" attributes="0"/>
+                  <Component id="SMaster" min="-2" pref="10" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="LMaster" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
@@ -184,9 +190,9 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="btnMLokasi" min="-2" pref="23" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="jSeparator1" min="-2" pref="10" max="-2" attributes="0"/>
+                  <Component id="STransaction" min="-2" pref="10" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="LMaster1" min="-2" max="-2" attributes="0"/>
+                  <Component id="LTransaction" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
                   <Component id="btnMBarangMasuk" min="-2" pref="23" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
@@ -410,8 +416,11 @@
         </Component>
         <Component class="javax.swing.JButton" name="btnLogout">
           <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="33" green="0" red="cc" type="rgb"/>
+            </Property>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Urbanist Medium" size="12" style="0"/>
+              <Font name="Urbanist Medium" size="12" style="1"/>
             </Property>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="66" green="0" red="33" type="rgb"/>
@@ -427,7 +436,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLogoutActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JLabel" name="LMaster1">
+        <Component class="javax.swing.JLabel" name="LTransaction">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Urbanist" size="12" style="0"/>
@@ -439,14 +448,14 @@
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JSeparator" name="jSeparator1">
+        <Component class="javax.swing.JSeparator" name="STransaction">
           <Properties>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ac" green="0" red="56" type="rgb"/>
             </Property>
           </Properties>
         </Component>
-        <Component class="javax.swing.JSeparator" name="jSeparator2">
+        <Component class="javax.swing.JSeparator" name="SMaster">
           <Properties>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ac" green="0" red="56" type="rgb"/>

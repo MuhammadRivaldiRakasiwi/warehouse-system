@@ -65,8 +65,8 @@
                       <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="inputNama" pref="156" max="32767" attributes="0"/>
-                          <Component id="inputKategori" max="32767" attributes="0"/>
                           <Component id="inputSatuan" alignment="0" max="32767" attributes="0"/>
+                          <Component id="inputKategori" max="32767" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -306,22 +306,6 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JComboBox" name="inputKategori">
-      <Properties>
-        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="5">
-            <StringItem index="0" value="Hardware"/>
-            <StringItem index="1" value="Elektrikal"/>
-            <StringItem index="2" value="Plumbing"/>
-            <StringItem index="3" value="APD"/>
-            <StringItem index="4" value="Kimia"/>
-          </StringArray>
-        </Property>
-      </Properties>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
-      </AuxValues>
-    </Component>
     <Component class="javax.swing.JTextField" name="inputSatuan">
     </Component>
     <Component class="javax.swing.JButton" name="btnReset">
@@ -341,6 +325,8 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnResetActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JTextField" name="inputKategori">
     </Component>
   </SubComponents>
 </Form>
