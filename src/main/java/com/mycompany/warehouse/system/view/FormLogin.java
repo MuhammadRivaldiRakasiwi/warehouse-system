@@ -63,7 +63,6 @@ public class FormLogin extends javax.swing.JFrame {
         tpassword.setDisabledTextColor(new java.awt.Color(139, 142, 153));
         tpassword.addActionListener(this::tpasswordActionPerformed);
 
-        tusername.setForeground(new java.awt.Color(204, 204, 204));
         tusername.setHorizontalAlignment(javax.swing.JTextField.LEFT);
         tusername.setCaretColor(new java.awt.Color(244, 244, 245));
         tusername.setDisabledTextColor(new java.awt.Color(138, 141, 151));
@@ -98,7 +97,7 @@ public class FormLogin extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(61, 61, 61)
+                .addGap(50, 50, 50)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE)
                     .addComponent(jLabel5)
@@ -139,7 +138,7 @@ public class FormLogin extends javax.swing.JFrame {
         jPanel1.setBounds(0, 0, 390, 480);
 
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        jLabel4.setIcon(new javax.swing.ImageIcon("C:\\Users\\ndesc\\KULIAH\\JAVA\\warehouse-system\\src\\main\\java\\com\\mycompany\\warehouse\\system\\view\\login4.jpg")); // NOI18N
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/login4.jpg"))); // NOI18N
         jLabel4.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jLabel4.setPreferredSize(new java.awt.Dimension(600, 1024));
         getContentPane().add(jLabel4);

@@ -81,9 +81,9 @@ public class BarangPanel extends javax.swing.JPanel {
         btnDelete = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         tableBarang = new javax.swing.JTable();
-        inputKategori = new javax.swing.JComboBox<>();
         inputSatuan = new javax.swing.JTextField();
         btnReset = new javax.swing.JButton();
+        inputKategori = new javax.swing.JTextField();
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel1.setText("Barang");
@@ -157,8 +157,6 @@ public class BarangPanel extends javax.swing.JPanel {
         });
         jScrollPane2.setViewportView(tableBarang);
 
-        inputKategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Hardware", "Elektrikal", "Plumbing", "APD", "Kimia" }));
-
         btnReset.setBackground(new java.awt.Color(149, 165, 166));
         btnReset.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnReset.setForeground(new java.awt.Color(255, 255, 255));
@@ -210,8 +208,8 @@ public class BarangPanel extends javax.swing.JPanel {
                         .addGap(40, 40, 40)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(inputNama, javax.swing.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE)
-                            .addComponent(inputKategori, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(inputSatuan))))
+                            .addComponent(inputSatuan)
+                            .addComponent(inputKategori))))
                 .addContainerGap(158, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addGap(69, 69, 69)
@@ -312,7 +310,7 @@ public class BarangPanel extends javax.swing.JPanel {
                 try (PreparedStatement ps = conn.prepareStatement(sql)) {
                     ps.setString(1, kodeOtomatis);
                     ps.setString(2, inputNama.getText().trim());
-                    ps.setString(3, inputKategori.getSelectedItem().toString());
+                    ps.setString(3, inputKategori.getText().trim());
                     ps.setString(4, inputSatuan.getText().trim());
 
                     // Konversi Spinner ke Double/Integer secara aman
@@ -356,7 +354,7 @@ public class BarangPanel extends javax.swing.JPanel {
 
             // 3. Masukkan data dari form ke query
             ps.setString(1, inputNama.getText().trim());
-            ps.setString(2, inputKategori.getSelectedItem().toString());
+            ps.setString(2, inputKategori.getText().trim());
             ps.setString(3, inputSatuan.getText().trim());
 
             // Mengambil nilai Spinner
@@ -445,7 +443,7 @@ public class BarangPanel extends javax.swing.JPanel {
             if (rs.next()) {
                 // 3. Set data ke Form Input dari hasil query (ResultSet)
                 inputNama.setText(rs.getString("nama_item"));
-                inputKategori.setSelectedItem(rs.getString("kategori"));
+                inputKategori.setText(rs.getString("kategori"));
                 inputSatuan.setText(rs.getString("satuan"));
                 
                 // Mengisi Spinner secara aman
@@ -474,7 +472,7 @@ public class BarangPanel extends javax.swing.JPanel {
 private void clearForm() {
     inputNama.setText("");
     inputSatuan.setText("");
-    inputKategori.setSelectedIndex(0);
+    inputKategori.setText("");
     inputBerat.setValue(0);
     inputPanjang.setValue(0);
     inputLebar.setValue(0);
@@ -492,7 +490,7 @@ private void clearForm() {
     private javax.swing.JButton btnReset;
     private javax.swing.JButton btnSimpan;
     private javax.swing.JSpinner inputBerat;
-    private javax.swing.JComboBox<String> inputKategori;
+    private javax.swing.JTextField inputKategori;
     private javax.swing.JSpinner inputLebar;
     private javax.swing.JSpinner inputMinimumStok;
     private javax.swing.JTextField inputNama;

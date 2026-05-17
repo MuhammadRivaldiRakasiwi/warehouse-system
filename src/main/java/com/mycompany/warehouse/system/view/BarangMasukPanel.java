@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import java.util.HashMap;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author ndesc
@@ -25,6 +26,11 @@ public class BarangMasukPanel extends javax.swing.JPanel {
     private final HashMap<String, Integer> supplierMap = new HashMap<>();
     private final HashMap<String, Integer> itemMap = new HashMap<>();
     private final HashMap<String, Integer> locationMap = new HashMap<>();
+     private int currentPage = 1;
+    private final int dataPerPage = 10;
+
+    private int totalData = 0;
+    private int totalPage = 0;
     /**
      * Creates new form BarangMasukPanel
      */
@@ -38,9 +44,199 @@ public class BarangMasukPanel extends javax.swing.JPanel {
             loadItem();
             loadLocation();
             formatHarga();
+            
+            
+              BNBarangMasuk.setOpaque(true);
+              BNBarangMasuk.setContentAreaFilled(true);
+
+              BPBarangMasuk.setOpaque(true);
+              BPBarangMasuk.setContentAreaFilled(true);
+              hitungTotalData();
+              loadDataInbound();
     
         
     }
+    
+     public final void loadDataInbound() {
+
+            DefaultTableModel model = new DefaultTableModel() {
+
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
+            model.addColumn("ID");
+            model.addColumn("Jam");
+            model.addColumn("Aktifitas");
+            model.addColumn("Barang");
+            model.addColumn("Lokasi");
+            model.addColumn("Stok Sebelum");
+            model.addColumn("Stok Sesudah");
+
+            int offset = (currentPage - 1) * dataPerPage;
+
+            String sql = """
+                 SELECT it.id,
+                     s.nama_supplier ,
+                                       it.nomor_penerimaan,
+                                        l.kode_lokasi,
+                                       i.nama_item,
+                                       i.satuan,
+                                       it.qty
+                                FROM inbound_transactions it
+                                INNER JOIN suppliers s ON it.supplier_id = s.id
+                                INNER JOIN items i ON it.item_id= i.id
+                                INNER JOIN locations l ON it.location_id= l.id
+                                ORDER BY it.id DESC
+                LIMIT ? OFFSET ?
+                """;
+
+            try (
+                Connection conn = DatabaseConfig.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+            ) {
+
+                ps.setInt(1, dataPerPage);
+                ps.setInt(2, offset);
+
+                ResultSet rs = ps.executeQuery();
+
+                while (rs.next()) {
+                    model.addRow(new Object[]{
+                        rs.getInt("id"),
+                        rs.getString("nama_supplier"),
+                        rs.getString("nomor_penerimaan"),
+                        rs.getString("kode_lokasi"),
+                        rs.getString("nama_item"),
+                        rs.getString("satuan"),
+                        rs.getString("qty")
+                    });
+                }
+
+                TBarangMasuk.setModel(model);
+
+                // ===== STYLE TABLE =====
+                TBarangMasuk.setForeground(new java.awt.Color(33, 37, 41));
+                TBarangMasuk.setBackground(java.awt.Color.WHITE);
+
+                TBarangMasuk.setSelectionForeground(java.awt.Color.WHITE);
+                TBarangMasuk.setSelectionBackground(
+                    new java.awt.Color(0, 153, 204)
+                );
+
+                TBarangMasuk.setGridColor(
+                    new java.awt.Color(230, 230, 230)
+                );
+
+                TBarangMasuk.setRowHeight(31);
+
+                TBarangMasuk.getTableHeader().setForeground(
+                    java.awt.Color.BLACK
+                );
+
+                TBarangMasuk.getTableHeader().setBackground(
+                    new java.awt.Color(245,245,245)
+                );
+
+                // Hide ID
+                TBarangMasuk.getColumnModel().getColumn(0).setMinWidth(0);
+                TBarangMasuk.getColumnModel().getColumn(0).setMaxWidth(0);
+                TBarangMasuk.getColumnModel().getColumn(0).setPreferredWidth(0);
+
+                // ===== UPDATE PAGINATION =====
+                LPBarangMasuk.setText(
+                    "Page " + currentPage + " / " + totalPage
+                );
+
+                updatePaginationButton();
+
+            } catch (SQLException e) {
+
+                JOptionPane.showMessageDialog(
+                    null,
+                    "Gagal memuat data: " + e.getMessage()
+                );
+                }
+    }
+     
+        private void updatePaginationButton() {
+        // PREVIOUS
+           BPBarangMasuk.setEnabled(currentPage > 1);
+
+           // NEXT
+           BNBarangMasuk.setEnabled(currentPage < totalPage);
+
+           // STYLE PREVIOUS
+           if (BPBarangMasuk.isEnabled()) {
+
+               BPBarangMasuk.setBackground(
+                   new java.awt.Color(0,153,204)
+               );
+
+               BPBarangMasuk.setForeground(java.awt.Color.WHITE);
+
+           } else {
+
+               BPBarangMasuk.setBackground(
+                   new java.awt.Color(220, 220, 220)
+               );
+
+               BPBarangMasuk.setForeground(
+                   new java.awt.Color(120,120,120)
+               );
+           }
+
+           // STYLE NEXT
+           if (BNBarangMasuk.isEnabled()) {
+
+               BNBarangMasuk.setBackground(
+                   new java.awt.Color(0,153,204)
+               );
+
+               BNBarangMasuk.setForeground(java.awt.Color.WHITE);
+
+           } else {
+
+               BNBarangMasuk.setBackground(
+                   new java.awt.Color(220,220,220)
+               );
+
+               BNBarangMasuk.setForeground(
+                   new java.awt.Color(120,120,120)
+               );
+           }
+       }
+    
+    private void hitungTotalData() {
+
+    String sql = "SELECT COUNT(*) AS total FROM inbound_transactions";
+
+    try (
+        Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()
+    ) {
+
+        if (rs.next()) {
+
+            totalData = rs.getInt("total");
+
+            totalPage = (int) Math.ceil(
+                (double) totalData / dataPerPage
+            );
+        }
+
+    } catch (Exception e) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            e.getMessage()
+        );
+    }
+}
+     
     private void formatHarga(){
       inputHarga.addKeyListener(new KeyAdapter() {
 
@@ -62,7 +258,67 @@ public class BarangMasukPanel extends javax.swing.JPanel {
         }
     });
     }
+  private void cariBarangMasuk() {
 
+        String keyword = TSearchBarangMasuk.getText();
+
+        DefaultTableModel model =
+            (DefaultTableModel) TBarangMasuk.getModel();
+
+        model.setRowCount(0);
+
+        try {
+
+            Connection conn = DatabaseConfig.getConnection();
+
+            String sql = """
+                           SELECT it.id,s.nama_supplier , it.nomor_penerimaan,  l.kode_lokasi,i.nama_item,i.satuan,it.qty
+                            FROM inbound_transactions it
+                                        INNER JOIN suppliers s ON it.supplier_id = s.id
+                                         INNER JOIN items i ON it.item_id= i.id
+                                           INNER JOIN locations l ON it.location_id= l.id
+                                      WHERE s.nama_supplier LIKE ? 
+                                      OR it.nomor_penerimaan LIKE ?
+                                    OR it.nomor_penerimaan LIKE ?
+                                    OR  l.kode_lokasi LIKE ?
+                                    OR i.satuan LIKE ?
+                                    OR it.qty LIKE ?
+                         ORDER BY it.id DESC
+            """;
+
+            PreparedStatement ps =
+                conn.prepareStatement(sql);
+
+            ps.setString(1, "%" + keyword + "%");
+            ps.setString(2, "%" + keyword + "%");
+            ps.setString(3, "%" + keyword + "%");
+            ps.setString(4, "%" + keyword + "%");
+            ps.setString(5, "%" + keyword + "%");
+            ps.setString(6, "%" + keyword + "%");
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()) {
+                model.addRow(new Object[] {
+                     rs.getInt("id"),
+                        rs.getString("nama_supplier"),
+                        rs.getString("nomor_penerimaan"),
+                        rs.getString("kode_lokasi"),
+                        rs.getString("nama_item"),
+                        rs.getString("satuan"),
+                        rs.getString("qty")
+                });
+            }
+
+        } catch(Exception e) {
+
+            JOptionPane.showMessageDialog(
+                this,
+                e.getMessage()
+            );
+        }
+    }   
+       
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -71,74 +327,199 @@ public class BarangMasukPanel extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         jScrollPane1 = new javax.swing.JScrollPane();
         jEditorPane1 = new javax.swing.JEditorPane();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        labelNomorPenerimaan = new javax.swing.JLabel();
-        inputSupplier = new javax.swing.JComboBox<>();
-        jLabel8 = new javax.swing.JLabel();
-        inputKodeBarang = new javax.swing.JComboBox<>();
-        labelNamaBarang = new javax.swing.JLabel();
-        inputQty = new javax.swing.JSpinner();
-        labelSatuan = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        inputLokasi = new javax.swing.JComboBox<>();
-        jLabel12 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
         jLabel13 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
-        btnSimpan = new javax.swing.JButton();
         inputTanggalTerima = new com.toedter.calendar.JDateChooser();
-        jLabel6 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        labelNamaBarang = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        inputLokasi = new javax.swing.JComboBox<>();
         inputHarga = new javax.swing.JTextField();
+        labelNomorPenerimaan = new javax.swing.JLabel();
+        btnSimpan = new javax.swing.JButton();
+        inputQty = new javax.swing.JSpinner();
+        inputKodeBarang = new javax.swing.JComboBox<>();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        inputSupplier = new javax.swing.JComboBox<>();
+        jLabel5 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         inputKondisiBarang = new javax.swing.JComboBox<>();
+        labelSatuan = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel7 = new javax.swing.JPanel();
+        jLabel17 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        TBarangMasuk = new javax.swing.JTable();
+        TSearchBarangMasuk = new javax.swing.JTextField();
+        jLabel9 = new javax.swing.JLabel();
+        LPBarangMasuk = new javax.swing.JLabel();
+        BNBarangMasuk = new javax.swing.JButton();
+        BPBarangMasuk = new javax.swing.JButton();
+        BSearchBarangMasuk = new javax.swing.JButton();
 
         jScrollPane1.setViewportView(jEditorPane1);
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Input Barang Masuk");
+        setBackground(new java.awt.Color(248, 250, 252));
+        setForeground(new java.awt.Color(0, 0, 0));
+        setLayout(new java.awt.GridLayout(2, 2));
 
-        jLabel2.setText("Nomor Penerimaan      :");
+        jPanel2.setLayout(new java.awt.GridBagLayout());
 
+        jLabel13.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel13.setText("Nama Barang                :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.ipadx = 391;
+        gridBagConstraints.insets = new java.awt.Insets(6, 271, 0, 0);
+        jPanel2.add(jLabel13, gridBagConstraints);
+
+        jLabel4.setForeground(new java.awt.Color(102, 102, 102));
         jLabel4.setText("Tanggal Terima             :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.ipadx = 303;
+        gridBagConstraints.insets = new java.awt.Insets(6, 271, 0, 0);
+        jPanel2.add(jLabel4, gridBagConstraints);
 
-        jLabel5.setText("Supplier                        :");
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(153, 153, 153));
+        jLabel1.setText("Input Barang Masuk");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 14;
+        gridBagConstraints.ipadx = 606;
+        gridBagConstraints.insets = new java.awt.Insets(1, 271, 0, 337);
+        jPanel2.add(jLabel1, gridBagConstraints);
 
-        labelNomorPenerimaan.setText("GR-2026-001");
-
-        inputSupplier.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "PT A", "PT B", "PT C" }));
+        jLabel12.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel12.setText("Kode Barang                 :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = 7;
+        gridBagConstraints.ipadx = 423;
+        gridBagConstraints.insets = new java.awt.Insets(8, 271, 0, 0);
+        jPanel2.add(jLabel12, gridBagConstraints);
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel8.setForeground(new java.awt.Color(153, 153, 153));
         jLabel8.setText("Barang");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = 13;
+        gridBagConstraints.ipadx = 606;
+        gridBagConstraints.insets = new java.awt.Insets(18, 271, 0, 0);
+        jPanel2.add(jLabel8, gridBagConstraints);
 
-        inputKodeBarang.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ITM-001", "ITM-002", "ITM-003", "ITM-004" }));
-        inputKodeBarang.addActionListener(this::inputKodeBarangActionPerformed);
+        jLabel15.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel15.setText("Satuan                          :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.ipadx = 326;
+        gridBagConstraints.insets = new java.awt.Insets(6, 271, 0, 0);
+        jPanel2.add(jLabel15, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 9;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 27;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel2.add(inputTanggalTerima, gridBagConstraints);
 
+        jLabel14.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel14.setText("Qty                               :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 14;
+        gridBagConstraints.gridwidth = 8;
+        gridBagConstraints.ipadx = 431;
+        gridBagConstraints.insets = new java.awt.Insets(9, 271, 0, 0);
+        jPanel2.add(jLabel14, gridBagConstraints);
+
+        jLabel11.setForeground(new java.awt.Color(153, 153, 153));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        jPanel2.add(jLabel11, gridBagConstraints);
+
+        labelNamaBarang.setForeground(new java.awt.Color(153, 153, 153));
         labelNamaBarang.setText("-");
+        labelNamaBarang.setMinimumSize(new java.awt.Dimension(100, 22));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 9;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 8;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel2.add(labelNamaBarang, gridBagConstraints);
 
-        labelSatuan.setText("-");
+        jLabel2.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel2.setText("Nomor Penerimaan      :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.ipadx = 305;
+        gridBagConstraints.insets = new java.awt.Insets(12, 271, 0, 0);
+        jPanel2.add(jLabel2, gridBagConstraints);
 
         inputLokasi.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "LOC-A-01-1", "LOC-A-01-2", "LOC-A-01-3" }));
-        inputLokasi.setMinimumSize(new java.awt.Dimension(64, 22));
+        inputLokasi.setMinimumSize(new java.awt.Dimension(100, 22));
         inputLokasi.addActionListener(this::inputLokasiActionPerformed);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 9;
+        gridBagConstraints.gridy = 20;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel2.add(inputLokasi, gridBagConstraints);
 
-        jLabel12.setText("Kode Barang                 :");
+        inputHarga.setMinimumSize(new java.awt.Dimension(100, 22));
+        inputHarga.addActionListener(this::inputHargaActionPerformed);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 9;
+        gridBagConstraints.gridy = 16;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        jPanel2.add(inputHarga, gridBagConstraints);
 
-        jLabel13.setText("Nama Barang                :");
-
-        jLabel14.setText("Qty                               :");
-
-        jLabel15.setText("Satuan                          :");
-
-        jLabel16.setText("Lokasi                           :");
+        labelNomorPenerimaan.setForeground(new java.awt.Color(153, 153, 153));
+        labelNomorPenerimaan.setText("GR-2026-001");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 9;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.ipadx = 38;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+        jPanel2.add(labelNomorPenerimaan, gridBagConstraints);
 
         btnSimpan.setBackground(new java.awt.Color(39, 174, 96));
         btnSimpan.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -146,145 +527,237 @@ public class BarangMasukPanel extends javax.swing.JPanel {
         btnSimpan.setText("Simpan");
         btnSimpan.setBorderPainted(false);
         btnSimpan.addActionListener(this::btnSimpanActionPerformed);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 9;
+        gridBagConstraints.gridy = 22;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.ipadx = 11;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 21, 216, 0);
+        jPanel2.add(btnSimpan, gridBagConstraints);
 
+        inputQty.setMinimumSize(new java.awt.Dimension(100, 22));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 9;
+        gridBagConstraints.gridy = 14;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel2.add(inputQty, gridBagConstraints);
+
+        inputKodeBarang.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ITM-001", "ITM-002", "ITM-003", "ITM-004" }));
+        inputKodeBarang.setMinimumSize(new java.awt.Dimension(100, 22));
+        inputKodeBarang.addActionListener(this::inputKodeBarangActionPerformed);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 9;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 8;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        jPanel2.add(inputKodeBarang, gridBagConstraints);
+
+        jLabel6.setForeground(new java.awt.Color(102, 102, 102));
         jLabel6.setText("Harga                           :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 16;
+        gridBagConstraints.gridwidth = 8;
+        gridBagConstraints.ipadx = 431;
+        gridBagConstraints.insets = new java.awt.Insets(8, 271, 0, 0);
+        jPanel2.add(jLabel6, gridBagConstraints);
 
-        inputHarga.addActionListener(this::inputHargaActionPerformed);
+        jLabel16.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel16.setText("Lokasi                           :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 20;
+        gridBagConstraints.gridwidth = 6;
+        gridBagConstraints.ipadx = 411;
+        gridBagConstraints.insets = new java.awt.Insets(9, 271, 0, 0);
+        jPanel2.add(jLabel16, gridBagConstraints);
 
+        inputSupplier.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "PT A", "PT B", "PT C" }));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 9;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 37;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel2.add(inputSupplier, gridBagConstraints);
+
+        jLabel5.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel5.setText("Supplier                        :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.ipadx = 339;
+        gridBagConstraints.insets = new java.awt.Insets(6, 271, 0, 0);
+        jPanel2.add(jLabel5, gridBagConstraints);
+
+        jLabel7.setForeground(new java.awt.Color(102, 102, 102));
         jLabel7.setText("Kondisi Barang             :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 18;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.ipadx = 335;
+        gridBagConstraints.insets = new java.awt.Insets(9, 271, 0, 0);
+        jPanel2.add(jLabel7, gridBagConstraints);
 
         inputKondisiBarang.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Baik", "Rusak", "Cacat" }));
-        inputKondisiBarang.setMinimumSize(new java.awt.Dimension(64, 22));
+        inputKondisiBarang.setMinimumSize(new java.awt.Dimension(100, 22));
         inputKondisiBarang.addActionListener(this::inputKondisiBarangActionPerformed);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 9;
+        gridBagConstraints.gridy = 18;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel2.add(inputKondisiBarang, gridBagConstraints);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel11)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jLabel1))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(176, 176, 176)
-                .addComponent(labelNomorPenerimaan))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jLabel4)
-                .addGap(176, 176, 176)
-                .addComponent(inputTanggalTerima, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(176, 176, 176)
-                .addComponent(inputSupplier, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jLabel8))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 303, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(inputKodeBarang, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 303, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(labelNamaBarang))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(131, 131, 131)
-                .addComponent(labelSatuan))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 303, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(inputQty, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 303, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(inputHarga, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jLabel7)
-                .addGap(178, 178, 178)
-                .addComponent(inputKondisiBarang, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 303, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(inputLokasi, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(395, 395, 395)
-                .addComponent(btnSimpan))
+        labelSatuan.setForeground(new java.awt.Color(153, 153, 153));
+        labelSatuan.setText("-");
+        labelSatuan.setMinimumSize(new java.awt.Dimension(100, 22));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 9;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel2.add(labelSatuan, gridBagConstraints);
+
+        add(jPanel2);
+
+        jPanel7.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel7.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+
+        jLabel17.setFont(new java.awt.Font("Urbanist", 1, 16)); // NOI18N
+        jLabel17.setText("Barang Masuk");
+
+        jLabel3.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(142, 157, 166));
+        jLabel3.setText("Daftar Barang Masuk.");
+
+        TBarangMasuk.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Jam", "Aktifitas", "Stok Sebelum", "Stok Sesudah"
+            }
+        ));
+        TBarangMasuk.setShowGrid(true);
+        jScrollPane2.setViewportView(TBarangMasuk);
+
+        TSearchBarangMasuk.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        TSearchBarangMasuk.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(3, 8, 3, 8)));
+        TSearchBarangMasuk.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                TSearchBarangMasukKeyReleased(evt);
+            }
+        });
+
+        jLabel9.setText("Cari data:");
+
+        LPBarangMasuk.setFont(new java.awt.Font("Inter", 0, 10)); // NOI18N
+        LPBarangMasuk.setForeground(new java.awt.Color(142, 157, 166));
+        LPBarangMasuk.setText("5 dari 10 data ditampilkan");
+
+        BNBarangMasuk.setBackground(new java.awt.Color(0, 153, 204));
+        BNBarangMasuk.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        BNBarangMasuk.setForeground(new java.awt.Color(255, 255, 255));
+        BNBarangMasuk.setText("Next");
+        BNBarangMasuk.setBorderPainted(false);
+        BNBarangMasuk.addActionListener(this::BNBarangMasukActionPerformed);
+
+        BPBarangMasuk.setText("Previous");
+        BPBarangMasuk.setBorderPainted(false);
+        BPBarangMasuk.setEnabled(false);
+        BPBarangMasuk.addActionListener(this::BPBarangMasukActionPerformed);
+
+        BSearchBarangMasuk.setBackground(new java.awt.Color(0, 153, 204));
+        BSearchBarangMasuk.setForeground(new java.awt.Color(255, 255, 255));
+        BSearchBarangMasuk.setText("Cari");
+        BSearchBarangMasuk.addActionListener(this::BSearchBarangMasukActionPerformed);
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel17, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jScrollPane2)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
+                .addComponent(jLabel9)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(TSearchBarangMasuk, javax.swing.GroupLayout.PREFERRED_SIZE, 744, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(BSearchBarangMasuk)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addComponent(LPBarangMasuk, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(BPBarangMasuk, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(5, 5, 5)
+                .addComponent(BNBarangMasuk, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jLabel11)
-                .addGap(25, 25, 25)
-                .addComponent(jLabel1)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(labelNomorPenerimaan))
-                .addGap(6, 6, 6)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4)
-                    .addComponent(inputTanggalTerima, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(3, 3, 3)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(3, 3, 3)
-                        .addComponent(jLabel5))
-                    .addComponent(inputSupplier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(52, 52, 52)
-                .addComponent(jLabel8)
-                .addGap(6, 6, 6)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(3, 3, 3)
-                        .addComponent(jLabel12))
-                    .addComponent(inputKodeBarang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(6, 6, 6)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel13)
-                    .addComponent(labelNamaBarang))
-                .addGap(6, 6, 6)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel15)
-                    .addComponent(labelSatuan))
-                .addGap(6, 6, 6)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(3, 3, 3)
-                        .addComponent(jLabel14))
-                    .addComponent(inputQty, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(6, 6, 6)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(3, 3, 3)
-                        .addComponent(jLabel6))
-                    .addComponent(inputHarga, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(6, 6, 6)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(3, 3, 3)
-                        .addComponent(jLabel7))
-                    .addComponent(inputKondisiBarang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(6, 6, 6)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(3, 3, 3)
-                        .addComponent(jLabel16))
-                    .addComponent(inputLokasi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(12, 12, 12)
-                .addComponent(btnSimpan))
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addComponent(jLabel17)
+                .addGap(2, 2, 2)
+                .addComponent(jLabel3)
+                .addGap(15, 15, 15)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(TSearchBarangMasuk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BSearchBarangMasuk))
+                .addGap(10, 10, 10)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(10, 10, 10)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(BNBarangMasuk)
+                    .addComponent(BPBarangMasuk)
+                    .addComponent(LPBarangMasuk, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(0, 0, 0))
         );
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 966, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel3Layout.createSequentialGroup()
+                    .addGap(0, 26, Short.MAX_VALUE)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 25, Short.MAX_VALUE)))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 598, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel3Layout.createSequentialGroup()
+                    .addGap(0, 162, Short.MAX_VALUE)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 161, Short.MAX_VALUE)))
+        );
+
+        add(jPanel3);
     }// </editor-fold>//GEN-END:initComponents
 
     private void inputKodeBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputKodeBarangActionPerformed
@@ -641,6 +1114,28 @@ public class BarangMasukPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_inputHargaActionPerformed
 
+    private void TSearchBarangMasukKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchBarangMasukKeyReleased
+
+    }//GEN-LAST:event_TSearchBarangMasukKeyReleased
+
+    private void BNBarangMasukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BNBarangMasukActionPerformed
+        if (currentPage < totalPage) {
+            currentPage++;
+            loadDataInbound();
+        }
+    }//GEN-LAST:event_BNBarangMasukActionPerformed
+
+    private void BPBarangMasukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPBarangMasukActionPerformed
+        if (currentPage > 1) {
+            currentPage--;
+            loadDataInbound();
+        }
+    }//GEN-LAST:event_BPBarangMasukActionPerformed
+
+    private void BSearchBarangMasukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BSearchBarangMasukActionPerformed
+        cariBarangMasuk();
+    }//GEN-LAST:event_BSearchBarangMasukActionPerformed
+
 public void generateNomorPenerimaan() {
 
     try {
@@ -804,6 +1299,12 @@ private String generateBatchLot(Connection conn)
     return "BATCH-" + tahun + "01";
 }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton BNBarangMasuk;
+    private javax.swing.JButton BPBarangMasuk;
+    private javax.swing.JButton BSearchBarangMasuk;
+    private javax.swing.JLabel LPBarangMasuk;
+    private javax.swing.JTable TBarangMasuk;
+    private javax.swing.JTextField TSearchBarangMasuk;
     private javax.swing.JButton btnSimpan;
     private javax.swing.JTextField inputHarga;
     private javax.swing.JComboBox<String> inputKodeBarang;
@@ -820,13 +1321,20 @@ private String generateBatchLot(Connection conn)
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel labelNamaBarang;
     private javax.swing.JLabel labelNomorPenerimaan;
     private javax.swing.JLabel labelSatuan;

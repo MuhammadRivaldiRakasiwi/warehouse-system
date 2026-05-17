@@ -25,15 +25,43 @@ import java.io.InputStream;
  */
 public class DashboardManager extends javax.swing.JPanel {
 public static DashboardManager instance;
+//--------ACTIVITY------------
+private int currentPageActivity = 1;
+private final int dataPerPageActivity = 10;
+
+private int totalDataActivity = 0;
+private int totalPageActivity = 0;
+
+//--------INVENTORY------------
+private int currentPageInventory = 1;
+private final int dataPerPageInventory = 10;
+
+private int totalDataInventory = 0;
+private int totalPageInventory = 0;
     /**
      * Creates new form DashboardManager
      */
     public DashboardManager() {
           initComponents();
          instance = this;
-         loadDataInventory();
-         loadDataAktifitas();
-         loadDataCount();
+          loadDataCount();
+          
+        BNInventory.setOpaque(true);
+        BNInventory.setContentAreaFilled(true);
+        BPInventory.setOpaque(true);
+        BPInventory.setContentAreaFilled(true);
+        hitungTotalDataInventory();
+        loadDataInventory();
+       
+        
+         
+         
+        BNActivity.setOpaque(true);
+        BNActivity.setContentAreaFilled(true);
+        BPActivity.setOpaque(true);
+        BPActivity.setContentAreaFilled(true);
+        hitungTotalDataActivity();
+        loadDataAktifitas();
     }
 
     /**
@@ -67,9 +95,10 @@ public static DashboardManager instance;
         jScrollPane1 = new javax.swing.JScrollPane();
         TInventory = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
+        LPInventory = new javax.swing.JLabel();
+        BPInventory = new javax.swing.JButton();
+        BNInventory = new javax.swing.JButton();
+        BSearchInventory = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jLabel11 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
@@ -78,9 +107,10 @@ public static DashboardManager instance;
         jLabel3 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         TActivity = new javax.swing.JTable();
-        jLabel13 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        LPActivity = new javax.swing.JLabel();
+        BPActivity = new javax.swing.JButton();
+        BNActivity = new javax.swing.JButton();
+        BSearchActivity = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(248, 250, 252));
 
@@ -117,7 +147,7 @@ public static DashboardManager instance;
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(LInventory, javax.swing.GroupLayout.DEFAULT_SIZE, 316, Short.MAX_VALUE)
+            .addComponent(LInventory, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -145,7 +175,7 @@ public static DashboardManager instance;
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 316, Short.MAX_VALUE)
+            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
             .addComponent(LBarangMasuk, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
@@ -174,7 +204,7 @@ public static DashboardManager instance;
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 316, Short.MAX_VALUE)
+            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
             .addComponent(LBarangKeluar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
@@ -206,11 +236,6 @@ public static DashboardManager instance;
         txtSearchInventory.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(3, 8, 3, 8)));
         txtSearchInventory.setMargin(new java.awt.Insets(4, 10, 4, 10));
         txtSearchInventory.addActionListener(this::txtSearchInventoryActionPerformed);
-        txtSearchInventory.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                txtSearchInventoryKeyReleased(evt);
-            }
-        });
 
         BReportInventory.setBackground(new java.awt.Color(255, 51, 102));
         BReportInventory.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -236,21 +261,26 @@ public static DashboardManager instance;
 
         jLabel2.setText("Cari data:");
 
-        jLabel12.setFont(new java.awt.Font("Inter", 0, 10)); // NOI18N
-        jLabel12.setForeground(new java.awt.Color(142, 157, 166));
-        jLabel12.setText("5 dari 10 data ditampilkan");
+        LPInventory.setFont(new java.awt.Font("Inter", 0, 10)); // NOI18N
+        LPInventory.setForeground(new java.awt.Color(142, 157, 166));
+        LPInventory.setText("5 dari 10 data ditampilkan");
 
-        jButton2.setText("Previous");
-        jButton2.setBorderPainted(false);
-        jButton2.setEnabled(false);
-        jButton2.addActionListener(this::jButton2ActionPerformed);
+        BPInventory.setText("Previous");
+        BPInventory.setBorderPainted(false);
+        BPInventory.setEnabled(false);
+        BPInventory.addActionListener(this::BPInventoryActionPerformed);
 
-        jButton1.setBackground(new java.awt.Color(0, 153, 204));
-        jButton1.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("Next");
-        jButton1.setBorderPainted(false);
-        jButton1.addActionListener(this::jButton1ActionPerformed);
+        BNInventory.setBackground(new java.awt.Color(0, 153, 204));
+        BNInventory.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        BNInventory.setForeground(new java.awt.Color(255, 255, 255));
+        BNInventory.setText("Next");
+        BNInventory.setBorderPainted(false);
+        BNInventory.addActionListener(this::BNInventoryActionPerformed);
+
+        BSearchInventory.setBackground(new java.awt.Color(0, 153, 204));
+        BSearchInventory.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        BSearchInventory.setText("Cari");
+        BSearchInventory.addActionListener(this::BSearchInventoryActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -258,23 +288,28 @@ public static DashboardManager instance;
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(BReportInventory, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(LPInventory, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(BPInventory, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtSearchInventory))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE))
+                        .addComponent(BNInventory, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 512, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(txtSearchInventory)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(16, 16, 16)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(BReportInventory, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(BSearchInventory, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addGap(0, 0, 0))
         );
         jPanel1Layout.setVerticalGroup(
@@ -291,16 +326,17 @@ public static DashboardManager instance;
                 .addGap(15, 15, 15)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtSearchInventory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
+                    .addComponent(jLabel2)
+                    .addComponent(BSearchInventory))
                 .addGap(10, 10, 10)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(10, 10, 10)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButton1)
-                        .addComponent(jButton2)))
-                .addGap(0, 1, Short.MAX_VALUE))
+                        .addComponent(BNInventory)
+                        .addComponent(BPInventory))
+                    .addComponent(LPInventory, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 2, Short.MAX_VALUE))
         );
 
         jPanel7.add(jPanel1);
@@ -318,11 +354,6 @@ public static DashboardManager instance;
         txtSearchActivity.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
         txtSearchActivity.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(3, 8, 3, 8)));
         txtSearchActivity.addActionListener(this::txtSearchActivityActionPerformed);
-        txtSearchActivity.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                txtSearchActivityKeyReleased(evt);
-            }
-        });
 
         BReportActivity.setBackground(new java.awt.Color(255, 51, 102));
         BReportActivity.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -348,21 +379,26 @@ public static DashboardManager instance;
         TActivity.setShowGrid(true);
         jScrollPane2.setViewportView(TActivity);
 
-        jLabel13.setFont(new java.awt.Font("Inter", 0, 10)); // NOI18N
-        jLabel13.setForeground(new java.awt.Color(142, 157, 166));
-        jLabel13.setText("5 dari 10 data ditampilkan");
+        LPActivity.setFont(new java.awt.Font("Inter", 0, 10)); // NOI18N
+        LPActivity.setForeground(new java.awt.Color(142, 157, 166));
+        LPActivity.setText("5 dari 10 data ditampilkan");
 
-        jButton3.setText("Previous");
-        jButton3.setBorderPainted(false);
-        jButton3.setEnabled(false);
-        jButton3.addActionListener(this::jButton3ActionPerformed);
+        BPActivity.setText("Previous");
+        BPActivity.setBorderPainted(false);
+        BPActivity.setEnabled(false);
+        BPActivity.addActionListener(this::BPActivityActionPerformed);
 
-        jButton4.setBackground(new java.awt.Color(0, 153, 204));
-        jButton4.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
-        jButton4.setForeground(new java.awt.Color(255, 255, 255));
-        jButton4.setText("Next");
-        jButton4.setBorderPainted(false);
-        jButton4.addActionListener(this::jButton4ActionPerformed);
+        BNActivity.setBackground(new java.awt.Color(0, 153, 204));
+        BNActivity.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        BNActivity.setForeground(new java.awt.Color(255, 255, 255));
+        BNActivity.setText("Next");
+        BNActivity.setBorderPainted(false);
+        BNActivity.addActionListener(this::BNActivityActionPerformed);
+
+        BSearchActivity.setBackground(new java.awt.Color(0, 153, 204));
+        BSearchActivity.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        BSearchActivity.setText("Cari");
+        BSearchActivity.addActionListener(this::BSearchActivityActionPerformed);
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -377,13 +413,15 @@ public static DashboardManager instance;
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(txtSearchActivity))
+                .addComponent(txtSearchActivity, javax.swing.GroupLayout.PREFERRED_SIZE, 373, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(BSearchActivity))
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)
+                .addComponent(LPActivity, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(BPActivity, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(BNActivity, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         jPanel5Layout.setVerticalGroup(
@@ -400,7 +438,9 @@ public static DashboardManager instance;
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGap(15, 15, 15)
-                        .addComponent(txtSearchActivity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtSearchActivity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(BSearchActivity)))
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(jLabel3)))
@@ -408,9 +448,9 @@ public static DashboardManager instance;
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton4)
-                    .addComponent(jButton3)))
+                    .addComponent(LPActivity, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BNActivity)
+                    .addComponent(BPActivity)))
         );
 
         jPanel7.add(jPanel5);
@@ -439,11 +479,6 @@ public static DashboardManager instance;
         // TODO add your handling code here:
          
     }//GEN-LAST:event_txtSearchInventoryActionPerformed
-
-    private void txtSearchInventoryKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchInventoryKeyReleased
-           cariInventory();
-
-    }//GEN-LAST:event_txtSearchInventoryKeyReleased
 
     private void BReportInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BReportInventoryActionPerformed
           try {
@@ -501,26 +536,48 @@ public static DashboardManager instance;
         // TODO add your handling code here:
     }//GEN-LAST:event_txtSearchActivityActionPerformed
 
-    private void txtSearchActivityKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchActivityKeyReleased
+    private void BPInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPInventoryActionPerformed
         // TODO add your handling code here:
-        cariActivity();
-    }//GEN-LAST:event_txtSearchActivityKeyReleased
+          if (currentPageInventory > 1) {
+            currentPageInventory--;
+            loadDataInventory();
+        }
+    }//GEN-LAST:event_BPInventoryActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void BNInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BNInventoryActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+         if (currentPageInventory < totalPageInventory) {
+                currentPageInventory++;
+                loadDataInventory();
+            }
+    }//GEN-LAST:event_BNInventoryActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void BPActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPActivityActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+         if (currentPageActivity > 1) {
+            currentPageActivity--;
+            loadDataAktifitas();
+        }
+    }//GEN-LAST:event_BPActivityActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void BNActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BNActivityActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
+         if (currentPageActivity < totalPageActivity) {
+                currentPageActivity++;
+                loadDataAktifitas();
+            }
+    }//GEN-LAST:event_BNActivityActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    private void BSearchInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BSearchInventoryActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton4ActionPerformed
+        
+             cariInventory();
+    }//GEN-LAST:event_BSearchInventoryActionPerformed
+
+    private void BSearchActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BSearchActivityActionPerformed
+        // TODO add your handling code here:
+         cariActivity();
+    }//GEN-LAST:event_BSearchActivityActionPerformed
    public final void loadDataCount(){
        LInventory.setText(String.valueOf(DashboardService.getTotalItemsInventory()));
         LBarangMasuk.setText(String.valueOf(DashboardService.getTotalItemsMasuk()));
@@ -528,170 +585,130 @@ public static DashboardManager instance;
     }
    
     public final void loadDataAktifitas() { 
-             DefaultTableModel model = new DefaultTableModel() {
-                 // Best practice: Membuat sel tabel tidak bisa diedit secara manual oleh user
-                 @Override
-                 public boolean isCellEditable(int row, int column) {
-                     return false;
-                 }
-             };
+        DefaultTableModel model = new DefaultTableModel() {
 
-     // Tambahkan kolom ID di index 0 
-     model.addColumn("ID"); 
-     model.addColumn("Jam"); 
-     model.addColumn("Aktifitas"); 
-     model.addColumn("Barang"); 
-      model.addColumn("Lokasi"); 
-     model.addColumn("Stok Sebelum"); 
-     model.addColumn("Stok Sesudah"); 
-
-     String sql = """
-         SELECT sh.id, sh.waktu_transaksi, sh.jenis_transaksi, i.nama_item,l.kode_lokasi, sh.stock_sebelum, sh.stock_sesudah 
-         FROM stock_history sh 
-         INNER JOIN items i ON sh.item_id = i.id
-         INNER JOIN locations l ON sh.location_id = l.id
-         ORDER BY sh.id DESC
-         """;
-
-         // Menggunakan try-with-resources untuk menutup conn, stmt, dan rs secara otomatis dan aman
-         try (Connection conn = DatabaseConfig.getConnection();
-              PreparedStatement ps = conn.prepareStatement(sql);
-              ResultSet rs = ps.executeQuery()) { 
-
-             while (rs.next()) { 
-                 model.addRow(new Object[]{ 
-                     rs.getInt("id"), 
-                     rs.getString("waktu_transaksi"),
-                     rs.getString("jenis_transaksi"), 
-                     rs.getString("nama_item"), 
-                     rs.getString("kode_lokasi"), 
-                     rs.getString("stock_sebelum"), 
-                     rs.getString("stock_sesudah") 
-                 }); 
-             } 
-
-             // Atur model ke tabel UI
-             TActivity.setModel(model); 
-
-             // Beritahu UI bahwa data telah berubah agar visual langsung ter-render ulang
-             model.fireTableDataChanged();
-
-             // Sembunyikan kolom ID (Index 0) secara total agar aman dari resize manual user
-             TActivity.getColumnModel().getColumn(0).setMinWidth(0); 
-             TActivity.getColumnModel().getColumn(0).setMaxWidth(0); 
-             TActivity.getColumnModel().getColumn(0).setPreferredWidth(0);
-
-         } catch (SQLException e) { 
-             JOptionPane.showMessageDialog(null, "Gagal memuat data: " + e.getMessage()); 
-         } 
-     }
-   
-    public final void loadDataInventory() { 
-                DefaultTableModel model = new DefaultTableModel() {
-                    // Best practice: Membuat sel tabel tidak bisa diedit secara manual oleh user
-                    @Override
-                    public boolean isCellEditable(int row, int column) {
-                        return false;
-                    }
-                };
-
-        // Tambahkan kolom ID di index 0 
-        model.addColumn("ID"); 
-        model.addColumn("Nama Barang"); 
-        model.addColumn("Lokasi"); 
-        model.addColumn("Stok Terkini"); 
-  
-
-        String sql = """
-            SELECT sh.id,  i.nama_item,l.kode_lokasi, sh.stok_terkini
-                        FROM inventory sh 
-                        INNER JOIN items i ON sh.item_id = i.id
-                        INNER JOIN locations l ON sh.location_id = l.id
-                        ORDER BY sh.id DESC
-            """;
-
-            // Menggunakan try-with-resources untuk menutup conn, stmt, dan rs secara otomatis dan aman
-            try (Connection conn = DatabaseConfig.getConnection();
-                 PreparedStatement ps = conn.prepareStatement(sql);
-                 ResultSet rs = ps.executeQuery()) { 
-
-                while (rs.next()) { 
-                    model.addRow(new Object[]{ 
-                        rs.getInt("id"), 
-                        rs.getString("nama_item"),
-                        rs.getString("kode_lokasi"), 
-                        rs.getString("stok_terkini") 
-                    }); 
-                } 
-
-                // Atur model ke tabel UI
-                TInventory.setModel(model); 
-
-                // Beritahu UI bahwa data telah berubah agar visual langsung ter-render ulang
-                model.fireTableDataChanged();
-
-                // Sembunyikan kolom ID (Index 0) secara total agar aman dari resize manual user
-                TInventory.getColumnModel().getColumn(0).setMinWidth(0); 
-                TInventory.getColumnModel().getColumn(0).setMaxWidth(0); 
-                TInventory.getColumnModel().getColumn(0).setPreferredWidth(0);
-
-            } catch (SQLException e) { 
-                JOptionPane.showMessageDialog(null, "Gagal memuat data: " + e.getMessage()); 
-            } 
-     }
-    private void cariInventory() {
-
-        String keyword = txtSearchInventory.getText();
-
-        DefaultTableModel model =
-            (DefaultTableModel) TInventory.getModel();
-
-        model.setRowCount(0);
-
-        try {
-
-            Connection conn = DatabaseConfig.getConnection();
-
-            String sql = """
-               SELECT sh.id,  i.nama_item,l.kode_lokasi, sh.stok_terkini
-                         FROM inventory sh 
-                         INNER JOIN items i ON sh.item_id = i.id
-                         INNER JOIN locations l ON sh.location_id = l.id
-                         WHERE i.nama_item LIKE ?
-                         OR l.kode_lokasi LIKE ?
-                         OR sh.stok_terkini LIKE ?
-                         ORDER BY sh.id DESC
-            """;
-
-            PreparedStatement ps =
-                conn.prepareStatement(sql);
-
-            ps.setString(1, "%" + keyword + "%");
-            ps.setString(2, "%" + keyword + "%");
-            ps.setString(3, "%" + keyword + "%");
-
-            ResultSet rs = ps.executeQuery();
-
-            while(rs.next()) {
-
-                model.addRow(new Object[] {
-                        rs.getInt("id"), 
-                        rs.getString("nama_item"),
-                        rs.getString("kode_lokasi"), 
-                        rs.getString("stok_terkini") 
-                });
-            }
-
-        } catch(Exception e) {
-
-            JOptionPane.showMessageDialog(
-                this,
-                e.getMessage()
-            );
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
         }
+    };
+
+    model.addColumn("ID");
+    model.addColumn("Jam");
+    model.addColumn("Aktifitas");
+    model.addColumn("Barang");
+    model.addColumn("Lokasi");
+    model.addColumn("Stok Sebelum");
+    model.addColumn("Stok Sesudah");
+
+    int offset = (currentPageActivity - 1) * dataPerPageActivity;
+
+    String sql = """
+        SELECT sh.id,
+               sh.waktu_transaksi,
+               sh.jenis_transaksi,
+               i.nama_item,
+               l.kode_lokasi,
+               sh.stock_sebelum,
+               sh.stock_sesudah
+        FROM stock_history sh
+        INNER JOIN items i ON sh.item_id = i.id
+        INNER JOIN locations l ON sh.location_id = l.id
+        ORDER BY sh.id DESC
+        LIMIT ? OFFSET ?
+        """;
+
+    try (
+        Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)
+    ) {
+
+        ps.setInt(1, dataPerPageActivity);
+        ps.setInt(2, offset);
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+
+            model.addRow(new Object[]{
+                rs.getInt("id"),
+                rs.getString("waktu_transaksi"),
+                rs.getString("jenis_transaksi"),
+                rs.getString("nama_item"),
+                rs.getString("kode_lokasi"),
+                rs.getString("stock_sebelum"),
+                rs.getString("stock_sesudah")
+            });
+        }
+
+        TActivity.setModel(model);
+
+        
+
+        // Hide ID
+        TActivity.getColumnModel().getColumn(0).setMinWidth(0);
+        TActivity.getColumnModel().getColumn(0).setMaxWidth(0);
+        TActivity.getColumnModel().getColumn(0).setPreferredWidth(0);
+
+        // ===== UPDATE PAGINATION =====
+        LPActivity.setText(
+            "Page " + currentPageActivity + " / " + totalPageActivity
+        );
+
+        updatePaginationButtonActivity();
+
+    } catch (SQLException e) {
+
+        JOptionPane.showMessageDialog(
+            null,
+            "Gagal memuat data: " + e.getMessage()
+        );
     }
-    
-     private void cariActivity() {
+     }
+     private void updatePaginationButtonActivity() {
+        // PREVIOUS
+           BPActivity.setEnabled(currentPageActivity > 1);
+           // NEXT
+           BNActivity.setEnabled(currentPageActivity < totalPageActivity);
+           // STYLE PREVIOUS
+           if (BPActivity.isEnabled()) {
+               BPActivity.setBackground(
+                   new java.awt.Color(0,153,204)
+               );
+               BPActivity.setForeground(java.awt.Color.WHITE);
+
+           } else {
+
+               BPActivity.setBackground(
+                   new java.awt.Color(220, 220, 220)
+               );
+
+               BPActivity.setForeground(
+                   new java.awt.Color(120,120,120)
+               );
+           }
+
+           // STYLE NEXT
+           if (BNActivity.isEnabled()) {
+
+               BNActivity.setBackground(
+                   new java.awt.Color(0,153,204)
+               );
+
+               BNActivity.setForeground(java.awt.Color.WHITE);
+
+           } else {
+
+               BNActivity.setBackground(
+                   new java.awt.Color(220,220,220)
+               );
+
+               BNActivity.setForeground(
+                   new java.awt.Color(120,120,120)
+               );
+           }
+       }
+    private void cariActivity() {
 
         String keyword = txtSearchActivity.getText();
 
@@ -751,24 +768,240 @@ public static DashboardManager instance;
             );
         }
     }
+     private void hitungTotalDataActivity() {
+
+    String sql = "SELECT COUNT(*) AS total FROM stock_history";
+
+    try (
+        Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()
+    ) {
+
+        if (rs.next()) {
+
+            totalDataActivity = rs.getInt("total");
+
+            totalPageActivity = (int) Math.ceil(
+                (double) totalDataActivity / dataPerPageActivity
+            );
+        }
+
+    } catch (Exception e) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            e.getMessage()
+        );
+    }
+}
+    
+     
+      public final void loadDataInventory() { 
+                DefaultTableModel model = new DefaultTableModel() {
+                    // Best practice: Membuat sel tabel tidak bisa diedit secara manual oleh user
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false;
+                    }
+                };
+
+        // Tambahkan kolom ID di index 0 
+        model.addColumn("ID"); 
+        model.addColumn("Nama Barang"); 
+        model.addColumn("Lokasi"); 
+        model.addColumn("Stok Terkini"); 
+  
+    int offset = (currentPageInventory - 1) * dataPerPageInventory;
+        String sql = """
+            SELECT sh.id,  i.nama_item,l.kode_lokasi, sh.stok_terkini
+                        FROM inventory sh 
+                        INNER JOIN items i ON sh.item_id = i.id
+                        INNER JOIN locations l ON sh.location_id = l.id
+                        ORDER BY sh.id DESC
+            """;
+
+            // Menggunakan try-with-resources untuk menutup conn, stmt, dan rs secara otomatis dan aman
+            try (Connection conn = DatabaseConfig.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery()) { 
+
+                while (rs.next()) { 
+                    model.addRow(new Object[]{ 
+                        rs.getInt("id"), 
+                        rs.getString("nama_item"),
+                        rs.getString("kode_lokasi"), 
+                        rs.getString("stok_terkini") 
+                    }); 
+                } 
+
+                // Atur model ke tabel UI
+                TInventory.setModel(model); 
+
+                // Beritahu UI bahwa data telah berubah agar visual langsung ter-render ulang
+                model.fireTableDataChanged();
+
+                // Sembunyikan kolom ID (Index 0) secara total agar aman dari resize manual user
+                TInventory.getColumnModel().getColumn(0).setMinWidth(0); 
+                TInventory.getColumnModel().getColumn(0).setMaxWidth(0); 
+                TInventory.getColumnModel().getColumn(0).setPreferredWidth(0);
+
+                
+                // ===== UPDATE PAGINATION =====
+                LPInventory.setText(
+                    "Page " + currentPageActivity + " / " + totalPageActivity
+                );
+                updatePaginationButtonInventory();
+            } catch (SQLException e) { 
+                JOptionPane.showMessageDialog(null, "Gagal memuat data: " + e.getMessage()); 
+            } 
+     }
+    private void updatePaginationButtonInventory() {
+        // PREVIOUS
+           BPInventory.setEnabled(currentPageInventory > 1);
+
+           // NEXT
+           BNInventory.setEnabled(currentPageActivity < totalPageInventory);
+
+           // STYLE PREVIOUS
+           if (BPInventory.isEnabled()) {
+
+               BPInventory.setBackground(
+                   new java.awt.Color(0,153,204)
+               );
+
+               BPInventory.setForeground(java.awt.Color.WHITE);
+
+           } else {
+
+               BPInventory.setBackground(
+                   new java.awt.Color(220, 220, 220)
+               );
+
+               BPInventory.setForeground(
+                   new java.awt.Color(120,120,120)
+               );
+           }
+
+           // STYLE NEXT
+           if (BNInventory.isEnabled()) {
+
+               BNInventory.setBackground(
+                   new java.awt.Color(0,153,204)
+               );
+
+               BNInventory.setForeground(java.awt.Color.WHITE);
+
+           } else {
+
+               BNInventory.setBackground(
+                   new java.awt.Color(220,220,220)
+               );
+
+               BNInventory.setForeground(
+                   new java.awt.Color(120,120,120)
+               );
+           }
+       }
+    private void cariInventory() {
+
+        String keyword = txtSearchInventory.getText();
+
+        DefaultTableModel model =
+            (DefaultTableModel) TInventory.getModel();
+
+        model.setRowCount(0);
+
+        try {
+
+            Connection conn = DatabaseConfig.getConnection();
+
+            String sql = """
+               SELECT sh.id,  i.nama_item,l.kode_lokasi, sh.stok_terkini
+                         FROM inventory sh 
+                         INNER JOIN items i ON sh.item_id = i.id
+                         INNER JOIN locations l ON sh.location_id = l.id
+                         WHERE i.nama_item LIKE ?
+                         OR l.kode_lokasi LIKE ?
+                         OR sh.stok_terkini LIKE ?
+                         ORDER BY sh.id DESC
+            """;
+
+            PreparedStatement ps =
+                conn.prepareStatement(sql);
+
+            ps.setString(1, "%" + keyword + "%");
+            ps.setString(2, "%" + keyword + "%");
+            ps.setString(3, "%" + keyword + "%");
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()) {
+
+                model.addRow(new Object[] {
+                        rs.getInt("id"), 
+                        rs.getString("nama_item"),
+                        rs.getString("kode_lokasi"), 
+                        rs.getString("stok_terkini") 
+                });
+            }
+
+        } catch(Exception e) {
+
+            JOptionPane.showMessageDialog(
+                this,
+                e.getMessage()
+            );
+        }
+    }
+    private void hitungTotalDataInventory() {
+
+    String sql = "SELECT COUNT(*) AS total FROM inventory";
+
+    try (
+        Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()
+    ) {
+
+        if (rs.next()) {
+
+            totalDataInventory = rs.getInt("total");
+
+            totalPageInventory = (int) Math.ceil(
+                (double) totalDataInventory / dataPerPageInventory
+            );
+        }
+
+    } catch (Exception e) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            e.getMessage()
+        );
+    }
+}
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton BNActivity;
+    private javax.swing.JButton BNInventory;
+    private javax.swing.JButton BPActivity;
+    private javax.swing.JButton BPInventory;
     private javax.swing.JButton BReportActivity;
     private javax.swing.JButton BReportInventory;
+    private javax.swing.JButton BSearchActivity;
+    private javax.swing.JButton BSearchInventory;
     private javax.swing.JLabel LBarangKeluar;
     private javax.swing.JLabel LBarangMasuk;
     private javax.swing.JLabel LInventory;
+    private javax.swing.JLabel LPActivity;
+    private javax.swing.JLabel LPInventory;
     private javax.swing.JTable TActivity;
     private javax.swing.JTable TInventory;
     private javax.swing.JPanel header;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
