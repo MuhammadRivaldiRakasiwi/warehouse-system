@@ -231,6 +231,7 @@ private int getCurrentStock( int itemId,int locationId) {
         btnKirim.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnKirim.setForeground(new java.awt.Color(255, 255, 255));
         btnKirim.setText("Kirim");
+        btnKirim.setBorderPainted(false);
         btnKirim.addActionListener(this::btnKirimActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

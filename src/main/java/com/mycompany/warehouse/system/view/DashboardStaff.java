@@ -150,11 +150,11 @@ public final void loadDataCount(){
         jPanel7.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 20, 10, 20));
         jPanel7.setLayout(new java.awt.GridLayout(1, 0, 15, 0));
 
-        jPanel1.setBackground(new java.awt.Color(233, 238, 251));
-        jPanel1.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(58, 113, 245), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         jLabel2.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(152, 177, 237));
+        jLabel2.setForeground(new java.awt.Color(119, 130, 153));
         jLabel2.setText("Total Barang");
 
         LTotalBarang.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N
@@ -179,11 +179,11 @@ public final void loadDataCount(){
 
         jPanel7.add(jPanel1);
 
-        jPanel3.setBackground(new java.awt.Color(232, 249, 243));
-        jPanel3.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 204, 102), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         jLabel6.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(106, 225, 166));
+        jLabel6.setForeground(new java.awt.Color(119, 130, 153));
         jLabel6.setText("Barang Masuk Hari ini");
 
         LBarangMasuk.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N
@@ -208,11 +208,11 @@ public final void loadDataCount(){
 
         jPanel7.add(jPanel3);
 
-        jPanel4.setBackground(new java.awt.Color(254, 233, 238));
-        jPanel4.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 0, 51), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel4.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         jLabel7.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(216, 71, 107));
+        jLabel7.setForeground(new java.awt.Color(119, 130, 153));
         jLabel7.setText("Barang Keluar Hari ini");
 
         LBarangKeluar.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N
@@ -238,11 +238,11 @@ public final void loadDataCount(){
 
         jPanel7.add(jPanel4);
 
-        jPanel2.setBackground(new java.awt.Color(254, 248, 227));
-        jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 204, 0), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         jLabel4.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(235, 211, 112));
+        jLabel4.setForeground(new java.awt.Color(119, 130, 153));
         jLabel4.setText("Barang Hampir Habis");
 
         LBarangHampirHabis.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N

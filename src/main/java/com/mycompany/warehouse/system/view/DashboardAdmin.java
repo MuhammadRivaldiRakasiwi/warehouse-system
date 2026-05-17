@@ -161,25 +161,29 @@ public class DashboardAdmin extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        Body = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        jPanel9 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         LUser = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
-        LItem = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         LSupplier = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         LLocation = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+        LItem = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         LBarangMasuk = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
         LBarangKeluar = new javax.swing.JLabel();
+        jPanel10 = new javax.swing.JPanel();
         jPanel7 = new javax.swing.JPanel();
         jLabel15 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -190,6 +194,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
         jLabel7 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jPanel11 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         jLabel16 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
@@ -200,18 +205,31 @@ public class DashboardAdmin extends javax.swing.JPanel {
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jLabel13 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(248, 250, 252));
 
+        Body.setBackground(new java.awt.Color(248, 250, 252));
+        Body.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 20, 10, 20));
+        Body.setLayout(new java.awt.BorderLayout(0, 5));
+
         jLabel2.setFont(new java.awt.Font("Urbanist ExtraBold", 0, 18)); // NOI18N
         jLabel2.setText("Selamat datang di Gudangin.aja");
+        Body.add(jLabel2, java.awt.BorderLayout.CENTER);
 
-        jPanel1.setBackground(new java.awt.Color(227, 254, 254));
-        jPanel1.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 153, 153), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+        jLabel14.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        jLabel14.setForeground(new java.awt.Color(142, 157, 166));
+        jLabel14.setText("Kelola stok barang dan pantau aktivitas gudang dengan lebih mudah.");
+        Body.add(jLabel14, java.awt.BorderLayout.PAGE_END);
+
+        jPanel9.setBackground(new java.awt.Color(248, 250, 252));
+        jPanel9.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        jPanel9.setLayout(new java.awt.GridLayout(1, 0, 15, 0));
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         jLabel1.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 204, 204));
+        jLabel1.setForeground(new java.awt.Color(119, 130, 153));
         jLabel1.setText("Users");
 
         LUser.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N
@@ -223,7 +241,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(LUser, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+            .addComponent(LUser, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -234,38 +252,13 @@ public class DashboardAdmin extends javax.swing.JPanel {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        jPanel2.setBackground(new java.awt.Color(218, 218, 255));
-        jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(102, 0, 153), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+        jPanel9.add(jPanel1);
 
-        jLabel4.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(123, 48, 160));
-        jLabel4.setText("Barang");
-
-        LItem.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N
-        LItem.setForeground(new java.awt.Color(102, 0, 153));
-        LItem.setText("2.000");
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(LItem, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jLabel4)
-                .addGap(5, 5, 5)
-                .addComponent(LItem)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
-
-        jPanel3.setBackground(new java.awt.Color(228, 236, 254));
-        jPanel3.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 102, 204), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         jLabel6.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(85, 158, 231));
+        jLabel6.setForeground(new java.awt.Color(119, 130, 153));
         jLabel6.setText("Supplier");
 
         LSupplier.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N
@@ -276,7 +269,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
             .addComponent(LSupplier, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
@@ -288,11 +281,13 @@ public class DashboardAdmin extends javax.swing.JPanel {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        jPanel4.setBackground(new java.awt.Color(253, 212, 242));
-        jPanel4.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 0, 153), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+        jPanel9.add(jPanel3);
+
+        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel4.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         jLabel8.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(255, 51, 204));
+        jLabel8.setForeground(new java.awt.Color(119, 130, 153));
         jLabel8.setText("Lokasi");
 
         LLocation.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N
@@ -303,7 +298,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+            .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
             .addComponent(LLocation, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
@@ -315,11 +310,42 @@ public class DashboardAdmin extends javax.swing.JPanel {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        jPanel5.setBackground(new java.awt.Color(221, 255, 221));
-        jPanel5.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 204, 51), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+        jPanel9.add(jPanel4);
+
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+
+        jLabel4.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(119, 130, 153));
+        jLabel4.setText("Barang");
+
+        LItem.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N
+        LItem.setForeground(new java.awt.Color(102, 0, 153));
+        LItem.setText("2.000");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(LItem, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(jLabel4)
+                .addGap(5, 5, 5)
+                .addComponent(LItem)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+
+        jPanel9.add(jPanel2);
+
+        jPanel5.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel5.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         jLabel10.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(49, 217, 91));
+        jLabel10.setForeground(new java.awt.Color(119, 130, 153));
         jLabel10.setText("Barang Masuk");
 
         LBarangMasuk.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N
@@ -330,7 +356,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+            .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
             .addComponent(LBarangMasuk, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel5Layout.setVerticalGroup(
@@ -342,11 +368,13 @@ public class DashboardAdmin extends javax.swing.JPanel {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        jPanel6.setBackground(new java.awt.Color(253, 228, 228));
-        jPanel6.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 0, 0), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+        jPanel9.add(jPanel5);
+
+        jPanel6.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel6.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         jLabel12.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
-        jLabel12.setForeground(new java.awt.Color(255, 51, 51));
+        jLabel12.setForeground(new java.awt.Color(119, 130, 153));
         jLabel12.setText("Barang Keluar");
 
         LBarangKeluar.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N
@@ -357,7 +385,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+            .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
             .addComponent(LBarangKeluar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel6Layout.setVerticalGroup(
@@ -368,6 +396,12 @@ public class DashboardAdmin extends javax.swing.JPanel {
                 .addComponent(LBarangKeluar)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
+
+        jPanel9.add(jPanel6);
+
+        jPanel10.setBackground(new java.awt.Color(248, 250, 252));
+        jPanel10.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        jPanel10.setLayout(new java.awt.BorderLayout());
 
         jPanel7.setBackground(new java.awt.Color(255, 255, 255));
         jPanel7.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
@@ -426,7 +460,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLabel15, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jScrollPane1)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 865, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -457,6 +491,12 @@ public class DashboardAdmin extends javax.swing.JPanel {
                         .addComponent(jButton2))
                     .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
+
+        jPanel10.add(jPanel7, java.awt.BorderLayout.PAGE_START);
+
+        jPanel11.setBackground(new java.awt.Color(248, 250, 252));
+        jPanel11.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 20, 20, 20));
+        jPanel11.setLayout(new java.awt.BorderLayout());
 
         jPanel8.setBackground(new java.awt.Color(255, 255, 255));
         jPanel8.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
@@ -517,7 +557,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
                 .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jTextField2))
-            .addComponent(jScrollPane2)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 865, Short.MAX_VALUE)
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
@@ -546,55 +586,28 @@ public class DashboardAdmin extends javax.swing.JPanel {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        jLabel14.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
-        jLabel14.setForeground(new java.awt.Color(142, 157, 166));
-        jLabel14.setText("Kelola stok barang dan pantau aktivitas gudang dengan lebih mudah.");
+        jPanel11.add(jPanel8, java.awt.BorderLayout.PAGE_START);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(20, Short.MAX_VALUE))
+            .addComponent(Body, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel14)
-                .addGap(20, 20, 20)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20)
-                .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20))
+                .addComponent(Body, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 50, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -616,6 +629,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel Body;
     private javax.swing.JLabel LBarangKeluar;
     private javax.swing.JLabel LBarangMasuk;
     private javax.swing.JLabel LItem;
@@ -645,6 +659,8 @@ public class DashboardAdmin extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -652,6 +668,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField jTextField1;

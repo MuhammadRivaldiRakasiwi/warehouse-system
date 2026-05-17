@@ -144,6 +144,7 @@ public class BarangMasukPanel extends javax.swing.JPanel {
         btnSimpan.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnSimpan.setForeground(new java.awt.Color(255, 255, 255));
         btnSimpan.setText("Simpan");
+        btnSimpan.setBorderPainted(false);
         btnSimpan.addActionListener(this::btnSimpanActionPerformed);
 
         jLabel6.setText("Harga                           :");
