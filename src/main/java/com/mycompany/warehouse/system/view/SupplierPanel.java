@@ -6,11 +6,13 @@ package com.mycompany.warehouse.system.view;
 
 import com.mycompany.warehouse.system.DatabaseConfig;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.PreparedStatement;
 import javax.swing.JOptionPane;
+import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -19,67 +21,29 @@ import javax.swing.table.DefaultTableModel;
 public class SupplierPanel extends javax.swing.JPanel {
 
     private int selectedId = -1;
+    private TableRowSorter<DefaultTableModel> rowSorter;
+    private final java.util.List<Integer> supplierIds = new java.util.ArrayList<>();
 
-    /**
-     * Creates new form SupplierPanel
-     */
+    /** Creates new form SupplierPanel */
     public SupplierPanel() {
         initComponents();
+        setupSearch();
+        setupTable();
         loadData();
     }
 
-    public final void loadData() {
-        DefaultTableModel model = new DefaultTableModel() {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        model.addColumn("ID");
-        model.addColumn("Kode");
-        model.addColumn("Nama Supplier");
-        model.addColumn("No. Telepon");
-        model.addColumn("Email");
-        model.addColumn("Kontak Person");
-        model.addColumn("Alamat");
-
-        try (Connection conn = DatabaseConfig.getConnection()) {
-            String sql = "SELECT id, kode_supplier, nama_supplier, no_telepon, email, kontak_person, alamat "
-                       + "FROM suppliers WHERE status_aktif = 1 ORDER BY id ASC";
-            ResultSet rs = conn.createStatement().executeQuery(sql);
-            while (rs.next()) {
-                model.addRow(new Object[]{
-                    rs.getInt("id"),
-                    rs.getString("kode_supplier"),
-                    rs.getString("nama_supplier"),
-                    rs.getString("no_telepon"),
-                    rs.getString("email"),
-                    rs.getString("kontak_person"),
-                    rs.getString("alamat")
-                });
-            }
-            tabelSupplier.setModel(model);
-
-            // Sembunyikan kolom ID (index 0)
-            tabelSupplier.getColumnModel().getColumn(0).setMinWidth(0);
-            tabelSupplier.getColumnModel().getColumn(0).setMaxWidth(0);
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Gagal memuat data: " + e.getMessage());
-        }
-    }
-
-    private void clearForm() {
-        inputNama.setText("");
-        inputAlamat.setText("");
-        inputTelepon.setText("");
-        inputEmail.setText("");
-        inputKontakPerson.setText("");
-        selectedId = -1;
-        btnSimpan.setEnabled(true);
-        btnEdit.setEnabled(false);
-        inputNama.requestFocus();
-        loadData();
+    /**
+     * Bungkus panel ini ke dalam JScrollPane (untuk scroll vertikal/horizontal).
+     * Dipanggil oleh ContentFrame saat menambah panel ke CardLayout.
+     * @return JScrollPane yang membungkus panel ini.
+     */
+    public javax.swing.JScrollPane asScrollable() {
+        javax.swing.JScrollPane sp = new javax.swing.JScrollPane(this);
+        sp.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+        sp.getVerticalScrollBar().setUnitIncrement(16);
+        sp.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        sp.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        return sp;
     }
 
     /**
@@ -91,375 +55,541 @@ public class SupplierPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        jSeparator1 = new javax.swing.JSeparator();
-        jLabel2 = new javax.swing.JLabel();
-        jSeparator2 = new javax.swing.JSeparator();
-        jLabel3 = new javax.swing.JLabel();
-        inputNama = new javax.swing.JTextField();
-        jLabel4 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        inputAlamat = new javax.swing.JTextArea();
-        jLabel5 = new javax.swing.JLabel();
-        inputTelepon = new javax.swing.JTextField();
-        jLabel6 = new javax.swing.JLabel();
-        inputEmail = new javax.swing.JTextField();
-        jLabel7 = new javax.swing.JLabel();
-        inputKontakPerson = new javax.swing.JTextField();
-        btnSimpan = new javax.swing.JButton();
-        btnEdit = new javax.swing.JButton();
+        jLabel24 = new javax.swing.JLabel();
+        label7 = new java.awt.Label();
+        jPanel10 = new javax.swing.JPanel();
+        jLabel30 = new javax.swing.JLabel();
+        label8 = new java.awt.Label();
+        jLabel25 = new javax.swing.JLabel();
+        jTextField4 = new javax.swing.JTextField();
+        jLabel26 = new javax.swing.JLabel();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        jTextArea2 = new javax.swing.JTextArea();
+        jLabel27 = new javax.swing.JLabel();
+        jTextField6 = new javax.swing.JTextField();
+        jLabel28 = new javax.swing.JLabel();
+        jTextField10 = new javax.swing.JTextField();
+        jLabel29 = new javax.swing.JLabel();
+        jTextFieldKontak = new javax.swing.JTextField();
+        jButton2 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
         btnHapus = new javax.swing.JButton();
-        btnReset = new javax.swing.JButton();
-        jSeparator3 = new javax.swing.JSeparator();
-        jLabel8 = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        tabelSupplier = new javax.swing.JTable();
+        jSeparator5 = new javax.swing.JSeparator();
+        jLabel23 = new javax.swing.JLabel();
+        label5 = new java.awt.Label();
+        jPanel8 = new javax.swing.JPanel();
+        jTextField8 = new javax.swing.JTextField();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jTable4 = new javax.swing.JTable();
+        label6 = new java.awt.Label();
+        jLabel1 = new javax.swing.JLabel();
+        jButton3 = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
-        jLabel1.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
-        jLabel1.setText("Manajemen Supplier");
+        setBackground(new java.awt.Color(244, 245, 246));
 
-        jLabel2.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
-        jLabel2.setText("Form Input");
+        jLabel24.setFont(new java.awt.Font("Urbanist", 1, 16)); // NOI18N
+        jLabel24.setText("Manajemen Suplier");
 
-        jLabel3.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
-        jLabel3.setText("Nama Supplier");
+        label7.setBackground(new java.awt.Color(248, 250, 252));
+        label7.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        label7.setForeground(new java.awt.Color(142, 157, 166));
+        label7.setText("Kelola semua data suplier.");
 
-        jLabel4.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
-        jLabel4.setText("Alamat");
+        jPanel10.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel10.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true),
+                javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
-        inputAlamat.setColumns(20);
-        inputAlamat.setRows(3);
-        inputAlamat.setLineWrap(true);
-        inputAlamat.setWrapStyleWord(true);
-        jScrollPane1.setViewportView(inputAlamat);
+        jLabel30.setFont(new java.awt.Font("Urbanist", 1, 14)); // NOI18N
+        jLabel30.setText("Informasi Suplier");
 
-        jLabel5.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
-        jLabel5.setText("No. Telepon");
+        label8.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        label8.setForeground(new java.awt.Color(142, 157, 166));
+        label8.setText("Silahkan isi form berikut untuk menambahkan data suplier, data otomatis masuk ke tabel suplier.");
 
-        jLabel6.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
-        jLabel6.setText("Email");
+        jLabel25.setText("Nama Suplier");
+        jTextField4.setForeground(new java.awt.Color(0, 0, 0));
 
-        jLabel7.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
-        jLabel7.setText("Kontak Person");
+        jLabel26.setText("Alamat");
+        jTextArea2.setColumns(20);
+        jTextArea2.setRows(3);
+        jTextArea2.setForeground(new java.awt.Color(0, 0, 0));
+        jScrollPane6.setViewportView(jTextArea2);
 
-        btnSimpan.setBackground(new java.awt.Color(39, 174, 96));
-        btnSimpan.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnSimpan.setForeground(new java.awt.Color(255, 255, 255));
-        btnSimpan.setText("Simpan");
-        btnSimpan.addActionListener(this::btnSimpanActionPerformed);
+        jLabel27.setText("No. Telepon");
+        jTextField6.setForeground(new java.awt.Color(0, 0, 0));
 
-        btnEdit.setBackground(new java.awt.Color(243, 156, 18));
-        btnEdit.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnEdit.setForeground(new java.awt.Color(255, 255, 255));
-        btnEdit.setText("Edit");
-        btnEdit.setEnabled(false);
-        btnEdit.addActionListener(this::btnEditActionPerformed);
+        jLabel28.setText("Email");
+        jTextField10.setForeground(new java.awt.Color(0, 0, 0));
 
-        btnHapus.setBackground(new java.awt.Color(231, 76, 60));
-        btnHapus.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel29.setText("Kontak Person");
+        jTextFieldKontak.setForeground(new java.awt.Color(0, 0, 0));
+
+        jButton2.setBackground(new java.awt.Color(39, 174, 96));
+        jButton2.setFont(new java.awt.Font("Inter Medium", 0, 12)); // NOI18N
+        jButton2.setForeground(new java.awt.Color(255, 255, 255));
+        jButton2.setText("Simpan Data");
+        jButton2.setBorderPainted(false);
+        jButton2.setFocusPainted(false);
+        jButton2.addActionListener(this::jButton2ActionPerformed);
+
+        jButton5.setBackground(new java.awt.Color(51, 0, 102));
+        jButton5.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        jButton5.setForeground(new java.awt.Color(255, 255, 255));
+        jButton5.setText("Reset");
+        jButton5.setBorderPainted(false);
+        jButton5.setFocusPainted(false);
+        jButton5.addActionListener(this::jButton5ActionPerformed);
+
+        btnHapus.setBackground(new java.awt.Color(192, 57, 43));
+        btnHapus.setFont(new java.awt.Font("Inter Medium", 0, 12)); // NOI18N
         btnHapus.setForeground(new java.awt.Color(255, 255, 255));
-        btnHapus.setText("Hapus");
+        btnHapus.setText("Hapus Data");
+        btnHapus.setBorderPainted(false);
+        btnHapus.setFocusPainted(false);
         btnHapus.addActionListener(this::btnHapusActionPerformed);
 
-        btnReset.setBackground(new java.awt.Color(149, 165, 166));
-        btnReset.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnReset.setForeground(new java.awt.Color(255, 255, 255));
-        btnReset.setText("Reset");
-        btnReset.addActionListener(this::btnResetActionPerformed);
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel30, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(label8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jLabel25, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jTextField4)
+            .addComponent(jLabel26, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jScrollPane6)
+            .addComponent(jLabel27, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jTextField6)
+            .addComponent(jLabel28, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jTextField10)
+            .addComponent(jLabel29, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jTextFieldKontak)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addComponent(jButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnHapus)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addComponent(jLabel30)
+                .addGap(2, 2, 2)
+                .addComponent(label8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(jLabel25)
+                .addGap(4, 4, 4)
+                .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel26)
+                .addGap(4, 4, 4)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel27)
+                .addGap(4, 4, 4)
+                .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel28)
+                .addGap(4, 4, 4)
+                .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel29)
+                .addGap(4, 4, 4)
+                .addComponent(jTextFieldKontak, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton2)
+                    .addComponent(jButton5)
+                    .addComponent(btnHapus)))
+        );
 
-        jLabel8.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
-        jLabel8.setText("Table Data Supplier");
+        jLabel23.setFont(new java.awt.Font("Urbanist", 1, 16)); // NOI18N
+        jLabel23.setText("Table Data Supplier");
 
-        tabelSupplier.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
-        tabelSupplier.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {},
-            new String [] { "ID", "Kode", "Nama Supplier", "No. Telepon", "Email", "Kontak Person", "Alamat" }
+        label5.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        label5.setForeground(new java.awt.Color(142, 157, 166));
+        label5.setText("List data supplier.");
+
+        jPanel8.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel8.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true),
+                javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+
+        jTextField8.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        jTextField8.setForeground(new java.awt.Color(0, 0, 0));
+        jTextField8.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        jTextField8.setText("Cari data..");
+        jTextField8.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                new javax.swing.border.LineBorder(new java.awt.Color(225, 228, 231), 1, true),
+                javax.swing.BorderFactory.createEmptyBorder(6, 10, 6, 10)));
+
+        jTable4.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        jTable4.setForeground(new java.awt.Color(0, 0, 0));
+        jTable4.setModel(new javax.swing.table.DefaultTableModel(
+            new Object[][]{},
+            new String[]{"Kode", "Nama Supplier", "No. Telepon", "Email", "Kontak Person", "Alamat"}
         ));
-        tabelSupplier.setGridColor(new java.awt.Color(200, 200, 200));
-        tabelSupplier.setShowGrid(true);
-        tabelSupplier.setSelectionBackground(new java.awt.Color(0, 153, 153));
-        tabelSupplier.setSelectionForeground(new java.awt.Color(255, 255, 255));
-        tabelSupplier.setRowHeight(22);
-        tabelSupplier.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tabelSupplierMouseClicked(evt);
-            }
-        });
-        jScrollPane2.setViewportView(tabelSupplier);
+        jTable4.setGridColor(new java.awt.Color(225, 228, 231));
+        jTable4.setRowHeight(28);
+        jTable4.setSelectionBackground(new java.awt.Color(184, 207, 229));
+        jTable4.setSelectionForeground(new java.awt.Color(0, 0, 0));
+        jTable4.setShowGrid(true);
+        jScrollPane5.setViewportView(jTable4);
+
+        label6.setFont(new java.awt.Font("Inter", 0, 10)); // NOI18N
+        label6.setForeground(new java.awt.Color(142, 157, 166));
+        label6.setText("Total data supplier.");
+
+        jLabel1.setText("Cari data:");
+
+        jButton3.setText("Previous");
+        jButton3.setBorderPainted(false);
+        jButton3.setEnabled(false);
+        jButton3.addActionListener(this::jButton3ActionPerformed);
+
+        jButton1.setBackground(new java.awt.Color(0, 153, 204));
+        jButton1.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        jButton1.setForeground(new java.awt.Color(255, 255, 255));
+        jButton1.setText("Next");
+        jButton1.setBorderPainted(false);
+        jButton1.addActionListener(this::jButton1ActionPerformed);
+
+        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
+        jPanel8.setLayout(jPanel8Layout);
+        jPanel8Layout.setHorizontalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jTextField8)
+            .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(label6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel8Layout.setVerticalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(label6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(30, 30, 30)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(295, 295, 295)
-                        .addComponent(jLabel1))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 721, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(38, 38, 38)
-                        .addComponent(jLabel2))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(23, 23, 23)
-                        .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 680, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(38, 38, 38)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(inputNama, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
-                            .addComponent(jScrollPane1)
-                            .addComponent(inputTelepon)
-                            .addComponent(inputEmail)
-                            .addComponent(inputKontakPerson)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(178, 178, 178)
-                        .addComponent(btnSimpan)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnEdit)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnHapus)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnReset))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(23, 23, 23)
-                        .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 680, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(38, 38, 38)
-                        .addComponent(jLabel8))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(38, 38, 38)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 650, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabel24, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(label7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jSeparator5)
+                    .addComponent(jLabel23, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(label5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(30, 30, 30))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addComponent(jLabel1)
-                .addGap(6, 6, 6)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(6, 6, 6)
-                .addComponent(jLabel2)
-                .addGap(6, 6, 6)
-                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(6, 6, 6)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(inputNama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(20, 20, 20)
+                .addComponent(jLabel24)
+                .addGap(0, 0, 0)
+                .addComponent(label7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(15, 15, 15)
+                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(20, 20, 20)
+                .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(15, 15, 15)
+                .addComponent(jLabel23)
+                .addGap(0, 0, 0)
+                .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(10, 10, 10)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(10, 10, 10)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(inputTelepon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(6, 6, 6)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(inputEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(6, 6, 6)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(inputKontakPerson, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(12, 12, 12)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnSimpan)
-                    .addComponent(btnEdit)
-                    .addComponent(btnHapus)
-                    .addComponent(btnReset))
-                .addGap(18, 18, 18)
-                .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(6, 6, 6)
-                .addComponent(jLabel8)
-                .addGap(12, 12, 12)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(20, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
-        // --- VALIDASI ---
-        if (inputNama.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nama supplier tidak boleh kosong!");
-            inputNama.requestFocus();
-            return;
-        }
-        if (inputTelepon.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No. Telepon tidak boleh kosong!");
-            inputTelepon.requestFocus();
-            return;
-        }
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        simpanData();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
-        // --- GENERATE KODE SUPPLIER OTOMATIS (SUP-001) ---
-        String sql = "INSERT INTO suppliers (kode_supplier, nama_supplier, alamat, no_telepon, email, kontak_person, status_aktif) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, 1)";
-
-        try (Connection conn = DatabaseConfig.getConnection()) {
-
-            // Generate kode otomatis berdasarkan ID terakhir
-            String queryCek = "SELECT MAX(id) AS last_id FROM suppliers";
-            PreparedStatement psCek = conn.prepareStatement(queryCek);
-            ResultSet rs = psCek.executeQuery();
-            int urutan = 1;
-            if (rs.next()) {
-                urutan = rs.getInt("last_id") + 1;
-            }
-            String kodeOtomatis = String.format("SUP-%03d", urutan);
-
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, kodeOtomatis);
-                ps.setString(2, inputNama.getText().trim());
-                ps.setString(3, inputAlamat.getText().trim());
-                ps.setString(4, inputTelepon.getText().trim());
-                ps.setString(5, inputEmail.getText().trim());
-                ps.setString(6, inputKontakPerson.getText().trim());
-
-                ps.executeUpdate();
-                JOptionPane.showMessageDialog(this, "Data supplier berhasil disimpan!\nKode: " + kodeOtomatis);
-                clearForm();
-            }
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Gagal simpan: " + e.getMessage());
-        }
-    }//GEN-LAST:event_btnSimpanActionPerformed
-
-    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
-        if (selectedId == -1) {
-            JOptionPane.showMessageDialog(this, "Pilih data di tabel yang ingin diubah!");
-            return;
-        }
-        if (inputNama.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nama supplier tidak boleh kosong!");
-            inputNama.requestFocus();
-            return;
-        }
-
-        String sql = "UPDATE suppliers SET nama_supplier=?, alamat=?, no_telepon=?, email=?, kontak_person=? WHERE id=?";
-
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, inputNama.getText().trim());
-            ps.setString(2, inputAlamat.getText().trim());
-            ps.setString(3, inputTelepon.getText().trim());
-            ps.setString(4, inputEmail.getText().trim());
-            ps.setString(5, inputKontakPerson.getText().trim());
-            ps.setInt(6, selectedId);
-
-            int rows = ps.executeUpdate();
-            if (rows > 0) {
-                JOptionPane.showMessageDialog(this, "Data supplier berhasil diperbarui!");
-                clearForm();
-            }
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Gagal update: " + e.getMessage());
-        }
-    }//GEN-LAST:event_btnEditActionPerformed
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        clearForm();
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
-        int row = tabelSupplier.getSelectedRow();
-        if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Pilih data di tabel dulu!");
+        hapusData();
+    }//GEN-LAST:event_btnHapusActionPerformed
+
+    // ============================================================
+    // BUSINESS LOGIC: CRUD Supplier
+    // ============================================================
+
+    public final void loadData() {
+        DefaultTableModel model = new DefaultTableModel(
+                new String[]{"Kode", "Nama Supplier", "No. Telepon", "Email", "Kontak Person", "Alamat"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
+
+        supplierIds.clear();
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            String sql = "SELECT id, kode_supplier, nama_supplier, no_telepon, email, kontak_person, alamat "
+                    + "FROM suppliers WHERE status_aktif = 1 ORDER BY id ASC";
+            ResultSet rs = conn.createStatement().executeQuery(sql);
+            while (rs.next()) {
+                supplierIds.add(rs.getInt("id"));
+                model.addRow(new Object[]{
+                    rs.getString("kode_supplier"),
+                    rs.getString("nama_supplier"),
+                    rs.getString("no_telepon"),
+                    rs.getString("email"),
+                    rs.getString("kontak_person"),
+                    rs.getString("alamat")
+                });
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Gagal memuat data: " + e.getMessage());
+        }
+
+        jTable4.setModel(model);
+        rowSorter = new TableRowSorter<>(model);
+        jTable4.setRowSorter(rowSorter);
+
+        // Atur lebar kolom proporsional
+        int[] weights = {1, 3, 2, 3, 2, 4}; // Kode, Nama, Telp, Email, Kontak, Alamat
+        int totalWeight = 0;
+        for (int w : weights) totalWeight += w;
+        int totalWidth = jScrollPane5.getViewport().getWidth();
+        if (totalWidth <= 0) totalWidth = 700;
+        for (int i = 0; i < weights.length && i < jTable4.getColumnCount(); i++) {
+            jTable4.getColumnModel().getColumn(i).setPreferredWidth(totalWidth * weights[i] / totalWeight);
+        }
+        jTable4.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+        // Force warna teks hitam dengan custom renderer
+        javax.swing.table.DefaultTableCellRenderer cellRenderer = new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setForeground(java.awt.Color.BLACK);
+                setBackground(isSelected ? new java.awt.Color(184, 207, 229) : java.awt.Color.WHITE);
+                setBorder(javax.swing.BorderFactory.createEmptyBorder(4, 8, 4, 8));
+                return this;
+            }
+        };
+        jTable4.setDefaultRenderer(Object.class, cellRenderer);
+
+        // Set tinggi scrollPane = header + (rowCount × rowHeight) + 2px buffer
+        // sehingga container fit dengan jumlah baris
+        int headerHeight = jTable4.getTableHeader().getPreferredSize().height;
+        int contentHeight = model.getRowCount() * jTable4.getRowHeight();
+        // Minimal tampak 1 baris kosong agar tidak collapse total saat data 0
+        int minHeight = headerHeight + jTable4.getRowHeight();
+        int finalHeight = Math.max(minHeight, headerHeight + contentHeight + 2);
+        jScrollPane5.setPreferredSize(new java.awt.Dimension(0, finalHeight));
+        jPanel8.revalidate();
+        jPanel8.repaint();
+
+        label6.setText("Total " + model.getRowCount() + " data supplier.");
+    }
+
+    private String generateKodeSupplier() {
+        String kode = "SUP-001";
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            String sql = "SELECT kode_supplier FROM suppliers ORDER BY id DESC LIMIT 1";
+            ResultSet rs = conn.createStatement().executeQuery(sql);
+            if (rs.next()) {
+                String last = rs.getString("kode_supplier");
+                int num = Integer.parseInt(last.replace("SUP-", "")) + 1;
+                kode = String.format("SUP-%03d", num);
+            }
+        } catch (SQLException | NumberFormatException e) {
+            // pakai default SUP-001
+        }
+        return kode;
+    }
+
+    private void simpanData() {
+        String nama = jTextField4.getText().trim();
+        String alamat = jTextArea2.getText().trim();
+        String telepon = jTextField6.getText().trim();
+        String email = jTextField10.getText().trim();
+        String kontakPerson = jTextFieldKontak.getText().trim();
+
+        if (nama.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Nama Supplier tidak boleh kosong!");
+            jTextField4.requestFocus();
             return;
         }
 
-        String id   = tabelSupplier.getValueAt(row, 0).toString();
-        String nama = tabelSupplier.getValueAt(row, 2).toString();
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            if (selectedId == -1) {
+                String kode = generateKodeSupplier();
+                String sql = "INSERT INTO suppliers (kode_supplier, nama_supplier, alamat, no_telepon, email, kontak_person, status_aktif, created_at, updated_at) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, 1, NOW(), NOW())";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setString(1, kode);
+                ps.setString(2, nama);
+                ps.setString(3, alamat);
+                ps.setString(4, telepon);
+                ps.setString(5, email);
+                ps.setString(6, kontakPerson);
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Data supplier berhasil disimpan!");
+            } else {
+                String sql = "UPDATE suppliers SET nama_supplier=?, alamat=?, no_telepon=?, email=?, kontak_person=?, updated_at=NOW() WHERE id=?";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setString(1, nama);
+                ps.setString(2, alamat);
+                ps.setString(3, telepon);
+                ps.setString(4, email);
+                ps.setString(5, kontakPerson);
+                ps.setInt(6, selectedId);
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Data supplier berhasil diupdate!");
+            }
+            clearForm();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Gagal menyimpan data: " + e.getMessage());
+        }
+    }
 
-        int konfirmasi = JOptionPane.showConfirmDialog(this,
-                "Hapus supplier '" + nama + "'?",
+    private void hapusData() {
+        if (selectedId == -1) {
+            JOptionPane.showMessageDialog(this, "Pilih data yang ingin dihapus dari tabel terlebih dahulu!");
+            return;
+        }
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Apakah Anda yakin ingin menghapus supplier ini?",
                 "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION);
-
-        if (konfirmasi == JOptionPane.YES_OPTION) {
-            // Soft delete: set status_aktif = 0 agar data tidak hilang permanen
-            String sql = "UPDATE suppliers SET status_aktif = 0 WHERE id = ?";
-
-            try (Connection conn = DatabaseConfig.getConnection();
-                 PreparedStatement ps = conn.prepareStatement(sql)) {
-
-                ps.setString(1, id);
+        if (confirm == JOptionPane.YES_OPTION) {
+            try (Connection conn = DatabaseConfig.getConnection()) {
+                String sql = "UPDATE suppliers SET status_aktif = 0, updated_at = NOW() WHERE id = ?";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setInt(1, selectedId);
                 ps.executeUpdate();
                 JOptionPane.showMessageDialog(this, "Data supplier berhasil dihapus!");
                 clearForm();
-
             } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this, "Gagal hapus: " + e.getMessage());
+                JOptionPane.showMessageDialog(this, "Gagal menghapus data: " + e.getMessage());
             }
         }
-    }//GEN-LAST:event_btnHapusActionPerformed
+    }
 
-    private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
-        clearForm();
-    }//GEN-LAST:event_btnResetActionPerformed
+    private void clearForm() {
+        jTextField4.setText("");
+        jTextArea2.setText("");
+        jTextField6.setText("");
+        jTextField10.setText("");
+        jTextFieldKontak.setText("");
+        selectedId = -1;
+        jButton2.setText("Simpan Data");
+        jTextField4.requestFocus();
+        loadData();
+    }
 
-    private void tabelSupplierMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelSupplierMouseClicked
-        int row = tabelSupplier.getSelectedRow();
+    // ============================================================
+    // SETUP: Search & Table interaction
+    // ============================================================
 
-        if (row != -1) {
-            selectedId = Integer.parseInt(tabelSupplier.getValueAt(row, 0).toString());
+    private void setupSearch() {
+        final String placeholder = "Cari data..";
+        jTextField8.setText(placeholder);
+        jTextField8.setForeground(new java.awt.Color(150, 150, 150));
 
-            String sql = "SELECT * FROM suppliers WHERE id = ?";
-
-            try (Connection conn = DatabaseConfig.getConnection();
-                 PreparedStatement ps = conn.prepareStatement(sql)) {
-
-                ps.setInt(1, selectedId);
-                ResultSet rs = ps.executeQuery();
-
-                if (rs.next()) {
-                    inputNama.setText(rs.getString("nama_supplier"));
-                    inputAlamat.setText(rs.getString("alamat"));
-                    inputTelepon.setText(rs.getString("no_telepon"));
-                    inputEmail.setText(rs.getString("email"));
-                    inputKontakPerson.setText(rs.getString("kontak_person"));
-
-                    // Atur status tombol: nonaktifkan Simpan, aktifkan Edit
-                    btnSimpan.setEnabled(false);
-                    btnEdit.setEnabled(true);
+        jTextField8.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                if (jTextField8.getText().equals(placeholder)) {
+                    jTextField8.setText("");
+                    jTextField8.setForeground(java.awt.Color.BLACK);
                 }
+            }
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (jTextField8.getText().isEmpty()) {
+                    jTextField8.setText(placeholder);
+                    jTextField8.setForeground(new java.awt.Color(150, 150, 150));
+                }
+            }
+        });
 
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this, "Error ambil data: " + e.getMessage());
+        jTextField8.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { filterTable(); }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { filterTable(); }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { filterTable(); }
+        });
+    }
+
+    private void filterTable() {
+        String keyword = jTextField8.getText();
+        if (keyword.equals("Cari data..")) keyword = "";
+        if (rowSorter != null) {
+            if (keyword.trim().isEmpty()) {
+                rowSorter.setRowFilter(null);
+            } else {
+                rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + java.util.regex.Pattern.quote(keyword)));
             }
         }
-    }//GEN-LAST:event_tabelSupplierMouseClicked
+    }
 
+    private void setupTable() {
+        jTable4.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int viewRow = jTable4.getSelectedRow();
+                if (viewRow < 0) return;
+                int row = jTable4.convertRowIndexToModel(viewRow);
+                if (row >= 0 && row < supplierIds.size()) {
+                    selectedId = supplierIds.get(row);
+                    javax.swing.table.TableModel m = jTable4.getModel();
+                    jTextField4.setText(String.valueOf(m.getValueAt(row, 1))); // Nama Supplier
+                    jTextField6.setText(String.valueOf(m.getValueAt(row, 2))); // No. Telepon
+                    jTextField10.setText(String.valueOf(m.getValueAt(row, 3))); // Email
+                    jTextFieldKontak.setText(String.valueOf(m.getValueAt(row, 4))); // Kontak Person
+                    jTextArea2.setText(String.valueOf(m.getValueAt(row, 5))); // Alamat
+                    jButton2.setText("Update Data");
+                }
+            }
+        });
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnEdit;
     private javax.swing.JButton btnHapus;
-    private javax.swing.JButton btnReset;
-    private javax.swing.JButton btnSimpan;
-    private javax.swing.JTextArea inputAlamat;
-    private javax.swing.JTextField inputEmail;
-    private javax.swing.JTextField inputKontakPerson;
-    private javax.swing.JTextField inputNama;
-    private javax.swing.JTextField inputTelepon;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JSeparator jSeparator2;
-    private javax.swing.JSeparator jSeparator3;
-    private javax.swing.JTable tabelSupplier;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JLabel jLabel23;
+    private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel27;
+    private javax.swing.JLabel jLabel28;
+    private javax.swing.JLabel jLabel29;
+    private javax.swing.JLabel jLabel30;
+    private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JSeparator jSeparator5;
+    private javax.swing.JTable jTable4;
+    private javax.swing.JTextArea jTextArea2;
+    private javax.swing.JTextField jTextField10;
+    private javax.swing.JTextField jTextField4;
+    private javax.swing.JTextField jTextField6;
+    private javax.swing.JTextField jTextField8;
+    private javax.swing.JTextField jTextFieldKontak;
+    private java.awt.Label label5;
+    private java.awt.Label label6;
+    private java.awt.Label label7;
+    private java.awt.Label label8;
     // End of variables declaration//GEN-END:variables
 }
