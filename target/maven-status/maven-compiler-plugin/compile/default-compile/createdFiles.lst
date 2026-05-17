@@ -6,10 +6,12 @@ com\mycompany\warehouse\system\view\FormLogin.class
 com\mycompany\warehouse\system\view\DashboardStaff$1.class
 com\mycompany\warehouse\system\view\BarangKeluarPanel.class
 com\mycompany\warehouse\system\PlaceholderTextField.class
+com\mycompany\warehouse\system\view\SupplierPanel$4.class
 com\mycompany\warehouse\system\view\BarangMasukPanel.class
 com\mycompany\warehouse\system\service\Session.class
 com\mycompany\warehouse\system\view\DashboardManager$4.class
 com\mycompany\warehouse\system\model\User.class
+com\mycompany\warehouse\system\view\SupplierPanel$3.class
 com\mycompany\warehouse\system\view\HistoryPanel.class
 com\mycompany\warehouse\system\view\SupplierPanel$1.class
 com\mycompany\warehouse\system\HistoryFrame.class
@@ -24,6 +26,7 @@ com\mycompany\warehouse\system\view\LocationPanel.class
 com\mycompany\warehouse\system\service\DashboardService.class
 com\mycompany\warehouse\system\view\BarangPanel$1.class
 com\mycompany\warehouse\system\WarehouseSystem.class
+com\mycompany\warehouse\system\view\SupplierPanel$5.class
 com\mycompany\warehouse\system\view\DashboardAdmin.class
 com\mycompany\warehouse\system\view\DashboardAdmin$2.class
 com\mycompany\warehouse\system\view\SupplierPanel$2.class
