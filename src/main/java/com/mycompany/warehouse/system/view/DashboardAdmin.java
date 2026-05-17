@@ -20,12 +20,19 @@ import javax.swing.table.DefaultTableModel;
  */
 public class DashboardAdmin extends javax.swing.JPanel {
  public static DashboardAdmin instance;
+private int currentPage = 1;
+private final int dataPerPage = 10;
+private int totalData = 0;
+private int totalPage = 0;
     /**
      * Creates new form DashboardAdmin
      */
     public DashboardAdmin() {
         initComponents();
+        
+            hitungTotalData();
           loadDataAktifitas();
+     
           loadDataInventory();
          instance = this;
          
@@ -41,63 +48,222 @@ public class DashboardAdmin extends javax.swing.JPanel {
         LBarangKeluar.setText(String.valueOf(DashboardService.getTotalItemsKeluar()));
     }
     public final void loadDataAktifitas() { 
-             DefaultTableModel model = new DefaultTableModel() {
-                 // Best practice: Membuat sel tabel tidak bisa diedit secara manual oleh user
-                 @Override
-                 public boolean isCellEditable(int row, int column) {
-                     return false;
-                 }
-             };
+        updatePaginationButton();
 
-     // Tambahkan kolom ID di index 0 
-     model.addColumn("ID"); 
-     model.addColumn("Jam"); 
-     model.addColumn("Aktifitas"); 
-     model.addColumn("Barang"); 
-      model.addColumn("Lokasi"); 
-     model.addColumn("Stok Sebelum"); 
-     model.addColumn("Stok Sesudah"); 
+            LPActivity.setText(
+                "Page " + currentPage + " / " + totalPage
+            );
+            DefaultTableModel model = new DefaultTableModel() {
 
-     String sql = """
-         SELECT sh.id, sh.waktu_transaksi, sh.jenis_transaksi, i.nama_item,l.kode_lokasi, sh.stock_sebelum, sh.stock_sesudah 
-         FROM stock_history sh 
-         INNER JOIN items i ON sh.item_id = i.id
-         INNER JOIN locations l ON sh.location_id = l.id
-         ORDER BY sh.id DESC
-         """;
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
 
-         // Menggunakan try-with-resources untuk menutup conn, stmt, dan rs secara otomatis dan aman
-         try (Connection conn = DatabaseConfig.getConnection();
-              PreparedStatement ps = conn.prepareStatement(sql);
-              ResultSet rs = ps.executeQuery()) { 
+            model.addColumn("ID");
+            model.addColumn("Jam");
+            model.addColumn("Aktifitas");
+            model.addColumn("Barang");
+            model.addColumn("Lokasi");
+            model.addColumn("Stok Sebelum");
+            model.addColumn("Stok Sesudah");
 
-             while (rs.next()) { 
-                 model.addRow(new Object[]{ 
-                     rs.getInt("id"), 
-                     rs.getString("waktu_transaksi"),
+            int offset = (currentPage - 1) * dataPerPage;
+
+            String sql = """
+                SELECT sh.id,
+                       sh.waktu_transaksi,
+                       sh.jenis_transaksi,
+                       i.nama_item,
+                       l.kode_lokasi,
+                       sh.stock_sebelum,
+                       sh.stock_sesudah
+                FROM stock_history sh
+                INNER JOIN items i ON sh.item_id = i.id
+                INNER JOIN locations l ON sh.location_id = l.id
+                ORDER BY sh.id DESC
+                LIMIT ? OFFSET ?
+                """;
+
+            try (
+                Connection conn = DatabaseConfig.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+            ) {
+
+                ps.setInt(1, dataPerPage);
+                ps.setInt(2, offset);
+
+                ResultSet rs = ps.executeQuery();
+
+                while (rs.next()) {
+
+                    model.addRow(new Object[]{
+                        rs.getInt("id"),
+                        rs.getString("waktu_transaksi"),
+                        rs.getString("jenis_transaksi"),
+                        rs.getString("nama_item"),
+                        rs.getString("kode_lokasi"),
+                        rs.getString("stock_sebelum"),
+                        rs.getString("stock_sesudah")
+                    });
+                }
+
+                TAktifitas.setModel(model);
+
+                TAktifitas.getColumnModel().getColumn(0).setMinWidth(0);
+                TAktifitas.getColumnModel().getColumn(0).setMaxWidth(0);
+                TAktifitas.getColumnModel().getColumn(0).setPreferredWidth(0);
+
+            } catch (SQLException e) {
+
+                JOptionPane.showMessageDialog(
+                    null,
+                    "Gagal memuat data: " + e.getMessage()
+                );
+            }
+     }
+    
+    private void updatePaginationButton() {
+   BNActivity.setOpaque(true);
+        BNActivity.setContentAreaFilled(true);
+        BPActivity.setOpaque(true);
+        BPActivity.setContentAreaFilled(true);
+     // PREVIOUS
+           BPActivity.setEnabled(currentPage > 1);
+
+           // NEXT
+           BNActivity.setEnabled(currentPage < totalPage);
+
+           // STYLE PREVIOUS
+           if (BPActivity.isEnabled()) {
+
+               BPActivity.setBackground(
+                   new java.awt.Color(0,153,204)
+               );
+
+               BPActivity.setForeground(java.awt.Color.WHITE);
+
+           } else {
+
+               BPActivity.setBackground(
+                   new java.awt.Color(220, 220, 220)
+               );
+
+               BPActivity.setForeground(
+                   new java.awt.Color(120,120,120)
+               );
+           }
+
+           // STYLE NEXT
+           if (BNActivity.isEnabled()) {
+
+               BNActivity.setBackground(
+                   new java.awt.Color(0,153,204)
+               );
+
+               BNActivity.setForeground(java.awt.Color.WHITE);
+
+           } else {
+
+               BNActivity.setBackground(
+                   new java.awt.Color(220,220,220)
+               );
+
+               BNActivity.setForeground(
+                   new java.awt.Color(120,120,120)
+               );
+           }
+}
+    
+    private void hitungTotalData() {
+
+    String sql = "SELECT COUNT(*) AS total FROM stock_history";
+
+    try (
+        Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()
+    ) {
+
+        if (rs.next()) {
+
+            totalData = rs.getInt("total");
+
+            totalPage = (int) Math.ceil(
+                (double) totalData / dataPerPage
+            );
+        }
+
+    } catch (Exception e) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            e.getMessage()
+        );
+    }
+}
+         private void cariActivity() {
+
+        String keyword = TSearchActivity.getText();
+
+        DefaultTableModel model =
+            (DefaultTableModel) TAktifitas.getModel();
+
+        model.setRowCount(0);
+
+        try {
+
+            Connection conn = DatabaseConfig.getConnection();
+
+            String sql = """
+                 SELECT sh.id, sh.waktu_transaksi, sh.jenis_transaksi, i.nama_item,l.kode_lokasi, sh.stock_sebelum, sh.stock_sesudah 
+                                  FROM stock_history sh 
+                                  INNER JOIN items i ON sh.item_id = i.id
+                                  INNER JOIN locations l ON sh.location_id = l.id
+                                   WHERE sh.waktu_transaksi  LIKE ?
+                                     OR sh.jenis_transaksi  LIKE ?
+                                     OR i.nama_item  LIKE ?
+                                     OR l.kode_lokasi   LIKE ?
+                                     OR sh.stock_sebelum   LIKE ?
+                                      OR sh.stock_sesudah   LIKE ?
+                                  ORDER BY sh.id DESC
+            """;
+
+            PreparedStatement ps =
+                conn.prepareStatement(sql);
+
+            ps.setString(1, "%" + keyword + "%");
+            ps.setString(2, "%" + keyword + "%");
+            ps.setString(3, "%" + keyword + "%");
+            ps.setString(4, "%" + keyword + "%");
+            ps.setString(5, "%" + keyword + "%");
+            ps.setString(6, "%" + keyword + "%");
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()) {
+
+                model.addRow(new Object[] {
+                        rs.getInt("id"), 
+                      rs.getString("waktu_transaksi"),
                      rs.getString("jenis_transaksi"), 
                      rs.getString("nama_item"), 
                      rs.getString("kode_lokasi"), 
                      rs.getString("stock_sebelum"), 
                      rs.getString("stock_sesudah") 
-                 }); 
-             } 
+                });
+            }
 
-             // Atur model ke tabel UI
-             TAktifitas.setModel(model); 
+        } catch(Exception e) {
 
-             // Beritahu UI bahwa data telah berubah agar visual langsung ter-render ulang
-             model.fireTableDataChanged();
-
-             // Sembunyikan kolom ID (Index 0) secara total agar aman dari resize manual user
-             TAktifitas.getColumnModel().getColumn(0).setMinWidth(0); 
-             TAktifitas.getColumnModel().getColumn(0).setMaxWidth(0); 
-             TAktifitas.getColumnModel().getColumn(0).setPreferredWidth(0);
-
-         } catch (SQLException e) { 
-             JOptionPane.showMessageDialog(null, "Gagal memuat data: " + e.getMessage()); 
-         } 
-     }
+            JOptionPane.showMessageDialog(
+                this,
+                e.getMessage()
+            );
+        }
+    }
+    
     
        public final void loadDataInventory() { 
                 DefaultTableModel model = new DefaultTableModel() {
@@ -189,16 +355,17 @@ public class DashboardAdmin extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         TAktifitas = new javax.swing.JTable();
-        jTextField1 = new javax.swing.JTextField();
+        TSearchActivity = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        LPActivity = new javax.swing.JLabel();
+        BNActivity = new javax.swing.JButton();
+        BPActivity = new javax.swing.JButton();
+        BSearchActivity = new javax.swing.JButton();
         jPanel11 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         jLabel16 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        TSearchInventory = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         TInventory = new javax.swing.JTable();
@@ -269,7 +436,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
             .addComponent(LSupplier, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
@@ -298,7 +465,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+            .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
             .addComponent(LLocation, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
@@ -328,7 +495,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(LItem, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+            .addComponent(LItem, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -356,7 +523,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+            .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
             .addComponent(LBarangMasuk, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel5Layout.setVerticalGroup(
@@ -385,7 +552,7 @@ public class DashboardAdmin extends javax.swing.JPanel {
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+            .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
             .addComponent(LBarangKeluar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel6Layout.setVerticalGroup(
@@ -426,33 +593,41 @@ public class DashboardAdmin extends javax.swing.JPanel {
             }
         ));
         TAktifitas.setShowGrid(true);
-        TAktifitas.setShowHorizontalLines(true);
-        TAktifitas.setShowVerticalLines(true);
         jScrollPane1.setViewportView(TAktifitas);
         if (TAktifitas.getColumnModel().getColumnCount() > 0) {
             TAktifitas.getColumnModel().getColumn(3).setHeaderValue("Stok Sesudah");
         }
 
-        jTextField1.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
-        jTextField1.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(3, 8, 3, 8)));
+        TSearchActivity.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        TSearchActivity.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(3, 8, 3, 8)));
+        TSearchActivity.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                TSearchActivityKeyReleased(evt);
+            }
+        });
 
         jLabel5.setText("Cari data:");
 
-        jLabel7.setFont(new java.awt.Font("Inter", 0, 10)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(142, 157, 166));
-        jLabel7.setText("5 dari 10 data ditampilkan");
+        LPActivity.setFont(new java.awt.Font("Inter", 0, 10)); // NOI18N
+        LPActivity.setForeground(new java.awt.Color(142, 157, 166));
+        LPActivity.setText("5 dari 10 data ditampilkan");
 
-        jButton1.setBackground(new java.awt.Color(0, 153, 204));
-        jButton1.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("Next");
-        jButton1.setBorderPainted(false);
-        jButton1.addActionListener(this::jButton1ActionPerformed);
+        BNActivity.setBackground(new java.awt.Color(0, 153, 204));
+        BNActivity.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        BNActivity.setForeground(new java.awt.Color(255, 255, 255));
+        BNActivity.setText("Next");
+        BNActivity.setBorderPainted(false);
+        BNActivity.addActionListener(this::BNActivityActionPerformed);
 
-        jButton2.setText("Previous");
-        jButton2.setBorderPainted(false);
-        jButton2.setEnabled(false);
-        jButton2.addActionListener(this::jButton2ActionPerformed);
+        BPActivity.setText("Previous");
+        BPActivity.setBorderPainted(false);
+        BPActivity.setEnabled(false);
+        BPActivity.addActionListener(this::BPActivityActionPerformed);
+
+        BSearchActivity.setBackground(new java.awt.Color(0, 153, 204));
+        BSearchActivity.setForeground(new java.awt.Color(255, 255, 255));
+        BSearchActivity.setText("Cari");
+        BSearchActivity.addActionListener(this::BSearchActivityActionPerformed);
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -460,17 +635,20 @@ public class DashboardAdmin extends javax.swing.JPanel {
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLabel15, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 865, Short.MAX_VALUE)
+            .addComponent(jScrollPane1)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jTextField1))
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(TSearchActivity, javax.swing.GroupLayout.PREFERRED_SIZE, 744, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(BSearchActivity)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addComponent(LPActivity, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(BPActivity, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(5, 5, 5)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(BNActivity, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -480,16 +658,17 @@ public class DashboardAdmin extends javax.swing.JPanel {
                 .addComponent(jLabel3)
                 .addGap(15, 15, 15)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(TSearchActivity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BSearchActivity))
                 .addGap(10, 10, 10)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(10, 10, 10)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButton1)
-                        .addComponent(jButton2))
-                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(BNActivity)
+                        .addComponent(BPActivity))
+                    .addComponent(LPActivity, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
         jPanel10.add(jPanel7, java.awt.BorderLayout.PAGE_START);
@@ -508,8 +687,8 @@ public class DashboardAdmin extends javax.swing.JPanel {
         jLabel9.setForeground(new java.awt.Color(142, 157, 166));
         jLabel9.setText("Daftar barang yang tersedia.");
 
-        jTextField2.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
-        jTextField2.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(3, 8, 3, 8)));
+        TSearchInventory.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        TSearchInventory.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(3, 8, 3, 8)));
 
         jLabel11.setText("Cari data:");
 
@@ -527,8 +706,6 @@ public class DashboardAdmin extends javax.swing.JPanel {
             }
         ));
         TInventory.setShowGrid(true);
-        TInventory.setShowHorizontalLines(true);
-        TInventory.setShowVerticalLines(true);
         jScrollPane2.setViewportView(TInventory);
 
         jButton3.setBackground(new java.awt.Color(0, 153, 204));
@@ -556,8 +733,8 @@ public class DashboardAdmin extends javax.swing.JPanel {
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jTextField2))
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 865, Short.MAX_VALUE)
+                .addComponent(TSearchInventory))
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 886, Short.MAX_VALUE)
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
@@ -573,16 +750,16 @@ public class DashboardAdmin extends javax.swing.JPanel {
                 .addComponent(jLabel9)
                 .addGap(15, 15, 15)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jTextField2)
+                    .addComponent(TSearchInventory)
                     .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(10, 10, 10)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(14, 14, 14)
-                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jButton3)
-                        .addComponent(jButton4)))
+                        .addComponent(jButton4))
+                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -607,17 +784,27 @@ public class DashboardAdmin extends javax.swing.JPanel {
                 .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 50, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void BNActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BNActivityActionPerformed
+          if (currentPage < totalPage) {
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+                currentPage++;
+
+                loadDataAktifitas();
+            }
+    }//GEN-LAST:event_BNActivityActionPerformed
+
+    private void BPActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPActivityActionPerformed
+        if (currentPage > 1) {
+
+            currentPage--;
+
+            loadDataAktifitas();
+        }
+    }//GEN-LAST:event_BPActivityActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
@@ -627,19 +814,31 @@ public class DashboardAdmin extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton4ActionPerformed
 
+    private void TSearchActivityKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchActivityKeyReleased
+       
+    }//GEN-LAST:event_TSearchActivityKeyReleased
+
+    private void BSearchActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BSearchActivityActionPerformed
+        cariActivity();
+    }//GEN-LAST:event_BSearchActivityActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton BNActivity;
+    private javax.swing.JButton BPActivity;
+    private javax.swing.JButton BSearchActivity;
     private javax.swing.JPanel Body;
     private javax.swing.JLabel LBarangKeluar;
     private javax.swing.JLabel LBarangMasuk;
     private javax.swing.JLabel LItem;
     private javax.swing.JLabel LLocation;
+    private javax.swing.JLabel LPActivity;
     private javax.swing.JLabel LSupplier;
     private javax.swing.JLabel LUser;
     private javax.swing.JTable TAktifitas;
     private javax.swing.JTable TInventory;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JTextField TSearchActivity;
+    private javax.swing.JTextField TSearchInventory;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
@@ -655,7 +854,6 @@ public class DashboardAdmin extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
@@ -671,7 +869,5 @@ public class DashboardAdmin extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
     // End of variables declaration//GEN-END:variables
 }
