@@ -97,9 +97,57 @@ public class SupplierPanel extends javax.swing.JPanel {
         label7.setText("Kelola semua data suplier.");
 
         jPanel10.setBackground(new java.awt.Color(255, 255, 255));
+<<<<<<< HEAD
+        jPanel10.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+
+        jTextField4.setForeground(new java.awt.Color(204, 204, 204));
+        jTextField4.addActionListener(this::jTextField4ActionPerformed);
+
+        jTextArea2.setColumns(20);
+        jTextArea2.setForeground(new java.awt.Color(204, 204, 204));
+        jTextArea2.setRows(5);
+        jTextArea2.setText("\n");
+        jScrollPane6.setViewportView(jTextArea2);
+
+        jTextField6.setForeground(new java.awt.Color(204, 204, 205));
+        jTextField6.setName("Masukkan Data"); // NOI18N
+        jTextField6.addActionListener(this::jTextField6ActionPerformed);
+
+        jTextField10.setForeground(new java.awt.Color(204, 204, 204));
+        jTextField10.addActionListener(this::jTextField10ActionPerformed);
+
+        jComboBox2.setForeground(new java.awt.Color(204, 204, 204));
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "---Pilih Kategori---", "Elektronik", "ATK", "Dsb" }));
+        jComboBox2.addActionListener(this::jComboBox2ActionPerformed);
+
+        jLabel25.setText("Nama Suplier");
+
+        jLabel26.setText("Alamat");
+
+        jLabel27.setText("No. Telepon");
+
+        jLabel28.setText("Email");
+
+        jButton2.setBackground(new java.awt.Color(39, 174, 96));
+        jButton2.setFont(new java.awt.Font("Inter Medium", 0, 12)); // NOI18N
+        jButton2.setForeground(new java.awt.Color(255, 255, 255));
+        jButton2.setText("Simpan Data");
+        jButton2.setBorderPainted(false);
+        jButton2.addActionListener(this::jButton2ActionPerformed);
+
+        jButton5.setBackground(new java.awt.Color(51, 0, 102));
+        jButton5.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        jButton5.setForeground(new java.awt.Color(255, 255, 255));
+        jButton5.setText("Reset");
+        jButton5.setBorderPainted(false);
+        jButton5.addActionListener(this::jButton5ActionPerformed);
+
+        jLabel29.setText("Kategori Produk");
+=======
         jPanel10.setBorder(javax.swing.BorderFactory.createCompoundBorder(
                 new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true),
                 javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+>>>>>>> 35281b6c5b9521810b112e7184c605411aaef511
 
         jLabel30.setFont(new java.awt.Font("Urbanist", 1, 14)); // NOI18N
         jLabel30.setText("Informasi Suplier");

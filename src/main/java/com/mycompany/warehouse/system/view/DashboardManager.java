@@ -101,11 +101,11 @@ public static DashboardManager instance;
         jPanel6.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 20, 10, 20));
         jPanel6.setLayout(new java.awt.GridLayout(1, 0, 15, 0));
 
-        jPanel2.setBackground(new java.awt.Color(233, 238, 251));
-        jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 51, 204), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         jLabel4.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(152, 177, 237));
+        jLabel4.setForeground(new java.awt.Color(119, 130, 153));
         jLabel4.setText("Inventory");
 
         LInventory.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N
@@ -130,11 +130,11 @@ public static DashboardManager instance;
 
         jPanel6.add(jPanel2);
 
-        jPanel3.setBackground(new java.awt.Color(232, 249, 243));
-        jPanel3.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 204, 51), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         jLabel5.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(106, 225, 166));
+        jLabel5.setForeground(new java.awt.Color(119, 130, 153));
         jLabel5.setText("Barang Masuk");
 
         LBarangMasuk.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N
@@ -159,11 +159,11 @@ public static DashboardManager instance;
 
         jPanel6.add(jPanel3);
 
-        jPanel4.setBackground(new java.awt.Color(254, 233, 238));
-        jPanel4.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 0, 0), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel4.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         jLabel6.setFont(new java.awt.Font("Urbanist Medium", 0, 12)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(216, 71, 107));
+        jLabel6.setForeground(new java.awt.Color(119, 130, 153));
         jLabel6.setText("Barang Keluar");
 
         LBarangKeluar.setFont(new java.awt.Font("Inter ExtraBold", 0, 24)); // NOI18N
