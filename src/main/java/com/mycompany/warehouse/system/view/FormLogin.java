@@ -150,7 +150,7 @@ public class FormLogin extends javax.swing.JFrame {
     private void blogin1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_blogin1ActionPerformed
             // 1. Ambil input dari JTextField/JPasswordField
 String username = tusername.getText();
-String password = new String(tpassword.getPassword()); // Jika tpassword adalah JPasswordField
+String password = new String(tpassword.getPassword());
 
 // 2. Cek apakah input kosong
 if (username.isEmpty() || password.isEmpty()) {
@@ -161,36 +161,56 @@ if (username.isEmpty() || password.isEmpty()) {
     return;
 }
 
-// 3. Panggil fungsi authenticate dari UserService
-// Karena method-nya static, tidak perlu "new UserService()"
-User userAuthenticated = UserService.authenticate(username, password);
+// 3. Disable tombol & tampilkan loading
+blogin1.setEnabled(false);
+blogin1.setText("Loading...");
+this.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.WAIT_CURSOR));
 
-// 4. Cek hasil autentikasi
-if (userAuthenticated != null) {
-    // Login berhasil
-        javax.swing.JOptionPane.showMessageDialog(this, "Login Berhasil!");
+// 4. Jalankan autentikasi + load dashboard di background thread
+new javax.swing.SwingWorker<ContentFrame, Void>() {
+    private User userResult;
 
-            Session.setUser(userAuthenticated); 
-            // Buka Dashboard
-            ContentFrame dash = new ContentFrame();
-            dash.setLocationRelativeTo(null); // Tengah layar (opsional)
-            dash.setVisible(true);
+    @Override
+    protected ContentFrame doInBackground() {
+        // Authenticate (koneksi DB ke TiDB Cloud)
+        userResult = UserService.authenticate(username, password);
+        if (userResult == null) return null;
 
-            // Tutup form login
-            this.dispose();
+        // Set session
+        Session.setUser(userResult);
 
-        } else {
-            // Login gagal
-            javax.swing.JOptionPane.showMessageDialog(
-                this,
-                "Username atau Password Salah / Tidak Ditemukan",
-                "Login Gagal",
-                javax.swing.JOptionPane.ERROR_MESSAGE
-            );
+        // Buat ContentFrame (load semua panel + data dari DB)
+        return new ContentFrame();
+    }
 
-            tpassword.setText("");
-            tusername.requestFocus();
+    @Override
+    protected void done() {
+        try {
+            ContentFrame dash = get();
+            if (dash != null) {
+                // Login berhasil — buka dashboard
+                dash.setLocationRelativeTo(null);
+                dash.setVisible(true);
+                FormLogin.this.dispose();
+            } else {
+                // Login gagal
+                javax.swing.JOptionPane.showMessageDialog(FormLogin.this,
+                        "Username atau Password Salah / Tidak Ditemukan",
+                        "Login Gagal",
+                        javax.swing.JOptionPane.ERROR_MESSAGE);
+                tpassword.setText("");
+                tusername.requestFocus();
+            }
+        } catch (Exception ex) {
+            javax.swing.JOptionPane.showMessageDialog(FormLogin.this,
+                    "Terjadi kesalahan: " + ex.getMessage());
+        } finally {
+            blogin1.setEnabled(true);
+            blogin1.setText("Login");
+            FormLogin.this.setCursor(java.awt.Cursor.getDefaultCursor());
         }
+    }
+}.execute();
     }//GEN-LAST:event_blogin1ActionPerformed
 
     private void tusernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tusernameActionPerformed
