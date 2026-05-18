@@ -880,7 +880,7 @@ private int totalPageInventory = 0;
                 
                 // ===== UPDATE PAGINATION =====
                 LPInventory.setText(
-                    "Page " + currentPageActivity + " / " + totalPageActivity
+                    "Page " + currentPageInventory + " / " + totalPageInventory
                 );
                 updatePaginationButtonInventory();
             } catch (SQLException e) { 
