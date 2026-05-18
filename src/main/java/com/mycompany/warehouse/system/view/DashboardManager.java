@@ -44,24 +44,45 @@ private int totalPageInventory = 0;
     public DashboardManager() {
           initComponents();
          instance = this;
-          loadDataCount();
-          
+
         BNInventory.setOpaque(true);
         BNInventory.setContentAreaFilled(true);
         BPInventory.setOpaque(true);
         BPInventory.setContentAreaFilled(true);
-        hitungTotalDataInventory();
-        loadDataInventory();
-       
-        
-         
-         
+
         BNActivity.setOpaque(true);
         BNActivity.setContentAreaFilled(true);
         BPActivity.setOpaque(true);
         BPActivity.setContentAreaFilled(true);
-        hitungTotalDataActivity();
-        loadDataAktifitas();
+
+        // Sembunyikan tombol Cari (search sudah realtime)
+        BSearchInventory.setVisible(false);
+        BSearchActivity.setVisible(false);
+
+        // Setup search realtime
+        txtSearchInventory.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { cariInventory(); }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { cariInventory(); }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { cariInventory(); }
+        });
+        txtSearchActivity.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { cariActivity(); }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { cariActivity(); }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { cariActivity(); }
+        });
+
+        // Load data di background agar UI tidak freeze
+        new javax.swing.SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                loadDataCount();
+                hitungTotalDataInventory();
+                loadDataInventory();
+                hitungTotalDataActivity();
+                loadDataAktifitas();
+                return null;
+            }
+        }.execute();
     }
 
     /**
@@ -476,8 +497,7 @@ private int totalPageInventory = 0;
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtSearchInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchInventoryActionPerformed
-        // TODO add your handling code here:
-         
+        cariInventory();
     }//GEN-LAST:event_txtSearchInventoryActionPerformed
 
     private void BReportInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BReportInventoryActionPerformed
@@ -533,7 +553,7 @@ private int totalPageInventory = 0;
     }//GEN-LAST:event_BReportActivityActionPerformed
 
     private void txtSearchActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActivityActionPerformed
-        // TODO add your handling code here:
+        cariActivity();
     }//GEN-LAST:event_txtSearchActivityActionPerformed
 
     private void BPInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPInventoryActionPerformed
@@ -743,12 +763,9 @@ private int totalPageInventory = 0;
                                   FROM stock_history sh 
                                   INNER JOIN items i ON sh.item_id = i.id
                                   INNER JOIN locations l ON sh.location_id = l.id
-                                   WHERE sh.waktu_transaksi  LIKE ?
-                                     OR sh.jenis_transaksi  LIKE ?
-                                     OR i.nama_item  LIKE ?
-                                     OR l.kode_lokasi   LIKE ?
-                                     OR sh.stock_sebelum   LIKE ?
-                                      OR sh.stock_sesudah   LIKE ?
+                                   WHERE sh.jenis_transaksi LIKE ?
+                                     OR i.nama_item LIKE ?
+                                     OR l.kode_lokasi LIKE ?
                                   ORDER BY sh.id DESC
             """;
 
@@ -758,16 +775,13 @@ private int totalPageInventory = 0;
             ps.setString(1, "%" + keyword + "%");
             ps.setString(2, "%" + keyword + "%");
             ps.setString(3, "%" + keyword + "%");
-            ps.setString(4, "%" + keyword + "%");
-            ps.setString(5, "%" + keyword + "%");
-            ps.setString(6, "%" + keyword + "%");
 
             ResultSet rs = ps.executeQuery();
 
             while(rs.next()) {
 
                 model.addRow(new Object[] {
-                        rs.getInt("id"), 
+                        rs.getInt("id"),
                       rs.getString("waktu_transaksi"),
                      rs.getString("jenis_transaksi"), 
                      rs.getString("nama_item"), 
@@ -940,7 +954,6 @@ private int totalPageInventory = 0;
                          INNER JOIN locations l ON sh.location_id = l.id
                          WHERE i.nama_item LIKE ?
                          OR l.kode_lokasi LIKE ?
-                         OR sh.stok_terkini LIKE ?
                          ORDER BY sh.id DESC
             """;
 
@@ -949,14 +962,13 @@ private int totalPageInventory = 0;
 
             ps.setString(1, "%" + keyword + "%");
             ps.setString(2, "%" + keyword + "%");
-            ps.setString(3, "%" + keyword + "%");
 
             ResultSet rs = ps.executeQuery();
 
             while(rs.next()) {
 
                 model.addRow(new Object[] {
-                        rs.getInt("id"), 
+                        rs.getInt("id"),
                         rs.getString("nama_item"),
                         rs.getString("kode_lokasi"), 
                         rs.getString("stok_terkini") 
