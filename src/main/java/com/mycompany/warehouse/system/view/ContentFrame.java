@@ -33,6 +33,7 @@ public class ContentFrame extends javax.swing.JFrame {
     private BarangMasukPanel menuBarangMasuk;
     private BarangKeluarPanel menuBarangKeluar;
     private SupplierPanel menuSupplier;
+    private TransferBarangPanel menuTransferBarang;
 
     // 2. CONSTRUCTOR UTAMA
     public ContentFrame() {
@@ -448,6 +449,7 @@ public class ContentFrame extends javax.swing.JFrame {
             menuBarangMasuk.loadSupplier();
             menuBarangMasuk.loadItem();
             menuBarangMasuk.loadLocation();
+            menuBarangMasuk.loadDataInbound();
     }//GEN-LAST:event_btnMBarangMasukActionPerformed
 
     private void btnMBarangKeluarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMBarangKeluarActionPerformed
@@ -459,7 +461,11 @@ public class ContentFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMBarangKeluarActionPerformed
 
     private void btnMTransferBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMTransferBarangActionPerformed
-        // TODO add your handling code here:
+        if (menuTransferBarang == null) { menuTransferBarang = new TransferBarangPanel(); panelContent.add(menuTransferBarang.asScrollable(), "cardTransferBarang"); }
+             CardLayout cl = (CardLayout) panelContent.getLayout();
+          cl.show(panelContent, "cardTransferBarang");
+         setMenuColor(btnMTransferBarang); 
+         menuTransferBarang.loadDataInventory();
     }//GEN-LAST:event_btnMTransferBarangActionPerformed
 
     private void btnMSupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMSupplierActionPerformed
