@@ -29,15 +29,29 @@ private int totalPage = 0;
      */
     public DashboardAdmin() {
         initComponents();
-        
-            hitungTotalData();
-          loadDataAktifitas();
-     
-          loadDataInventory();
          instance = this;
+
+        // Sembunyikan tombol Cari (search sudah realtime)
+        BSearchActivity.setVisible(false);
+
+        // Setup search realtime untuk Inventory
+        TSearchInventory.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { cariInventory(); }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { cariInventory(); }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { cariInventory(); }
+        });
          
-         loadDataCount();
-       
+        // Load data di background agar UI tidak freeze
+        new javax.swing.SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                hitungTotalData();
+                loadDataAktifitas();
+                loadDataInventory();
+                loadDataCount();
+                return null;
+            }
+        }.execute();
     }
     public final void loadDataCount(){
          LUser.setText(String.valueOf(DashboardService.getTotalUsers()));
@@ -221,12 +235,9 @@ private int totalPage = 0;
                                   FROM stock_history sh 
                                   INNER JOIN items i ON sh.item_id = i.id
                                   INNER JOIN locations l ON sh.location_id = l.id
-                                   WHERE sh.waktu_transaksi  LIKE ?
-                                     OR sh.jenis_transaksi  LIKE ?
-                                     OR i.nama_item  LIKE ?
-                                     OR l.kode_lokasi   LIKE ?
-                                     OR sh.stock_sebelum   LIKE ?
-                                      OR sh.stock_sesudah   LIKE ?
+                                   WHERE sh.jenis_transaksi LIKE ?
+                                     OR i.nama_item LIKE ?
+                                     OR l.kode_lokasi LIKE ?
                                   ORDER BY sh.id DESC
             """;
 
@@ -236,9 +247,6 @@ private int totalPage = 0;
             ps.setString(1, "%" + keyword + "%");
             ps.setString(2, "%" + keyword + "%");
             ps.setString(3, "%" + keyword + "%");
-            ps.setString(4, "%" + keyword + "%");
-            ps.setString(5, "%" + keyword + "%");
-            ps.setString(6, "%" + keyword + "%");
 
             ResultSet rs = ps.executeQuery();
 
@@ -264,7 +272,37 @@ private int totalPage = 0;
         }
     }
     
-    
+    private void cariInventory() {
+        String keyword = TSearchInventory.getText().trim();
+        DefaultTableModel model = (DefaultTableModel) TInventory.getModel();
+        model.setRowCount(0);
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            String sql = """
+                SELECT inv.id, i.nama_item, l.kode_lokasi, inv.stok_terkini
+                FROM inventory inv
+                INNER JOIN items i ON inv.item_id = i.id
+                INNER JOIN locations l ON inv.location_id = l.id
+                WHERE inv.stok_terkini > 0
+                  AND (i.nama_item LIKE ? OR l.kode_lokasi LIKE ?)
+                ORDER BY inv.id DESC
+            """;
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, "%" + keyword + "%");
+            ps.setString(2, "%" + keyword + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getInt("id"),
+                    rs.getString("nama_item"),
+                    rs.getString("kode_lokasi"),
+                    rs.getInt("stok_terkini")
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }
+
        public final void loadDataInventory() { 
                 DefaultTableModel model = new DefaultTableModel() {
                     // Best practice: Membuat sel tabel tidak bisa diedit secara manual oleh user
@@ -815,7 +853,7 @@ private int totalPage = 0;
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void TSearchActivityKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchActivityKeyReleased
-       
+       cariActivity();
     }//GEN-LAST:event_TSearchActivityKeyReleased
 
     private void BSearchActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BSearchActivityActionPerformed
