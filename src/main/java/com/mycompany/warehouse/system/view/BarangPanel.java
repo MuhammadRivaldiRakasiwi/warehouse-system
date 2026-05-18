@@ -17,7 +17,9 @@ import javax.swing.table.DefaultTableModel;
  * @author ndesc
  */
 public class BarangPanel extends javax.swing.JPanel {
-  private int selectedId = -1; 
+  private int selectedId = -1;
+  private int currentPage = 1;
+  private int totalPage = 1;
 
     /**
      * Creates new form BarangPanel
@@ -694,4 +696,9 @@ private void clearForm() {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable tableBarang;
     // End of variables declaration//GEN-END:variables
+
+    private void loadDataAktifitas() {
+        // TODO: implementasi pagination data barang
+        loadData();
+    }
 }
