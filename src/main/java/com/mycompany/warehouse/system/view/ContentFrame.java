@@ -28,6 +28,8 @@ public class ContentFrame extends javax.swing.JFrame {
     private final DashboardStaff menuDashboardStaff;
      private final DashboardManager menuDashboardManager;
     private final BarangPanel menuBarang;
+        private final UserPanel menuUser;
+        private final LocationPanel menuLokasi;
     private final BarangMasukPanel menuBarangMasuk;
     private final BarangKeluarPanel menuBarangKeluar;
     private final SupplierPanel menuSupplier;
@@ -37,6 +39,8 @@ public class ContentFrame extends javax.swing.JFrame {
                 initComponents();
                 // 3. INISIALISASI OBJEK PANEL (Dimasukkan ke dalam constructor)
                 menuBarang = new BarangPanel();
+                menuUser = new UserPanel();
+                menuLokasi = new LocationPanel();
                 menuDashboardStaff = new DashboardStaff();
                   menuDashboardManager = new DashboardManager();
                 menuBarangMasuk = new BarangMasukPanel();
@@ -45,6 +49,8 @@ public class ContentFrame extends javax.swing.JFrame {
 
                 // 4. MASUKKAN PANEL KE CARDLAYOUT
                 panelContent.add(menuBarang, "cardBarang");
+                panelContent.add(menuUser, "cardUser");
+                panelContent.add(menuLokasi, "cardLokasi");
                 panelContent.add(menuDashboardStaff, "dashboardStaff");
                 panelContent.add(menuDashboardManager, "dashboardManager");
                 panelContent.add(menuSupplier.asScrollable(), "cardSupplier");
@@ -259,6 +265,7 @@ public class ContentFrame extends javax.swing.JFrame {
         btnMUser.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMUser.setMaximumSize(new java.awt.Dimension(89, 23));
         btnMUser.setPreferredSize(new java.awt.Dimension(89, 23));
+        btnMUser.addActionListener(this::btnMUserActionPerformed);
 
         btnMSupplier.setBackground(new java.awt.Color(51, 0, 102));
         btnMSupplier.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
@@ -403,7 +410,9 @@ public class ContentFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnMLokasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMLokasiActionPerformed
-        // TODO add your handling code here:
+         CardLayout cl = (CardLayout) panelContent.getLayout();
+        cl.show(panelContent, "cardLokasi");
+         setMenuColor(btnMLokasi);
     }//GEN-LAST:event_btnMLokasiActionPerformed
 
     private void btnMDashboardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMDashboardActionPerformed
@@ -487,6 +496,12 @@ public class ContentFrame extends javax.swing.JFrame {
             this.dispose();
         } // Menutup aplikasi
     }//GEN-LAST:event_btnLogoutActionPerformed
+
+    private void btnMUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMUserActionPerformed
+          CardLayout cl = (CardLayout) panelContent.getLayout();
+          cl.show(panelContent, "cardUser");
+         setMenuColor(btnMUser); 
+    }//GEN-LAST:event_btnMUserActionPerformed
 private void setMenuColor(JButton activeBtn) {
      // Contoh menggunakan Opsi 1 (Kontras Profesional)
     Color warnaSidebar = new Color(153, 255, 255);
