@@ -25,47 +25,28 @@ public class ContentFrame extends javax.swing.JFrame {
      * 
      */
    // 1. DEKLARASI VARIABEL GLOBAL (Letakkan di bawah nama class)
-    private final DashboardStaff menuDashboardStaff;
-     private final DashboardManager menuDashboardManager;
-    private final BarangPanel menuBarang;
-        private final UserPanel menuUser;
-        private final LocationPanel menuLokasi;
-    private final BarangMasukPanel menuBarangMasuk;
-    private final BarangKeluarPanel menuBarangKeluar;
-    private final SupplierPanel menuSupplier;
+    private DashboardStaff menuDashboardStaff;
+    private DashboardManager menuDashboardManager;
+    private BarangPanel menuBarang;
+    private UserPanel menuUser;
+    private LocationPanel menuLokasi;
+    private BarangMasukPanel menuBarangMasuk;
+    private BarangKeluarPanel menuBarangKeluar;
+    private SupplierPanel menuSupplier;
 
     // 2. CONSTRUCTOR UTAMA
     public ContentFrame() {
                 initComponents();
-                // 3. INISIALISASI OBJEK PANEL (Dimasukkan ke dalam constructor)
-                menuBarang = new BarangPanel();
-                menuUser = new UserPanel();
-                menuLokasi = new LocationPanel();
-                menuDashboardStaff = new DashboardStaff();
-                  menuDashboardManager = new DashboardManager();
-                menuBarangMasuk = new BarangMasukPanel();
-                menuBarangKeluar = new BarangKeluarPanel();
-                menuSupplier = new SupplierPanel();
 
-                // 4. MASUKKAN PANEL KE CARDLAYOUT
-                panelContent.add(menuBarang, "cardBarang");
-                panelContent.add(menuUser, "cardUser");
-                panelContent.add(menuLokasi, "cardLokasi");
-                panelContent.add(menuDashboardStaff, "dashboardStaff");
-                panelContent.add(menuDashboardManager, "dashboardManager");
-                panelContent.add(menuSupplier.asScrollable(), "cardSupplier");
-                panelContent.add(menuBarangMasuk, "cardBarangMasuk");
-                panelContent.add(menuBarangKeluar, "cardBarangKeluar");
-                
+                // Panel hanya di-init saat dibutuhkan (lazy loading)
+                // Tidak perlu load semua panel + data sekaligus
 
-                // 5. ATUR TAMPILAN AWAL
+                // Atur tampilan awal (hanya load dashboard sesuai role)
                 aturHakAkses();
           
                 setMenuColor(btnMDashboard);
 
                 this.setExtendedState(ContentFrame.MAXIMIZED_BOTH);
-
-        // ... Sisa kode fungsi tombol Anda di bawah ini ...
     }
      private void aturHakAkses() {
          User user = Session.getUser(); 
@@ -410,6 +391,7 @@ public class ContentFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnMLokasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMLokasiActionPerformed
+         if (menuLokasi == null) { menuLokasi = new LocationPanel(); panelContent.add(menuLokasi, "cardLokasi"); }
          CardLayout cl = (CardLayout) panelContent.getLayout();
         cl.show(panelContent, "cardLokasi");
          setMenuColor(btnMLokasi);
@@ -445,12 +427,14 @@ public class ContentFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMDashboardActionPerformed
 
     private void btnMBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMBarangActionPerformed
+    if (menuBarang == null) { menuBarang = new BarangPanel(); panelContent.add(menuBarang, "cardBarang"); }
     CardLayout cl = (CardLayout) panelContent.getLayout();
         cl.show(panelContent, "cardBarang");
          setMenuColor(btnMBarang); 
     }//GEN-LAST:event_btnMBarangActionPerformed
 
     private void btnMBarangMasukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMBarangMasukActionPerformed
+          if (menuBarangMasuk == null) { menuBarangMasuk = new BarangMasukPanel(); panelContent.add(menuBarangMasuk, "cardBarangMasuk"); }
           CardLayout cl = (CardLayout) panelContent.getLayout();
           cl.show(panelContent, "cardBarangMasuk");
          setMenuColor(btnMBarangMasuk); 
@@ -461,7 +445,7 @@ public class ContentFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMBarangMasukActionPerformed
 
     private void btnMBarangKeluarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMBarangKeluarActionPerformed
-        // TODO add your handling code here:
+        if (menuBarangKeluar == null) { menuBarangKeluar = new BarangKeluarPanel(); panelContent.add(menuBarangKeluar, "cardBarangKeluar"); }
              CardLayout cl = (CardLayout) panelContent.getLayout();
           cl.show(panelContent, "cardBarangKeluar");
          setMenuColor(btnMBarangKeluar); 
@@ -473,6 +457,7 @@ public class ContentFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMTransferBarangActionPerformed
 
     private void btnMSupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMSupplierActionPerformed
+        if (menuSupplier == null) { menuSupplier = new SupplierPanel(); panelContent.add(menuSupplier.asScrollable(), "cardSupplier"); }
         CardLayout cl = (CardLayout) panelContent.getLayout();
         cl.show(panelContent, "cardSupplier");
          setMenuColor(btnMSupplier); 
@@ -498,6 +483,7 @@ public class ContentFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLogoutActionPerformed
 
     private void btnMUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMUserActionPerformed
+          if (menuUser == null) { menuUser = new UserPanel(); panelContent.add(menuUser, "cardUser"); }
           CardLayout cl = (CardLayout) panelContent.getLayout();
           cl.show(panelContent, "cardUser");
          setMenuColor(btnMUser); 
