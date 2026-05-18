@@ -434,7 +434,7 @@ public class ContentFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMDashboardActionPerformed
 
     private void btnMBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMBarangActionPerformed
-    if (menuBarang == null) { menuBarang = new BarangPanel(); panelContent.add(menuBarang, "cardBarang"); }
+    if (menuBarang == null) { menuBarang = new BarangPanel(); panelContent.add(menuBarang.asScrollable(), "cardBarang"); }
     CardLayout cl = (CardLayout) panelContent.getLayout();
         cl.show(panelContent, "cardBarang");
          setMenuColor(btnMBarang); 
