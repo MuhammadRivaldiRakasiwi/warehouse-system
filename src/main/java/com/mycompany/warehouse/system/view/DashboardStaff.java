@@ -33,10 +33,21 @@ public class DashboardStaff extends javax.swing.JPanel {
 
         BPActivity.setOpaque(true);
         BPActivity.setContentAreaFilled(true);
-            hitungTotalData();
-          loadDataAktifitas();
         instance = this;
-       loadDataCount();
+
+        // Sembunyikan tombol Cari (search sudah realtime)
+        btnSearchActivity.setVisible(false);
+
+        // Load data di background agar UI tidak freeze
+        new javax.swing.SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                hitungTotalData();
+                loadDataAktifitas();
+                loadDataCount();
+                return null;
+            }
+        }.execute();
     }
 public final void loadDataCount(){
      LTotalBarang.setText(String.valueOf(DashboardService.getTotalItemsInventory()));
@@ -241,12 +252,9 @@ public final void loadDataCount(){
                                   FROM stock_history sh 
                                   INNER JOIN items i ON sh.item_id = i.id
                                   INNER JOIN locations l ON sh.location_id = l.id
-                                   WHERE sh.waktu_transaksi  LIKE ?
-                                     OR sh.jenis_transaksi  LIKE ?
-                                     OR i.nama_item  LIKE ?
-                                     OR l.kode_lokasi   LIKE ?
-                                     OR sh.stock_sebelum   LIKE ?
-                                      OR sh.stock_sesudah   LIKE ?
+                                   WHERE sh.jenis_transaksi LIKE ?
+                                     OR i.nama_item LIKE ?
+                                     OR l.kode_lokasi LIKE ?
                                   ORDER BY sh.id DESC
             """;
 
@@ -256,9 +264,6 @@ public final void loadDataCount(){
             ps.setString(1, "%" + keyword + "%");
             ps.setString(2, "%" + keyword + "%");
             ps.setString(3, "%" + keyword + "%");
-            ps.setString(4, "%" + keyword + "%");
-            ps.setString(5, "%" + keyword + "%");
-            ps.setString(6, "%" + keyword + "%");
 
             ResultSet rs = ps.executeQuery();
 
@@ -599,7 +604,7 @@ public final void loadDataCount(){
     }// </editor-fold>//GEN-END:initComponents
 
     private void TSearchActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TSearchActivityActionPerformed
-        // TODO add your handling code here:
+        cariActivity();
     }//GEN-LAST:event_TSearchActivityActionPerformed
 
     private void BPActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPActivityActionPerformed
@@ -621,7 +626,7 @@ public final void loadDataCount(){
     }//GEN-LAST:event_BNActivityActionPerformed
 
     private void TSearchActivityKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchActivityKeyReleased
-
+       cariActivity();
     }//GEN-LAST:event_TSearchActivityKeyReleased
 
     private void btnSearchActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActivityActionPerformed
