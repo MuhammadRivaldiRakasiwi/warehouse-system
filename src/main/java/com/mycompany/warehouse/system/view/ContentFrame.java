@@ -154,21 +154,22 @@ public class ContentFrame extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         panelNavbar.setBackground(new java.awt.Color(255, 255, 255));
-        panelNavbar.setPreferredSize(new java.awt.Dimension(200, 43));
+        panelNavbar.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, new java.awt.Color(220, 220, 220)));
+        panelNavbar.setPreferredSize(new java.awt.Dimension(200, 50));
 
         jLabel2.setBackground(new java.awt.Color(255, 255, 255));
         jLabel2.setFont(new java.awt.Font("Urbanist Black", 1, 14)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(51, 0, 102));
+        jLabel2.setForeground(new java.awt.Color(37, 99, 235));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("Gudangin.aja");
 
         LNamaLengkap.setFont(new java.awt.Font("Urbanist", 1, 12)); // NOI18N
-        LNamaLengkap.setForeground(new java.awt.Color(51, 0, 102));
+        LNamaLengkap.setForeground(new java.awt.Color(30, 41, 59));
         LNamaLengkap.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         LNamaLengkap.setText("Admin1");
 
         LEmail.setFont(new java.awt.Font("Urbanist", 0, 10)); // NOI18N
-        LEmail.setForeground(new java.awt.Color(51, 0, 102));
+        LEmail.setForeground(new java.awt.Color(100, 116, 139));
         LEmail.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         LEmail.setText("admin1@gmail.com");
 
@@ -202,13 +203,14 @@ public class ContentFrame extends javax.swing.JFrame {
 
         getContentPane().add(panelNavbar, java.awt.BorderLayout.PAGE_START);
 
-        panelSidebar.setBackground(new java.awt.Color(51, 0, 102));
+        panelSidebar.setBackground(new java.awt.Color(37, 99, 235));
+        panelSidebar.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 0, 1, new java.awt.Color(30, 80, 200)));
         panelSidebar.setForeground(new java.awt.Color(255, 255, 255));
-        panelSidebar.setPreferredSize(new java.awt.Dimension(150, 373));
+        panelSidebar.setPreferredSize(new java.awt.Dimension(160, 373));
 
-        btnMBarang.setBackground(new java.awt.Color(51, 0, 102));
+        btnMBarang.setBackground(new java.awt.Color(255, 255, 255));
         btnMBarang.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
-        btnMBarang.setForeground(new java.awt.Color(255, 255, 255));
+        btnMBarang.setForeground(new java.awt.Color(37, 99, 235));
         btnMBarang.setText("Barang");
         btnMBarang.setBorderPainted(false);
         btnMBarang.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -216,9 +218,9 @@ public class ContentFrame extends javax.swing.JFrame {
         btnMBarang.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMBarang.addActionListener(this::btnMBarangActionPerformed);
 
-        btnMLokasi.setBackground(new java.awt.Color(51, 0, 102));
+        btnMLokasi.setBackground(new java.awt.Color(255, 255, 255));
         btnMLokasi.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
-        btnMLokasi.setForeground(new java.awt.Color(255, 255, 255));
+        btnMLokasi.setForeground(new java.awt.Color(37, 99, 235));
         btnMLokasi.setText("Lokasi");
         btnMLokasi.setBorderPainted(false);
         btnMLokasi.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -226,9 +228,9 @@ public class ContentFrame extends javax.swing.JFrame {
         btnMLokasi.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMLokasi.addActionListener(this::btnMLokasiActionPerformed);
 
-        btnMDashboard.setBackground(new java.awt.Color(79, 0, 158));
+        btnMDashboard.setBackground(new java.awt.Color(255, 255, 255));
         btnMDashboard.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
-        btnMDashboard.setForeground(new java.awt.Color(255, 255, 255));
+        btnMDashboard.setForeground(new java.awt.Color(37, 99, 235));
         btnMDashboard.setText("Dashboard");
         btnMDashboard.setBorderPainted(false);
         btnMDashboard.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -236,33 +238,31 @@ public class ContentFrame extends javax.swing.JFrame {
         btnMDashboard.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMDashboard.addActionListener(this::btnMDashboardActionPerformed);
 
-        btnMUser.setBackground(new java.awt.Color(51, 0, 102));
+        btnMUser.setBackground(new java.awt.Color(255, 255, 255));
         btnMUser.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
-        btnMUser.setForeground(new java.awt.Color(255, 255, 255));
+        btnMUser.setForeground(new java.awt.Color(37, 99, 235));
         btnMUser.setText("User");
         btnMUser.setBorderPainted(false);
         btnMUser.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnMUser.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
         btnMUser.setMargin(new java.awt.Insets(2, 6, 2, 6));
-        btnMUser.setMaximumSize(new java.awt.Dimension(89, 23));
-        btnMUser.setPreferredSize(new java.awt.Dimension(89, 23));
+        btnMUser.setPreferredSize(new java.awt.Dimension(130, 30));
         btnMUser.addActionListener(this::btnMUserActionPerformed);
 
-        btnMSupplier.setBackground(new java.awt.Color(51, 0, 102));
+        btnMSupplier.setBackground(new java.awt.Color(255, 255, 255));
         btnMSupplier.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
-        btnMSupplier.setForeground(new java.awt.Color(255, 255, 255));
+        btnMSupplier.setForeground(new java.awt.Color(37, 99, 235));
         btnMSupplier.setText("Supplier");
         btnMSupplier.setBorderPainted(false);
         btnMSupplier.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnMSupplier.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
         btnMSupplier.setMargin(new java.awt.Insets(2, 6, 2, 6));
-        btnMSupplier.setMaximumSize(new java.awt.Dimension(89, 23));
-        btnMSupplier.setPreferredSize(new java.awt.Dimension(89, 23));
+        btnMSupplier.setPreferredSize(new java.awt.Dimension(130, 30));
         btnMSupplier.addActionListener(this::btnMSupplierActionPerformed);
 
-        btnMBarangMasuk.setBackground(new java.awt.Color(51, 0, 102));
+        btnMBarangMasuk.setBackground(new java.awt.Color(255, 255, 255));
         btnMBarangMasuk.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
-        btnMBarangMasuk.setForeground(new java.awt.Color(255, 255, 255));
+        btnMBarangMasuk.setForeground(new java.awt.Color(37, 99, 235));
         btnMBarangMasuk.setText("Barang Masuk");
         btnMBarangMasuk.setBorderPainted(false);
         btnMBarangMasuk.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -270,9 +270,9 @@ public class ContentFrame extends javax.swing.JFrame {
         btnMBarangMasuk.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMBarangMasuk.addActionListener(this::btnMBarangMasukActionPerformed);
 
-        btnMBarangKeluar.setBackground(new java.awt.Color(51, 0, 102));
+        btnMBarangKeluar.setBackground(new java.awt.Color(255, 255, 255));
         btnMBarangKeluar.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
-        btnMBarangKeluar.setForeground(new java.awt.Color(255, 255, 255));
+        btnMBarangKeluar.setForeground(new java.awt.Color(37, 99, 235));
         btnMBarangKeluar.setText("Barang Keluar");
         btnMBarangKeluar.setBorderPainted(false);
         btnMBarangKeluar.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -280,9 +280,9 @@ public class ContentFrame extends javax.swing.JFrame {
         btnMBarangKeluar.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMBarangKeluar.addActionListener(this::btnMBarangKeluarActionPerformed);
 
-        btnMTransferBarang.setBackground(new java.awt.Color(51, 0, 102));
+        btnMTransferBarang.setBackground(new java.awt.Color(255, 255, 255));
         btnMTransferBarang.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
-        btnMTransferBarang.setForeground(new java.awt.Color(255, 255, 255));
+        btnMTransferBarang.setForeground(new java.awt.Color(37, 99, 235));
         btnMTransferBarang.setText("Transfer Barang");
         btnMTransferBarang.setBorderPainted(false);
         btnMTransferBarang.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -290,30 +290,30 @@ public class ContentFrame extends javax.swing.JFrame {
         btnMTransferBarang.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnMTransferBarang.addActionListener(this::btnMTransferBarangActionPerformed);
 
-        LMaster.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
-        LMaster.setForeground(new java.awt.Color(217, 185, 252));
+        LMaster.setFont(new java.awt.Font("Urbanist", 1, 11)); // NOI18N
+        LMaster.setForeground(new java.awt.Color(191, 219, 254));
         LMaster.setText("Data Master");
-        LMaster.setEnabled(false);
+        LMaster.setEnabled(true);
 
-        btnLogout.setBackground(new java.awt.Color(204, 0, 51));
+        btnLogout.setBackground(new java.awt.Color(239, 68, 68));
         btnLogout.setFont(new java.awt.Font("Urbanist Medium", 1, 12)); // NOI18N
-        btnLogout.setForeground(new java.awt.Color(51, 0, 102));
+        btnLogout.setForeground(new java.awt.Color(255, 255, 255));
         btnLogout.setText("Logout");
         btnLogout.setBorderPainted(false);
         btnLogout.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnLogout.setMargin(new java.awt.Insets(2, 6, 2, 6));
         btnLogout.addActionListener(this::btnLogoutActionPerformed);
 
-        LTransaction.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
-        LTransaction.setForeground(new java.awt.Color(217, 185, 252));
+        LTransaction.setFont(new java.awt.Font("Urbanist", 1, 11)); // NOI18N
+        LTransaction.setForeground(new java.awt.Color(191, 219, 254));
         LTransaction.setText("Logistik");
-        LTransaction.setEnabled(false);
+        LTransaction.setEnabled(true);
 
-        STransaction.setForeground(new java.awt.Color(86, 0, 172));
+        STransaction.setForeground(new java.awt.Color(59, 130, 246));
 
-        SMaster.setForeground(new java.awt.Color(86, 0, 172));
+        SMaster.setForeground(new java.awt.Color(59, 130, 246));
 
-        jSeparator3.setForeground(new java.awt.Color(86, 0, 172));
+        jSeparator3.setForeground(new java.awt.Color(59, 130, 246));
 
         javax.swing.GroupLayout panelSidebarLayout = new javax.swing.GroupLayout(panelSidebar);
         panelSidebar.setLayout(panelSidebarLayout);
@@ -483,45 +483,43 @@ public class ContentFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLogoutActionPerformed
 
     private void btnMUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMUserActionPerformed
-          if (menuUser == null) { menuUser = new UserPanel(); panelContent.add(menuUser, "cardUser"); }
+          if (menuUser == null) { menuUser = new UserPanel(); panelContent.add(menuUser.asScrollable(), "cardUser"); }
           CardLayout cl = (CardLayout) panelContent.getLayout();
           cl.show(panelContent, "cardUser");
          setMenuColor(btnMUser); 
     }//GEN-LAST:event_btnMUserActionPerformed
 private void setMenuColor(JButton activeBtn) {
-     // Contoh menggunakan Opsi 1 (Kontras Profesional)
-    Color warnaSidebar = new Color(153, 255, 255);
-    Color warnaAktif = new Color(0, 153, 153); // Hijau-Biru gelap
-    Color teksPutih = Color.WHITE;
-    Color teksHitam = Color.BLACK;
+    // Sidebar biru, tombol putih. Aktif = biru lebih terang
+    Color warnaNormal = new Color(255, 255, 255);   // Putih
+    Color warnaAktif = new Color(219, 234, 254);    // Biru muda (aktif)
+    Color teksNormal = new Color(37, 99, 235);      // Biru
+    Color teksAktif = new Color(29, 78, 186);       // Biru gelap
 
-    // Reset semua tombol ke warna standar sidebar
-    btnMDashboard.setBackground(warnaSidebar);
-    btnMDashboard.setForeground(teksHitam);
+    // Reset semua tombol ke putih
+    btnMDashboard.setBackground(warnaNormal);
+    btnMDashboard.setForeground(teksNormal);
     
-    btnMBarang.setBackground(warnaSidebar);
-    btnMBarang.setForeground(teksHitam);
+    btnMBarang.setBackground(warnaNormal);
+    btnMBarang.setForeground(teksNormal);
     
-    btnMSupplier.setBackground(warnaSidebar);
-    btnMSupplier.setForeground(teksHitam);
+    btnMSupplier.setBackground(warnaNormal);
+    btnMSupplier.setForeground(teksNormal);
     
-    btnMUser.setBackground(warnaSidebar);
-    btnMUser.setForeground(teksHitam);
+    btnMUser.setBackground(warnaNormal);
+    btnMUser.setForeground(teksNormal);
     
-    btnMLokasi.setBackground(warnaSidebar);
-    btnMLokasi.setForeground(teksHitam);
+    btnMLokasi.setBackground(warnaNormal);
+    btnMLokasi.setForeground(teksNormal);
    
+    btnMBarangMasuk.setBackground(warnaNormal);
+    btnMBarangMasuk.setForeground(teksNormal);
     
-    btnMBarangMasuk.setBackground(warnaSidebar);
-    btnMBarangMasuk.setForeground(teksHitam);
-    
-    btnMBarangKeluar.setBackground(warnaSidebar);
-    btnMBarangKeluar.setForeground(teksHitam);
-    
+    btnMBarangKeluar.setBackground(warnaNormal);
+    btnMBarangKeluar.setForeground(teksNormal);
 
     // Set tombol aktif
     activeBtn.setBackground(warnaAktif);
-    activeBtn.setForeground(teksPutih); // Ubah teks jadi putih agar kontras
+    activeBtn.setForeground(teksAktif);
 }
 
     /**
