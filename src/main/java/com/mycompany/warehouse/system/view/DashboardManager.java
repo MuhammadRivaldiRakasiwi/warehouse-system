@@ -18,7 +18,7 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.view.JasperViewer;
 import java.io.InputStream;
-
+import java.text.SimpleDateFormat; 
 /**
  *
  * @author ndesc
@@ -594,7 +594,7 @@ private int totalPageInventory = 0;
     };
 
     model.addColumn("ID");
-    model.addColumn("Jam");
+    model.addColumn("Waktu");
     model.addColumn("Aktifitas");
     model.addColumn("Barang");
     model.addColumn("Lokasi");
@@ -627,12 +627,16 @@ private int totalPageInventory = 0;
         ps.setInt(2, offset);
 
         ResultSet rs = ps.executeQuery();
+        SimpleDateFormat formatBaru = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 
         while (rs.next()) {
-
+ String waktuFormat = "";
+    if (rs.getTimestamp("waktu_transaksi") != null) {
+        waktuFormat = formatBaru.format(rs.getTimestamp("waktu_transaksi"));
+    }
             model.addRow(new Object[]{
                 rs.getInt("id"),
-                rs.getString("waktu_transaksi"),
+                waktuFormat,
                 rs.getString("jenis_transaksi"),
                 rs.getString("nama_item"),
                 rs.getString("kode_lokasi"),
@@ -650,6 +654,19 @@ private int totalPageInventory = 0;
         TActivity.getColumnModel().getColumn(0).setMaxWidth(0);
         TActivity.getColumnModel().getColumn(0).setPreferredWidth(0);
 
+        
+        // Atur ukuran kolom panjang (Waktu Transaksi & Nama Item)
+        TActivity.getColumnModel().getColumn(1).setPreferredWidth(145); // waktu_transaksi
+        TActivity.getColumnModel().getColumn(3).setPreferredWidth(150); // nama_item
+
+        // Atur ukuran kolom pendek agar sama rata (Jenis Transaksi, Stock Sebelum, Stock Sesudah)
+        // Angka 80 bisa Anda sesuaikan (misal 70 atau 90) tergantung kebutuhan tampilan
+        TActivity.getColumnModel().getColumn(2).setPreferredWidth(85);  // jenis_transaksi
+        TActivity.getColumnModel().getColumn(5).setPreferredWidth(85);  // stock_sebelum
+        TActivity.getColumnModel().getColumn(6).setPreferredWidth(85);  // stock_sesudah
+        
+        // Opsional: Atur kolom kode_lokasi jika diperlukan
+        TActivity.getColumnModel().getColumn(4).setPreferredWidth(100); // kode_lokasi
         // ===== UPDATE PAGINATION =====
         LPActivity.setText(
             "Page " + currentPageActivity + " / " + totalPageActivity
