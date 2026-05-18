@@ -28,6 +28,15 @@ public class BarangPanel extends javax.swing.JPanel {
         initComponents();
             loadData(); // Tambahkan ini
     }
+        public javax.swing.JScrollPane asScrollable() {
+        javax.swing.JScrollPane sp = new javax.swing.JScrollPane(this);
+        sp.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+        sp.getVerticalScrollBar().setUnitIncrement(16);
+        sp.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        sp.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        return sp;
+    }
+    
     public final void loadData() {
         DefaultTableModel model = new DefaultTableModel();
         // Tambahkan kolom ID di index 0
