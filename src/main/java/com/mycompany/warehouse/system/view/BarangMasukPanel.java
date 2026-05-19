@@ -4,16 +4,15 @@
  */
 package com.mycompany.warehouse.system.view;
 //import com.mycompany.warehouse.system.DatabaseConfig;
-import com.mycompany.warehouse.system.DatabaseConfig;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.text.SimpleDateFormat;
-import javax.swing.JOptionPane;
-import java.util.HashMap;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 /**
  *
@@ -383,12 +382,10 @@ public class BarangMasukPanel extends javax.swing.JPanel {
         jScrollPane1.setViewportView(jEditorPane1);
 
         setBackground(new java.awt.Color(248, 250, 252));
-<<<<<<< HEAD
 
         jPanel3.setBackground(new java.awt.Color(248, 250, 252));
         jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 20, 20, 20));
         jPanel3.setLayout(new java.awt.BorderLayout());
-=======
         setForeground(new java.awt.Color(0, 0, 0));
 
         jPanel2.setMaximumSize(new java.awt.Dimension(70, 15));
@@ -621,7 +618,6 @@ public class BarangMasukPanel extends javax.swing.JPanel {
                 .addComponent(btnSimpan)
                 .addGap(84, 84, 84))
         );
->>>>>>> 84e80853757150ba2e92b2af95d7ab720ec43623
 
         jPanel7.setBackground(new java.awt.Color(255, 255, 255));
         jPanel7.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
@@ -721,7 +717,6 @@ public class BarangMasukPanel extends javax.swing.JPanel {
                 .addGap(0, 0, 0))
         );
 
-<<<<<<< HEAD
         jPanel3.add(jPanel7, java.awt.BorderLayout.CENTER);
 
         jPanel4.setBackground(new java.awt.Color(248, 250, 252));
@@ -919,7 +914,6 @@ public class BarangMasukPanel extends javax.swing.JPanel {
         jLabel18.setText("Kelola dan tambahkan data barang yang masuk ke dalam sistem inventaris.");
         jPanel1.add(jLabel18, java.awt.BorderLayout.PAGE_END);
 
-=======
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -937,40 +931,39 @@ public class BarangMasukPanel extends javax.swing.JPanel {
                 .addContainerGap(303, Short.MAX_VALUE))
         );
 
->>>>>>> 84e80853757150ba2e92b2af95d7ab720ec43623
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-<<<<<<< HEAD
+
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(0, 0, Short.MAX_VALUE))
-=======
+
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 982, Short.MAX_VALUE))
                 .addGap(20, 20, 20))
->>>>>>> 84e80853757150ba2e92b2af95d7ab720ec43623
+
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-<<<<<<< HEAD
+
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0))
-=======
+
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 598, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
->>>>>>> 84e80853757150ba2e92b2af95d7ab720ec43623
+
         );
     }// </editor-fold>//GEN-END:initComponents
 
