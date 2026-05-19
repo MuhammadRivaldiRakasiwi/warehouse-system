@@ -20,10 +20,15 @@ import javax.swing.table.DefaultTableModel;
  */
 public class DashboardAdmin extends javax.swing.JPanel {
  public static DashboardAdmin instance;
-private int currentPage = 1;
-private final int dataPerPage = 10;
-private int totalData = 0;
-private int totalPage = 0;
+private int currentPageAktifitas = 1;
+private final int dataPerPageAktifitas = 10;
+private int totalDataAktifitas = 0;
+private int totalPageAktifitas = 0;
+
+private int currentPageInventory = 1;
+private final int dataPerPageInventory = 10;
+private int totalDataInventory = 0;
+private int totalPageInventory = 0;
     /**
      * Creates new form DashboardAdmin
      */
@@ -45,7 +50,8 @@ private int totalPage = 0;
         new javax.swing.SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() {
-                hitungTotalData();
+                hitungTotalDataAktifitas();
+                hitungTotalDataInventory();
                 loadDataAktifitas();
                 loadDataInventory();
                 loadDataCount();
@@ -62,10 +68,10 @@ private int totalPage = 0;
         LBarangKeluar.setText(String.valueOf(DashboardService.getTotalItemsKeluar()));
     }
     public final void loadDataAktifitas() { 
-        updatePaginationButton();
+        updatePaginationButtonAktifitas();
 
             LPActivity.setText(
-                "Page " + currentPage + " / " + totalPage
+                "Page " + currentPageAktifitas + " / " + totalPageAktifitas
             );
             DefaultTableModel model = new DefaultTableModel() {
 
@@ -83,7 +89,7 @@ private int totalPage = 0;
             model.addColumn("Stok Sebelum");
             model.addColumn("Stok Sesudah");
 
-            int offset = (currentPage - 1) * dataPerPage;
+            int offset = (currentPageAktifitas - 1) * dataPerPageAktifitas;
 
             String sql = """
                 SELECT sh.id,
@@ -105,7 +111,7 @@ private int totalPage = 0;
                 PreparedStatement ps = conn.prepareStatement(sql)
             ) {
 
-                ps.setInt(1, dataPerPage);
+                ps.setInt(1, dataPerPageAktifitas);
                 ps.setInt(2, offset);
 
                 ResultSet rs = ps.executeQuery();
@@ -138,16 +144,16 @@ private int totalPage = 0;
             }
      }
     
-    private void updatePaginationButton() {
+    private void updatePaginationButtonAktifitas() {
    BNActivity.setOpaque(true);
         BNActivity.setContentAreaFilled(true);
         BPActivity.setOpaque(true);
         BPActivity.setContentAreaFilled(true);
      // PREVIOUS
-           BPActivity.setEnabled(currentPage > 1);
+           BPActivity.setEnabled(currentPageAktifitas > 1);
 
            // NEXT
-           BNActivity.setEnabled(currentPage < totalPage);
+           BNActivity.setEnabled(currentPageAktifitas < totalPageAktifitas);
 
            // STYLE PREVIOUS
            if (BPActivity.isEnabled()) {
@@ -190,7 +196,7 @@ private int totalPage = 0;
            }
 }
     
-    private void hitungTotalData() {
+    private void hitungTotalDataAktifitas() {
 
     String sql = "SELECT COUNT(*) AS total FROM stock_history";
 
@@ -202,10 +208,10 @@ private int totalPage = 0;
 
         if (rs.next()) {
 
-            totalData = rs.getInt("total");
+            totalDataAktifitas = rs.getInt("total");
 
-            totalPage = (int) Math.ceil(
-                (double) totalData / dataPerPage
+            totalPageAktifitas = (int) Math.ceil(
+                (double) totalDataAktifitas / dataPerPageAktifitas
             );
         }
 
@@ -272,6 +278,9 @@ private int totalPage = 0;
         }
     }
     
+         
+   
+         
     private void cariInventory() {
         String keyword = TSearchInventory.getText().trim();
         DefaultTableModel model = (DefaultTableModel) TInventory.getModel();
@@ -302,8 +311,92 @@ private int totalPage = 0;
             JOptionPane.showMessageDialog(this, e.getMessage());
         }
     }
+    
+    private void updatePaginationButtonInventory() {
+   BNInventory.setOpaque(true);
+        BNInventory.setContentAreaFilled(true);
+        BPInventory.setOpaque(true);
+        BPInventory.setContentAreaFilled(true);
+     // PREVIOUS
+           BPInventory.setEnabled(currentPageInventory > 1);
 
-       public final void loadDataInventory() { 
+           // NEXT
+           BNInventory.setEnabled(currentPageInventory < totalPageInventory);
+
+           // STYLE PREVIOUS
+           if (BPInventory.isEnabled()) {
+
+               BPInventory.setBackground(
+                   new java.awt.Color(0,153,204)
+               );
+
+               BPInventory.setForeground(java.awt.Color.WHITE);
+
+           } else {
+
+               BPInventory.setBackground(
+                   new java.awt.Color(220, 220, 220)
+               );
+
+               BPInventory.setForeground(
+                   new java.awt.Color(120,120,120)
+               );
+           }
+
+           // STYLE NEXT
+           if (BNInventory.isEnabled()) {
+
+               BNInventory.setBackground(
+                   new java.awt.Color(0,153,204)
+               );
+
+               BNInventory.setForeground(java.awt.Color.WHITE);
+
+           } else {
+
+               BNInventory.setBackground(
+                   new java.awt.Color(220,220,220)
+               );
+
+               BNInventory.setForeground(
+                   new java.awt.Color(120,120,120)
+               );
+           }
+}
+    
+    private void hitungTotalDataInventory() {
+
+    String sql = "SELECT COUNT(*) AS total FROM inventory";
+
+    try (
+        Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()
+    ) {
+
+        if (rs.next()) {
+
+            totalDataInventory = rs.getInt("total");
+
+            totalPageInventory = (int) Math.ceil(
+                (double) totalDataInventory / dataPerPageInventory
+            );
+        }
+
+    } catch (Exception e) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            e.getMessage()
+        );
+    }
+}
+
+       public final void loadDataInventory() {  updatePaginationButtonAktifitas();
+            updatePaginationButtonInventory();
+            LPInventory.setText(
+                "Page " + currentPageInventory + " / " + totalPageInventory
+            );
                 DefaultTableModel model = new DefaultTableModel() {
                     // Best practice: Membuat sel tabel tidak bisa diedit secara manual oleh user
                     @Override
@@ -407,9 +500,9 @@ private int totalPage = 0;
         jLabel11 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         TInventory = new javax.swing.JTable();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jLabel13 = new javax.swing.JLabel();
+        BNInventory = new javax.swing.JButton();
+        BPInventory = new javax.swing.JButton();
+        LPInventory = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(248, 250, 252));
 
@@ -747,21 +840,21 @@ private int totalPage = 0;
         TInventory.setShowGrid(true);
         jScrollPane2.setViewportView(TInventory);
 
-        jButton3.setBackground(new java.awt.Color(0, 153, 204));
-        jButton3.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
-        jButton3.setForeground(new java.awt.Color(255, 255, 255));
-        jButton3.setText("Next");
-        jButton3.setBorderPainted(false);
-        jButton3.addActionListener(this::jButton3ActionPerformed);
+        BNInventory.setBackground(new java.awt.Color(0, 153, 204));
+        BNInventory.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        BNInventory.setForeground(new java.awt.Color(255, 255, 255));
+        BNInventory.setText("Next");
+        BNInventory.setBorderPainted(false);
+        BNInventory.addActionListener(this::BNInventoryActionPerformed);
 
-        jButton4.setText("Previous");
-        jButton4.setBorderPainted(false);
-        jButton4.setEnabled(false);
-        jButton4.addActionListener(this::jButton4ActionPerformed);
+        BPInventory.setText("Previous");
+        BPInventory.setBorderPainted(false);
+        BPInventory.setEnabled(false);
+        BPInventory.addActionListener(this::BPInventoryActionPerformed);
 
-        jLabel13.setFont(new java.awt.Font("Inter", 0, 10)); // NOI18N
-        jLabel13.setForeground(new java.awt.Color(142, 157, 166));
-        jLabel13.setText("5 dari 10 data ditampilkan");
+        LPInventory.setFont(new java.awt.Font("Inter", 0, 10)); // NOI18N
+        LPInventory.setForeground(new java.awt.Color(142, 157, 166));
+        LPInventory.setText("5 dari 10 data ditampilkan");
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -775,11 +868,11 @@ private int totalPage = 0;
                 .addComponent(TSearchInventory))
             .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 886, Short.MAX_VALUE)
             .addGroup(jPanel8Layout.createSequentialGroup()
-                .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(LPInventory, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(BPInventory, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(5, 5, 5)
-                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(BNInventory, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -796,9 +889,9 @@ private int totalPage = 0;
                 .addGap(14, 14, 14)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButton3)
-                        .addComponent(jButton4))
-                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(BNInventory)
+                        .addComponent(BPInventory))
+                    .addComponent(LPInventory, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -828,30 +921,29 @@ private int totalPage = 0;
     }// </editor-fold>//GEN-END:initComponents
 
     private void BNActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BNActivityActionPerformed
-          if (currentPage < totalPage) {
+          if (currentPageAktifitas < totalPageAktifitas) {
 
-                currentPage++;
+                currentPageAktifitas++;
 
                 loadDataAktifitas();
             }
     }//GEN-LAST:event_BNActivityActionPerformed
 
     private void BPActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPActivityActionPerformed
-        if (currentPage > 1) {
+        if (currentPageAktifitas > 1) {
 
-            currentPage--;
-
+            currentPageAktifitas--;
             loadDataAktifitas();
         }
     }//GEN-LAST:event_BPActivityActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void BNInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BNInventoryActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
+    }//GEN-LAST:event_BNInventoryActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    private void BPInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPInventoryActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton4ActionPerformed
+    }//GEN-LAST:event_BPInventoryActionPerformed
 
     private void TSearchActivityKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchActivityKeyReleased
        cariActivity();
@@ -864,7 +956,9 @@ private int totalPage = 0;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BNActivity;
+    private javax.swing.JButton BNInventory;
     private javax.swing.JButton BPActivity;
+    private javax.swing.JButton BPInventory;
     private javax.swing.JButton BSearchActivity;
     private javax.swing.JPanel Body;
     private javax.swing.JLabel LBarangKeluar;
@@ -872,19 +966,17 @@ private int totalPage = 0;
     private javax.swing.JLabel LItem;
     private javax.swing.JLabel LLocation;
     private javax.swing.JLabel LPActivity;
+    private javax.swing.JLabel LPInventory;
     private javax.swing.JLabel LSupplier;
     private javax.swing.JLabel LUser;
     private javax.swing.JTable TAktifitas;
     private javax.swing.JTable TInventory;
     private javax.swing.JTextField TSearchActivity;
     private javax.swing.JTextField TSearchInventory;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
