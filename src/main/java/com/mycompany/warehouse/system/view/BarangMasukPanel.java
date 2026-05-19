@@ -24,9 +24,9 @@ import javax.swing.Timer;
  * @author ndesc
  */
 public class BarangMasukPanel extends javax.swing.JPanel {
-    private javax.swing.Timer searchTimer;   
+   
 
-
+    private javax.swing.Timer searchTimer;
     private final HashMap<String, Integer> supplierMap = new HashMap<>();
     private final HashMap<String, Integer> itemMap = new HashMap<>();
     private final HashMap<String, Integer> locationMap = new HashMap<>();
@@ -49,8 +49,7 @@ public class BarangMasukPanel extends javax.swing.JPanel {
             loadLocation();
             formatHarga();
             
-                  
-              BSearchBarangMasuk.setVisible(false);   // Sembunyikan tombol Cari (search sudah realtime)
+             BSearchBarangMasuk.setVisible(false); //sudah ada search realtime
               BNBarangMasuk.setOpaque(true);
               BNBarangMasuk.setContentAreaFilled(true);
 
@@ -82,12 +81,12 @@ public class BarangMasukPanel extends javax.swing.JPanel {
             };
 
             model.addColumn("ID");
-            model.addColumn("Nama Supplier");
-            model.addColumn("No Penerimaan");
-            model.addColumn("Lokasi");
+            model.addColumn("Jam");
+            model.addColumn("Aktifitas");
             model.addColumn("Barang");
-            model.addColumn("Satuan");
-            model.addColumn("Quantity");
+            model.addColumn("Lokasi");
+            model.addColumn("Stok Sebelum");
+            model.addColumn("Stok Sesudah");
 
             int offset = (currentPage - 1) * dataPerPage;
 
@@ -1055,7 +1054,7 @@ public class BarangMasukPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_TSearchBarangMasukActionPerformed
 
     private void TSearchBarangMasukKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchBarangMasukKeyReleased
-                /*
+ /*
                hentikan timer lama
                */
               if (searchTimer != null
@@ -1075,7 +1074,7 @@ public class BarangMasukPanel extends javax.swing.JPanel {
 
               searchTimer.setRepeats(false);
 
-              searchTimer.start();          
+              searchTimer.start();
     }//GEN-LAST:event_TSearchBarangMasukKeyReleased
 
     private void BPBarangMasukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPBarangMasukActionPerformed
@@ -1098,7 +1097,6 @@ public class BarangMasukPanel extends javax.swing.JPanel {
 
     private void BSearchBarangMasukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BSearchBarangMasukActionPerformed
         // TODO add your handling code here:
-        cariBarangMasuk();
     }//GEN-LAST:event_BSearchBarangMasukActionPerformed
 
     private void inputKondisiBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputKondisiBarangActionPerformed
