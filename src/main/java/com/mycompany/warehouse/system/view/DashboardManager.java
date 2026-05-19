@@ -278,8 +278,10 @@ private int totalPageInventory = 0;
         BNInventory.addActionListener(this::BNInventoryActionPerformed);
 
         BSearchInventory.setBackground(new java.awt.Color(0, 153, 204));
-        BSearchInventory.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        BSearchInventory.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        BSearchInventory.setForeground(new java.awt.Color(255, 255, 255));
         BSearchInventory.setText("Cari");
+        BSearchInventory.setBorderPainted(false);
         BSearchInventory.addActionListener(this::BSearchInventoryActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -396,8 +398,10 @@ private int totalPageInventory = 0;
         BNActivity.addActionListener(this::BNActivityActionPerformed);
 
         BSearchActivity.setBackground(new java.awt.Color(0, 153, 204));
-        BSearchActivity.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        BSearchActivity.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        BSearchActivity.setForeground(new java.awt.Color(255, 255, 255));
         BSearchActivity.setText("Cari");
+        BSearchActivity.setBorderPainted(false);
         BSearchActivity.addActionListener(this::BSearchActivityActionPerformed);
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
