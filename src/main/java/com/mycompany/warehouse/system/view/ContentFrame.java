@@ -29,7 +29,7 @@ public class ContentFrame extends javax.swing.JFrame {
     private DashboardManager menuDashboardManager;
     private BarangPanel menuBarang;
     private UserPanel menuUser;
-    private LocationPanel menuLokasi;
+    private RakPanel menuLokasi;
     private BarangMasukPanel menuBarangMasuk;
     private BarangKeluarPanel menuBarangKeluar;
     private SupplierPanel menuSupplier;
@@ -89,29 +89,35 @@ public class ContentFrame extends javax.swing.JFrame {
     }
       // FUNGSI UNTUK MEMUAT DASHBOARD ADMIN
         private void loadDashboardAdmin() {   
-//        lbluser.setText(String.valueOf(DashboardService.getTotalUsers()));
-//        lblsupplier.setText(String.valueOf(DashboardService.getTotalSuppliers()));
-//        lbllokasi.setText(String.valueOf(DashboardService.getTotalLocations()));
-//        lblbarang.setText(String.valueOf(DashboardService.getTotalItems()));
              DashboardAdmin dbAdmin = new DashboardAdmin();
-            panelContent.add(dbAdmin, "dashboardAdmin");
+            javax.swing.JScrollPane sp = new javax.swing.JScrollPane(dbAdmin);
+            sp.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+            sp.getVerticalScrollBar().setUnitIncrement(16);
+            sp.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            panelContent.add(sp, "dashboardAdmin");
             CardLayout cl = (CardLayout) panelContent.getLayout();
             cl.show(panelContent, "dashboardAdmin");        
         }
         
-          // FUNGSI UNTUK MEMUAT DASHBOARD STAFF
+          // FUNGSI UNTUK MEMUAT DASHBOARD MANAGER
         private void loadDashboardManager() {
-
              DashboardManager dbManager = new DashboardManager();
-            panelContent.add(dbManager, "dashboardManager");
+            javax.swing.JScrollPane sp = new javax.swing.JScrollPane(dbManager);
+            sp.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+            sp.getVerticalScrollBar().setUnitIncrement(16);
+            sp.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            panelContent.add(sp, "dashboardManager");
             CardLayout cl = (CardLayout) panelContent.getLayout();
             cl.show(panelContent, "dashboardManager");
         }
      // FUNGSI UNTUK MEMUAT DASHBOARD STAFF
         private void loadDashboardStaff() {
-
              DashboardStaff dbStaff = new DashboardStaff();
-            panelContent.add(dbStaff, "dashboardStaff");
+            javax.swing.JScrollPane sp = new javax.swing.JScrollPane(dbStaff);
+            sp.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+            sp.getVerticalScrollBar().setUnitIncrement(16);
+            sp.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            panelContent.add(sp, "dashboardStaff");
             CardLayout cl = (CardLayout) panelContent.getLayout();
             cl.show(panelContent, "dashboardStaff");
         }
@@ -221,7 +227,7 @@ public class ContentFrame extends javax.swing.JFrame {
         btnMLokasi.setBackground(new java.awt.Color(255, 255, 255));
         btnMLokasi.setFont(new java.awt.Font("Urbanist", 0, 12)); // NOI18N
         btnMLokasi.setForeground(new java.awt.Color(37, 99, 235));
-        btnMLokasi.setText("Lokasi");
+        btnMLokasi.setText("Rak/Lemari");
         btnMLokasi.setBorderPainted(false);
         btnMLokasi.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnMLokasi.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
@@ -391,7 +397,7 @@ public class ContentFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnMLokasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMLokasiActionPerformed
-         if (menuLokasi == null) { menuLokasi = new LocationPanel(); panelContent.add(menuLokasi, "cardLokasi"); }
+         if (menuLokasi == null) { menuLokasi = new RakPanel(); panelContent.add(menuLokasi.asScrollable(), "cardLokasi"); }
          CardLayout cl = (CardLayout) panelContent.getLayout();
         cl.show(panelContent, "cardLokasi");
          setMenuColor(btnMLokasi);
@@ -434,7 +440,7 @@ public class ContentFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMBarangActionPerformed
 
     private void btnMBarangMasukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMBarangMasukActionPerformed
-          if (menuBarangMasuk == null) { menuBarangMasuk = new BarangMasukPanel(); panelContent.add(menuBarangMasuk, "cardBarangMasuk"); }
+          if (menuBarangMasuk == null) { menuBarangMasuk = new BarangMasukPanel(); panelContent.add(menuBarangMasuk.asScrollable(), "cardBarangMasuk"); }
           CardLayout cl = (CardLayout) panelContent.getLayout();
           cl.show(panelContent, "cardBarangMasuk");
          setMenuColor(btnMBarangMasuk); 
