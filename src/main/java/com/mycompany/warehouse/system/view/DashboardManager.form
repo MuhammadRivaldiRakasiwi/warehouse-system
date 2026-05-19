@@ -455,6 +455,7 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtSearchInventoryActionPerformed"/>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txtSearchInventoryKeyReleased"/>
               </Events>
             </Component>
             <Component class="javax.swing.JButton" name="BReportInventory">
@@ -712,6 +713,7 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtSearchActivityActionPerformed"/>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txtSearchActivityKeyReleased"/>
               </Events>
             </Component>
             <Component class="javax.swing.JButton" name="BReportActivity">

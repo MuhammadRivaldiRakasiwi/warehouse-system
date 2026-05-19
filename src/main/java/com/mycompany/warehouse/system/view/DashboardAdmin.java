@@ -13,13 +13,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-
+import javax.swing.Timer;
 /**
  *
  * @author ndesc
  */
 public class DashboardAdmin extends javax.swing.JPanel {
  public static DashboardAdmin instance;
+     private javax.swing.Timer searchTimer;
+ 
 private int currentPageAktifitas = 1;
 private final int dataPerPageAktifitas = 10;
 private int totalDataAktifitas = 0;
@@ -245,6 +247,8 @@ private int totalPageInventory = 0;
                                      OR i.nama_item LIKE ?
                                      OR l.kode_lokasi LIKE ?
                                   ORDER BY sh.id DESC
+                         LIMIT 50
+                         
             """;
 
             PreparedStatement ps =
@@ -294,6 +298,7 @@ private int totalPageInventory = 0;
                 WHERE inv.stok_terkini > 0
                   AND (i.nama_item LIKE ? OR l.kode_lokasi LIKE ?)
                 ORDER BY inv.id DESC
+                         LIMIT 50
             """;
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, "%" + keyword + "%");
@@ -946,7 +951,26 @@ private int totalPageInventory = 0;
     }//GEN-LAST:event_BPInventoryActionPerformed
 
     private void TSearchActivityKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchActivityKeyReleased
-       cariActivity();
+        /*
+               hentikan timer lama
+               */
+              if (searchTimer != null
+                      && searchTimer.isRunning()) {
+
+                  searchTimer.stop();
+              }
+
+              /*
+               delay 400ms
+               */
+              searchTimer =
+                      new javax.swing.Timer(400, e -> {
+                          cariActivity();
+                      });
+
+              searchTimer.setRepeats(false);
+
+              searchTimer.start();
     }//GEN-LAST:event_TSearchActivityKeyReleased
 
     private void BSearchActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BSearchActivityActionPerformed

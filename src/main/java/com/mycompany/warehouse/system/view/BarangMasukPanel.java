@@ -19,6 +19,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.Timer;
+import javax.swing.SwingWorker;
 /**
  *
  * @author ndesc
@@ -40,27 +41,88 @@ public class BarangMasukPanel extends javax.swing.JPanel {
      */
     public BarangMasukPanel() {
           initComponents();
-            inputTanggalTerima.setDateFormatString("yyyy-MM-dd");
-            inputTanggalTerima.getDateEditor().setEnabled(false);
-            inputTanggalTerima.setDate(new java.util.Date());
+
+    setupUI();
+
+    loadInitialDataAsync();
+             initComponents();
+
+    setupUI();
+
+    loadInitialDataAsync();
+    
+        
+    }
+    private void setupTableStyle() {
+
+    TBarangMasuk.setForeground(
+            new java.awt.Color(33, 37, 41));
+
+    TBarangMasuk.setBackground(
+            java.awt.Color.WHITE);
+
+    TBarangMasuk.setSelectionForeground(
+            java.awt.Color.WHITE);
+
+    TBarangMasuk.setSelectionBackground(
+            new java.awt.Color(0, 153, 204));
+
+    TBarangMasuk.setGridColor(
+            new java.awt.Color(230, 230, 230));
+
+    TBarangMasuk.setRowHeight(31);
+
+    TBarangMasuk.getTableHeader().setForeground(
+            java.awt.Color.BLACK);
+
+    TBarangMasuk.getTableHeader().setBackground(
+            new java.awt.Color(245,245,245));
+}
+    private void setupUI() {
+
+    inputTanggalTerima.setDateFormatString("yyyy-MM-dd");
+    inputTanggalTerima.getDateEditor().setEnabled(false);
+    inputTanggalTerima.setDate(new java.util.Date());
+
+    formatHarga();
+
+    BSearchBarangMasuk.setVisible(false);
+
+    BNBarangMasuk.setOpaque(true);
+    BNBarangMasuk.setContentAreaFilled(true);
+
+    BPBarangMasuk.setOpaque(true);
+    BPBarangMasuk.setContentAreaFilled(true);
+
+    setupTableStyle();
+}
+    
+    private void loadInitialDataAsync() {
+
+    SwingWorker<Void, Void> worker =
+        new SwingWorker<>() {
+
+        @Override
+        protected Void doInBackground() {
+
             generateNomorPenerimaan();
             loadSupplier();
             loadItem();
             loadLocation();
-            formatHarga();
-            
-             BSearchBarangMasuk.setVisible(false); //sudah ada search realtime
-              BNBarangMasuk.setOpaque(true);
-              BNBarangMasuk.setContentAreaFilled(true);
+            hitungTotalData();
 
-              BPBarangMasuk.setOpaque(true);
-              BPBarangMasuk.setContentAreaFilled(true);
-              hitungTotalData();
-              loadDataInbound();
-    
-        
-    }
-    
+            return null;
+        }
+
+        @Override
+        protected void done() {
+
+            loadDataInbound();
+        }
+    };
+
+    worker.execute();
+}
     public javax.swing.JScrollPane asScrollable() {
         javax.swing.JScrollPane sp = new javax.swing.JScrollPane(this);
         sp.setBorder(javax.swing.BorderFactory.createEmptyBorder());
@@ -81,12 +143,12 @@ public class BarangMasukPanel extends javax.swing.JPanel {
             };
 
             model.addColumn("ID");
-            model.addColumn("Jam");
-            model.addColumn("Aktifitas");
-            model.addColumn("Barang");
+            model.addColumn("Supplier");
+            model.addColumn("No Penerimaan");
             model.addColumn("Lokasi");
-            model.addColumn("Stok Sebelum");
-            model.addColumn("Stok Sesudah");
+            model.addColumn("Barang");
+            model.addColumn("Satuan");
+            model.addColumn("Quantity");
 
             int offset = (currentPage - 1) * dataPerPage;
 
@@ -130,28 +192,7 @@ public class BarangMasukPanel extends javax.swing.JPanel {
 
                 TBarangMasuk.setModel(model);
 
-                // ===== STYLE TABLE =====
-                TBarangMasuk.setForeground(new java.awt.Color(33, 37, 41));
-                TBarangMasuk.setBackground(java.awt.Color.WHITE);
-
-                TBarangMasuk.setSelectionForeground(java.awt.Color.WHITE);
-                TBarangMasuk.setSelectionBackground(
-                    new java.awt.Color(0, 153, 204)
-                );
-
-                TBarangMasuk.setGridColor(
-                    new java.awt.Color(230, 230, 230)
-                );
-
-                TBarangMasuk.setRowHeight(31);
-
-                TBarangMasuk.getTableHeader().setForeground(
-                    java.awt.Color.BLACK
-                );
-
-                TBarangMasuk.getTableHeader().setBackground(
-                    new java.awt.Color(245,245,245)
-                );
+               
 
                 // Hide ID
                 TBarangMasuk.getColumnModel().getColumn(0).setMinWidth(0);

@@ -453,7 +453,7 @@ public class ContentFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMBarangMasukActionPerformed
 
     private void btnMBarangKeluarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMBarangKeluarActionPerformed
-        if (menuBarangKeluar == null) { menuBarangKeluar = new BarangKeluarPanel(); panelContent.add(menuBarangKeluar, "cardBarangKeluar"); }
+        if (menuBarangKeluar == null) { menuBarangKeluar = new BarangKeluarPanel(); panelContent.add(menuBarangKeluar.asScrollable(), "cardBarangKeluar"); }
              CardLayout cl = (CardLayout) panelContent.getLayout();
           cl.show(panelContent, "cardBarangKeluar");
          setMenuColor(btnMBarangKeluar); 
