@@ -4,13 +4,13 @@
  */
 package com.mycompany.warehouse.system.view;
 //import com.mycompany.warehouse.system.DatabaseConfig;
-import com.mycompany.warehouse.system.DatabaseConfig;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import javax.swing.JOptionPane;
 import java.util.HashMap;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -421,8 +421,40 @@ public class BarangMasukPanel extends javax.swing.JPanel {
         BNBarangMasuk = new javax.swing.JButton();
         LPBarangMasuk = new javax.swing.JLabel();
         BSearchBarangMasuk = new javax.swing.JButton();
+        jPanel4 = new javax.swing.JPanel();
+        jPanel5 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel19 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        labelNomorPenerimaan = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        inputTanggalTerima = new com.toedter.calendar.JDateChooser();
+        jLabel5 = new javax.swing.JLabel();
+        inputSupplier = new javax.swing.JComboBox<>();
+        jLabel12 = new javax.swing.JLabel();
+        inputKodeBarang = new javax.swing.JComboBox<>();
+        jLabel13 = new javax.swing.JLabel();
+        inputQty = new javax.swing.JSpinner();
+        jLabel15 = new javax.swing.JLabel();
+        labelNamaBarang = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        labelSatuan = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        inputHarga = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        inputKondisiBarang = new javax.swing.JComboBox<>();
+        jLabel16 = new javax.swing.JLabel();
+        inputLokasi = new javax.swing.JComboBox<>();
+        btnSimpan = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel18 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(248, 250, 252));
+
+        jPanel3.setBackground(new java.awt.Color(248, 250, 252));
+        jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 20, 20, 20));
+        jPanel3.setLayout(new java.awt.BorderLayout());
         setForeground(new java.awt.Color(0, 0, 0));
 
         jPanel4.setBackground(new java.awt.Color(248, 250, 252));

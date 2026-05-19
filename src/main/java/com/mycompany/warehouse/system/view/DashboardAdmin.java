@@ -758,6 +758,7 @@ private int totalPageInventory = 0;
         BSearchActivity.setBackground(new java.awt.Color(0, 153, 204));
         BSearchActivity.setForeground(new java.awt.Color(255, 255, 255));
         BSearchActivity.setText("Cari");
+        BSearchActivity.setBorderPainted(false);
         BSearchActivity.addActionListener(this::BSearchActivityActionPerformed);
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);

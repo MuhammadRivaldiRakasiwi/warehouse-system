@@ -470,7 +470,6 @@ public final void loadDataCount(){
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
         jPanel5.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15)));
-        jPanel5.setForeground(new java.awt.Color(0, 0, 0));
 
         jLabel25.setFont(new java.awt.Font("Urbanist", 1, 16)); // NOI18N
         jLabel25.setText("Aktifitas Terbaru");
@@ -480,7 +479,6 @@ public final void loadDataCount(){
         label8.setForeground(new java.awt.Color(142, 157, 166));
         label8.setText("Pantau aktivitas gudang.");
 
-        TAktifitas.setBackground(new java.awt.Color(255, 255, 255));
         TAktifitas.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(225, 228, 231)));
         TAktifitas.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
         TAktifitas.setModel(new javax.swing.table.DefaultTableModel(
@@ -502,7 +500,6 @@ public final void loadDataCount(){
         jScrollPane1.setViewportView(TAktifitas);
 
         TSearchActivity.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
-        TSearchActivity.setForeground(new java.awt.Color(0, 0, 0));
         TSearchActivity.setHorizontalAlignment(javax.swing.JTextField.LEFT);
         TSearchActivity.setToolTipText("");
         TSearchActivity.setActionCommand("<Not Set>");
@@ -535,6 +532,7 @@ public final void loadDataCount(){
         btnSearchActivity.setBackground(new java.awt.Color(0, 153, 204));
         btnSearchActivity.setForeground(new java.awt.Color(255, 255, 255));
         btnSearchActivity.setText("Cari ");
+        btnSearchActivity.setBorderPainted(false);
         btnSearchActivity.addActionListener(this::btnSearchActivityActionPerformed);
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
