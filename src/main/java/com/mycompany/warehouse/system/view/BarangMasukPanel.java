@@ -18,12 +18,13 @@ import javax.swing.table.DefaultTableModel;import javax.swing.text.AbstractDocum
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
+import javax.swing.Timer;
 /**
  *
  * @author ndesc
  */
 public class BarangMasukPanel extends javax.swing.JPanel {
-   
+    private javax.swing.Timer searchTimer;   
 
 
     private final HashMap<String, Integer> supplierMap = new HashMap<>();
@@ -48,7 +49,8 @@ public class BarangMasukPanel extends javax.swing.JPanel {
             loadLocation();
             formatHarga();
             
-            
+                  
+              BSearchBarangMasuk.setVisible(false);   // Sembunyikan tombol Cari (search sudah realtime)
               BNBarangMasuk.setOpaque(true);
               BNBarangMasuk.setContentAreaFilled(true);
 
@@ -80,12 +82,12 @@ public class BarangMasukPanel extends javax.swing.JPanel {
             };
 
             model.addColumn("ID");
-            model.addColumn("Jam");
-            model.addColumn("Aktifitas");
-            model.addColumn("Barang");
+            model.addColumn("Nama Supplier");
+            model.addColumn("No Penerimaan");
             model.addColumn("Lokasi");
-            model.addColumn("Stok Sebelum");
-            model.addColumn("Stok Sesudah");
+            model.addColumn("Barang");
+            model.addColumn("Satuan");
+            model.addColumn("Quantity");
 
             int offset = (currentPage - 1) * dataPerPage;
 
@@ -313,7 +315,7 @@ public class BarangMasukPanel extends javax.swing.JPanel {
 }
   private void cariBarangMasuk() {
 
-        String keyword = TSearchInventory.getText();
+        String keyword = TSearchBarangMasuk.getText();
 
         DefaultTableModel model =
             (DefaultTableModel) TBarangMasuk.getModel();
@@ -414,7 +416,7 @@ public class BarangMasukPanel extends javax.swing.JPanel {
         jLabel27 = new javax.swing.JLabel();
         jLabel28 = new javax.swing.JLabel();
         jLabel29 = new javax.swing.JLabel();
-        TSearchInventory = new javax.swing.JTextField();
+        TSearchBarangMasuk = new javax.swing.JTextField();
         jScrollPane3 = new javax.swing.JScrollPane();
         TBarangMasuk = new javax.swing.JTable();
         BPBarangMasuk = new javax.swing.JButton();
@@ -619,15 +621,15 @@ public class BarangMasukPanel extends javax.swing.JPanel {
 
         jLabel29.setText("Cari data:");
 
-        TSearchInventory.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
-        TSearchInventory.setHorizontalAlignment(javax.swing.JTextField.LEFT);
-        TSearchInventory.setToolTipText("");
-        TSearchInventory.setActionCommand("<Not Set>");
-        TSearchInventory.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(225, 228, 231), 1, true), javax.swing.BorderFactory.createEmptyBorder(4, 8, 4, 8)));
-        TSearchInventory.addActionListener(this::TSearchInventoryActionPerformed);
-        TSearchInventory.addKeyListener(new java.awt.event.KeyAdapter() {
+        TSearchBarangMasuk.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        TSearchBarangMasuk.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        TSearchBarangMasuk.setToolTipText("");
+        TSearchBarangMasuk.setActionCommand("<Not Set>");
+        TSearchBarangMasuk.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(225, 228, 231), 1, true), javax.swing.BorderFactory.createEmptyBorder(4, 8, 4, 8)));
+        TSearchBarangMasuk.addActionListener(this::TSearchBarangMasukActionPerformed);
+        TSearchBarangMasuk.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                TSearchInventoryKeyReleased(evt);
+                TSearchBarangMasukKeyReleased(evt);
             }
         });
 
@@ -673,7 +675,7 @@ public class BarangMasukPanel extends javax.swing.JPanel {
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLabel27, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jLabel28, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jScrollPane3)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 908, Short.MAX_VALUE)
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addComponent(LPBarangMasuk, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
@@ -682,8 +684,8 @@ public class BarangMasukPanel extends javax.swing.JPanel {
                 .addComponent(BNBarangMasuk, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addComponent(jLabel29)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(TSearchInventory, javax.swing.GroupLayout.PREFERRED_SIZE, 458, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(TSearchBarangMasuk)
                 .addGap(11, 11, 11)
                 .addComponent(BSearchBarangMasuk)
                 .addContainerGap())
@@ -696,7 +698,7 @@ public class BarangMasukPanel extends javax.swing.JPanel {
                 .addComponent(jLabel28)
                 .addGap(15, 15, 15)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(TSearchInventory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(TSearchBarangMasuk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel29)
                     .addComponent(BSearchBarangMasuk))
                 .addGap(10, 10, 10)
@@ -1048,13 +1050,33 @@ public class BarangMasukPanel extends javax.swing.JPanel {
           }
     }//GEN-LAST:event_btnSimpanActionPerformed
 
-    private void TSearchInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TSearchInventoryActionPerformed
+    private void TSearchBarangMasukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TSearchBarangMasukActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_TSearchInventoryActionPerformed
+    }//GEN-LAST:event_TSearchBarangMasukActionPerformed
 
-    private void TSearchInventoryKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchInventoryKeyReleased
+    private void TSearchBarangMasukKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchBarangMasukKeyReleased
+                /*
+               hentikan timer lama
+               */
+              if (searchTimer != null
+                      && searchTimer.isRunning()) {
 
-    }//GEN-LAST:event_TSearchInventoryKeyReleased
+                  searchTimer.stop();
+              }
+
+              /*
+               delay 400ms
+               */
+              searchTimer =
+                      new javax.swing.Timer(400, e -> {
+
+                          cariBarangMasuk();
+                      });
+
+              searchTimer.setRepeats(false);
+
+              searchTimer.start();          
+    }//GEN-LAST:event_TSearchBarangMasukKeyReleased
 
     private void BPBarangMasukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPBarangMasukActionPerformed
         if (currentPage > 1) {
@@ -1076,6 +1098,7 @@ public class BarangMasukPanel extends javax.swing.JPanel {
 
     private void BSearchBarangMasukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BSearchBarangMasukActionPerformed
         // TODO add your handling code here:
+        cariBarangMasuk();
     }//GEN-LAST:event_BSearchBarangMasukActionPerformed
 
     private void inputKondisiBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputKondisiBarangActionPerformed
@@ -1288,7 +1311,7 @@ private String generateBatchLot(Connection conn)
     private javax.swing.JButton BSearchBarangMasuk;
     private javax.swing.JLabel LPBarangMasuk;
     private javax.swing.JTable TBarangMasuk;
-    private javax.swing.JTextField TSearchInventory;
+    private javax.swing.JTextField TSearchBarangMasuk;
     private javax.swing.JButton btnSimpan;
     private javax.swing.JTextField inputHarga;
     private javax.swing.JComboBox<String> inputKodeBarang;
