@@ -16,7 +16,7 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <EmptySpace min="0" pref="696" max="32767" attributes="0"/>
+          <EmptySpace min="0" pref="719" max="32767" attributes="0"/>
           <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
@@ -149,7 +149,7 @@
                           <Group type="102" alignment="1" attributes="0">
                               <Group type="103" groupAlignment="1" attributes="0">
                                   <Component id="inputBarang" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="inputQty" alignment="0" pref="311" max="32767" attributes="0"/>
+                                  <Component id="inputQty" alignment="0" pref="323" max="32767" attributes="0"/>
                                   <Component id="jLabel6" alignment="0" max="32767" attributes="0"/>
                                   <Component id="jLabel4" alignment="0" max="32767" attributes="0"/>
                                   <Component id="jLabel2" alignment="0" max="32767" attributes="0"/>
@@ -164,7 +164,7 @@
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="inputCatatan" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="inputLokasiAwal" alignment="0" pref="270" max="32767" attributes="0"/>
+                                  <Component id="inputLokasiAwal" alignment="0" pref="281" max="32767" attributes="0"/>
                                   <Component id="inputLokasiTujuan" alignment="0" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
@@ -404,7 +404,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel13" alignment="0" max="32767" attributes="0"/>
                   <Component id="jLabel14" alignment="0" max="32767" attributes="0"/>
-                  <Component id="jScrollPane2" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jScrollPane2" alignment="0" pref="625" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="LPInventory" max="32767" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -414,11 +414,11 @@
                   </Group>
                   <Group type="102" attributes="0">
                       <Component id="jLabel15" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
-                      <Component id="TSearchInventory" min="-2" pref="458" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
-                      <Component id="BSearchInventory" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
+                      <Component id="TSearchInventory" min="-2" pref="474" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="BSearchInventory" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>

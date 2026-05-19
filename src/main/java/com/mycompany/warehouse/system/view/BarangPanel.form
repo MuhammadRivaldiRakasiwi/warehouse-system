@@ -22,8 +22,8 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
-          <Component id="jPanel2" alignment="0" pref="668" max="32767" attributes="0"/>
-          <Component id="jPanel4" alignment="0" pref="668" max="32767" attributes="0"/>
+          <Component id="jPanel2" alignment="0" max="32767" attributes="0"/>
+          <Component id="jPanel4" alignment="0" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -468,7 +468,7 @@
                   <Component id="jLabel14" alignment="0" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="61" max="-2" attributes="0"/>
-                      <Component id="TSearchActivity" max="32767" attributes="0"/>
+                      <Component id="TSearchBarang" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <Component id="jLabel15" min="-2" max="-2" attributes="0"/>
@@ -476,11 +476,11 @@
                   </Group>
                   <Component id="jScrollPane2" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="LPActivity" pref="427" max="32767" attributes="0"/>
+                      <Component id="LPBarang" pref="427" max="32767" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="BPActivity" min="-2" pref="75" max="-2" attributes="0"/>
+                      <Component id="BPBarang" min="-2" pref="75" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="BNActivity" min="-2" pref="60" max="-2" attributes="0"/>
+                      <Component id="BNBarang" min="-2" pref="60" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -492,16 +492,16 @@
                       <Component id="jLabel14" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="TSearchActivity" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="TSearchBarang" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel15" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
                       <Component id="jScrollPane2" min="-2" pref="132" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="LPActivity" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
-                          <Component id="BNActivity" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="BPActivity" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="LPBarang" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
+                          <Component id="BNBarang" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="BPBarang" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
@@ -533,7 +533,7 @@
                 <Property name="text" type="java.lang.String" value="Cari data:"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JTextField" name="TSearchActivity">
+            <Component class="javax.swing.JTextField" name="TSearchBarang">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Inter" size="12" style="0"/>
@@ -557,8 +557,8 @@
                 </Property>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="TSearchActivityActionPerformed"/>
-                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="TSearchActivityKeyReleased"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="TSearchBarangActionPerformed"/>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="TSearchBarangKeyReleased"/>
               </Events>
             </Component>
             <Container class="javax.swing.JScrollPane" name="jScrollPane2">
@@ -586,17 +586,17 @@
                 </Component>
               </SubComponents>
             </Container>
-            <Component class="javax.swing.JButton" name="BPActivity">
+            <Component class="javax.swing.JButton" name="BPBarang">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Previous"/>
                 <Property name="borderPainted" type="boolean" value="false"/>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BPActivityActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BPBarangActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="BNActivity">
+            <Component class="javax.swing.JButton" name="BNBarang">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="cc" green="99" red="0" type="rgb"/>
@@ -611,10 +611,10 @@
                 <Property name="borderPainted" type="boolean" value="false"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BNActivityActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BNBarangActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JLabel" name="LPActivity">
+            <Component class="javax.swing.JLabel" name="LPBarang">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Inter" size="10" style="0"/>

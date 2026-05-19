@@ -11,12 +11,14 @@ import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import java.sql.PreparedStatement;
+import javax.swing.Timer;
 /**
  *
  * @author ndesc
  */
 public class DashboardStaff extends javax.swing.JPanel {
     public static DashboardStaff instance;
+    private javax.swing.Timer searchTimer;
     private int currentPage = 1;
     private final int dataPerPage = 10;
 
@@ -234,7 +236,7 @@ public final void loadDataCount(){
         );
     }
 }
-         private void cariActivity() {
+    private void cariActivity() {
 
         String keyword = TSearchActivity.getText();
 
@@ -624,7 +626,27 @@ public final void loadDataCount(){
     }//GEN-LAST:event_BNActivityActionPerformed
 
     private void TSearchActivityKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchActivityKeyReleased
-       cariActivity();
+            /*
+               hentikan timer lama
+               */
+              if (searchTimer != null
+                      && searchTimer.isRunning()) {
+
+                  searchTimer.stop();
+              }
+
+              /*
+               delay 400ms
+               */
+              searchTimer =
+                      new javax.swing.Timer(400, e -> {
+
+                          cariActivity();
+                      });
+
+              searchTimer.setRepeats(false);
+
+              searchTimer.start();
     }//GEN-LAST:event_TSearchActivityKeyReleased
 
     private void btnSearchActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActivityActionPerformed

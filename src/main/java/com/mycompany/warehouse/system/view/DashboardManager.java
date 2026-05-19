@@ -19,12 +19,14 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.view.JasperViewer;
 import java.io.InputStream;
 import java.text.SimpleDateFormat; 
+import javax.swing.Timer;
 /**
  *
  * @author ndesc
  */
 public class DashboardManager extends javax.swing.JPanel {
 public static DashboardManager instance;
+     private javax.swing.Timer searchTimer;
 //--------ACTIVITY------------
 private int currentPageActivity = 1;
 private final int dataPerPageActivity = 10;
@@ -257,6 +259,11 @@ private int totalPageInventory = 0;
         txtSearchInventory.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(3, 8, 3, 8)));
         txtSearchInventory.setMargin(new java.awt.Insets(4, 10, 4, 10));
         txtSearchInventory.addActionListener(this::txtSearchInventoryActionPerformed);
+        txtSearchInventory.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtSearchInventoryKeyReleased(evt);
+            }
+        });
 
         BReportInventory.setBackground(new java.awt.Color(255, 51, 102));
         BReportInventory.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -377,6 +384,11 @@ private int totalPageInventory = 0;
         txtSearchActivity.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
         txtSearchActivity.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(197, 203, 209), 1, true), javax.swing.BorderFactory.createEmptyBorder(3, 8, 3, 8)));
         txtSearchActivity.addActionListener(this::txtSearchActivityActionPerformed);
+        txtSearchActivity.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtSearchActivityKeyReleased(evt);
+            }
+        });
 
         BReportActivity.setBackground(new java.awt.Color(255, 51, 102));
         BReportActivity.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -602,6 +614,52 @@ private int totalPageInventory = 0;
         // TODO add your handling code here:
          cariActivity();
     }//GEN-LAST:event_BSearchActivityActionPerformed
+
+    private void txtSearchInventoryKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchInventoryKeyReleased
+       /*
+               hentikan timer lama
+               */
+              if (searchTimer != null
+                      && searchTimer.isRunning()) {
+
+                  searchTimer.stop();
+              }
+
+              /*
+               delay 400ms
+               */
+              searchTimer =
+                      new javax.swing.Timer(400, e -> {
+                          cariInventory();
+                      });
+
+              searchTimer.setRepeats(false);
+
+              searchTimer.start();
+    }//GEN-LAST:event_txtSearchInventoryKeyReleased
+
+    private void txtSearchActivityKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchActivityKeyReleased
+ /*
+               hentikan timer lama
+               */
+              if (searchTimer != null
+                      && searchTimer.isRunning()) {
+
+                  searchTimer.stop();
+              }
+
+              /*
+               delay 400ms
+               */
+              searchTimer =
+                      new javax.swing.Timer(400, e -> {
+                          cariActivity();
+                      });
+
+              searchTimer.setRepeats(false);
+
+              searchTimer.start();
+    }//GEN-LAST:event_txtSearchActivityKeyReleased
    public final void loadDataCount(){
        LInventory.setText(String.valueOf(DashboardService.getTotalItemsInventory()));
         LBarangMasuk.setText(String.valueOf(DashboardService.getTotalItemsMasuk()));
@@ -771,6 +829,7 @@ private int totalPageInventory = 0;
                                      OR i.nama_item LIKE ?
                                      OR l.kode_lokasi LIKE ?
                                   ORDER BY sh.id DESC
+                         LIMIT 25
             """;
 
             PreparedStatement ps =
@@ -959,6 +1018,7 @@ private int totalPageInventory = 0;
                          WHERE i.nama_item LIKE ?
                          OR l.kode_lokasi LIKE ?
                          ORDER BY sh.id DESC
+                         LIMIT 25
             """;
 
             PreparedStatement ps =
