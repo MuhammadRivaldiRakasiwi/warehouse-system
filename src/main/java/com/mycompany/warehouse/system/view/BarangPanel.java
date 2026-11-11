@@ -4,12 +4,15 @@
  */
 package com.mycompany.warehouse.system.view;
 import com.mycompany.warehouse.system.DatabaseConfig;
+import com.mycompany.warehouse.system.util.Debouncer;
+import com.mycompany.warehouse.system.util.TableUtil;
+import com.mycompany.warehouse.system.util.UiWorker;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.PreparedStatement; // Diperlukan untuk Simpan/Edit/Hapus
+import java.util.List;
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
 
 
 /**
@@ -17,18 +20,37 @@ import javax.swing.table.DefaultTableModel;
  * @author ndesc
  */
 public class BarangPanel extends javax.swing.JPanel {
-  private int selectedId = -1;
-  private int currentPage = 1;
-  private int totalPage = 1;
+    private int selectedId = -1;
 
+    private static final String[] KOLOM = {"ID", "Kode", "Nama", "Kategori", "Satuan"};
+    private static final TableUtil.RowMapper MAP_BARANG = rs -> new Object[]{
+        rs.getInt("id"),
+        rs.getString("kode_item"),
+        rs.getString("nama_item"),
+        rs.getString("kategori"),
+        rs.getString("satuan")
+    };
+
+    // Search dijalankan 350 ms setelah user berhenti mengetik (bukan per huruf)
+    private final Debouncer searchDebouncer = new Debouncer(350, this::cariBarang);
+    // Nomor request terakhir: hasil query lama yang datang terlambat diabaikan
+    private int requestTabel = 0;
+
+    private int currentPage = 1;
+    private final int dataPerPage = 10;
+    private int totalPage = 0;
     /**
      * Creates new form BarangPanel
      */
     public BarangPanel() {
         initComponents();
-            loadData(); // Tambahkan ini
+        // Search realtime (dengan debounce), termasuk saat paste
+        TSearchBarang.getDocument().addDocumentListener(TableUtil.onChange(searchDebouncer::trigger));
+        TableUtil.disablePagination(BPBarang, BNBarang);
+        loadData();
     }
-        public javax.swing.JScrollPane asScrollable() {
+
+    public javax.swing.JScrollPane asScrollable() {
         javax.swing.JScrollPane sp = new javax.swing.JScrollPane(this);
         sp.setBorder(javax.swing.BorderFactory.createEmptyBorder());
         sp.getVerticalScrollBar().setUnitIncrement(16);
@@ -36,32 +58,76 @@ public class BarangPanel extends javax.swing.JPanel {
         sp.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         return sp;
     }
-    
-    public final void loadData() {
-        DefaultTableModel model = new DefaultTableModel();
-        // Tambahkan kolom ID di index 0
-        model.addColumn("ID"); model.addColumn("Kode"); model.addColumn("Nama"); 
-        model.addColumn("Kategori"); model.addColumn("Satuan");
-        // (Kolom Berat dst opsional ditampilkan di UI, tapi wajib ada di model)
 
-        try (Connection conn = DatabaseConfig.getConnection()) {
-            String sql = "SELECT id, kode_item, nama_item, kategori, satuan, berat, panjang, lebar, tinggi, minimum_stok FROM items WHERE status_aktif = 1";
-            ResultSet rs = conn.createStatement().executeQuery(sql);
-            while (rs.next()) {
-                model.addRow(new Object[]{
-                    rs.getInt("id"), rs.getString("kode_item"), rs.getString("nama_item"),
-                    rs.getString("kategori"), rs.getString("satuan"),
-                    rs.getInt("berat"), rs.getInt("panjang"), rs.getInt("lebar"), 
-                    rs.getInt("tinggi"), rs.getInt("minimum_stok")
-                });
-            }
-            tableBarang.setModel(model);
-            // Sembunyikan kolom ID (Index 0)
-            tableBarang.getColumnModel().getColumn(0).setMinWidth(0);
-            tableBarang.getColumnModel().getColumn(0).setMaxWidth(0);
-        } catch (SQLException e) { JOptionPane.showMessageDialog(null, e.getMessage()); 
+    private void cariBarang() {
+        String keyword = TSearchBarang.getText().trim();
+        if (keyword.isEmpty()) {
+            loadData();
+            return;
+        }
+        final int request = ++requestTabel;
+        final String pola = TableUtil.like(keyword);
+        UiWorker.run(
+                () -> TableUtil.query("""
+                        SELECT id, kode_item, nama_item, kategori, satuan
+                        FROM items
+                        WHERE status_aktif = 1
+                          AND (kode_item LIKE ? OR nama_item LIKE ? OR kategori LIKE ? OR satuan LIKE ?)
+                        ORDER BY id DESC
+                        LIMIT 50
+                        """, MAP_BARANG, pola, pola, pola, pola),
+                rows -> {
+                    if (request != requestTabel) {
+                        return;
+                    }
+                    tampilkanTabel(rows);
+                    LPBarang.setText("Hasil pencarian: " + rows.size());
+                    TableUtil.disablePagination(BPBarang, BNBarang);
+                },
+                e -> tampilkanError(request == requestTabel, e));
     }
 
+    /** Memuat halaman data barang saat ini (async). Jika kolom search terisi, menjalankan pencarian. */
+    public final void loadData() {
+        if (!TSearchBarang.getText().trim().isEmpty()) {
+            cariBarang();
+            return;
+        }
+        final int request = ++requestTabel;
+        final int page = currentPage;
+        UiWorker.run(
+                () -> TableUtil.queryPage(
+                        "SELECT COUNT(*) FROM items WHERE status_aktif = 1",
+                        """
+                        SELECT id, kode_item, nama_item, kategori, satuan
+                        FROM items
+                        WHERE status_aktif = 1
+                        ORDER BY id DESC
+                        LIMIT ? OFFSET ?
+                        """,
+                        page, dataPerPage, MAP_BARANG),
+                result -> {
+                    if (request != requestTabel) {
+                        return;
+                    }
+                    currentPage = result.page();
+                    totalPage = result.totalPages();
+                    tampilkanTabel(result.rows());
+                    LPBarang.setText(TableUtil.pageLabel(currentPage, totalPage));
+                    TableUtil.updatePagination(BPBarang, BNBarang, currentPage, totalPage);
+                },
+                e -> tampilkanError(request == requestTabel, e));
+    }
+
+    private void tampilkanTabel(List<Object[]> rows) {
+        tableBarang.setModel(TableUtil.readOnlyModel(KOLOM, rows));
+        TableUtil.hideColumn(tableBarang, 0);
+    }
+
+    private void tampilkanError(boolean masihRelevan, Exception e) {
+        if (masihRelevan) {
+            JOptionPane.showMessageDialog(javax.swing.SwingUtilities.getWindowAncestor(this), e.getMessage());
+        }
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -104,12 +170,12 @@ public class BarangPanel extends javax.swing.JPanel {
         jLabel13 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
-        TSearchActivity = new javax.swing.JTextField();
+        TSearchBarang = new javax.swing.JTextField();
         jScrollPane2 = new javax.swing.JScrollPane();
         tableBarang = new javax.swing.JTable();
-        BPActivity = new javax.swing.JButton();
-        BNActivity = new javax.swing.JButton();
-        LPActivity = new javax.swing.JLabel();
+        BPBarang = new javax.swing.JButton();
+        BNBarang = new javax.swing.JButton();
+        LPBarang = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(248, 250, 252));
 
@@ -306,15 +372,15 @@ public class BarangPanel extends javax.swing.JPanel {
 
         jLabel15.setText("Cari data:");
 
-        TSearchActivity.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
-        TSearchActivity.setHorizontalAlignment(javax.swing.JTextField.LEFT);
-        TSearchActivity.setToolTipText("");
-        TSearchActivity.setActionCommand("<Not Set>");
-        TSearchActivity.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(225, 228, 231), 1, true), javax.swing.BorderFactory.createEmptyBorder(4, 8, 4, 8)));
-        TSearchActivity.addActionListener(this::TSearchActivityActionPerformed);
-        TSearchActivity.addKeyListener(new java.awt.event.KeyAdapter() {
+        TSearchBarang.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        TSearchBarang.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        TSearchBarang.setToolTipText("");
+        TSearchBarang.setActionCommand("<Not Set>");
+        TSearchBarang.setBorder(javax.swing.BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(new java.awt.Color(225, 228, 231), 1, true), javax.swing.BorderFactory.createEmptyBorder(4, 8, 4, 8)));
+        TSearchBarang.addActionListener(this::TSearchBarangActionPerformed);
+        TSearchBarang.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                TSearchActivityKeyReleased(evt);
+                TSearchBarangKeyReleased(evt);
             }
         });
 
@@ -338,21 +404,21 @@ public class BarangPanel extends javax.swing.JPanel {
         });
         jScrollPane2.setViewportView(tableBarang);
 
-        BPActivity.setText("Previous");
-        BPActivity.setBorderPainted(false);
-        BPActivity.setEnabled(false);
-        BPActivity.addActionListener(this::BPActivityActionPerformed);
+        BPBarang.setText("Previous");
+        BPBarang.setBorderPainted(false);
+        BPBarang.setEnabled(false);
+        BPBarang.addActionListener(this::BPBarangActionPerformed);
 
-        BNActivity.setBackground(new java.awt.Color(0, 153, 204));
-        BNActivity.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
-        BNActivity.setForeground(new java.awt.Color(255, 255, 255));
-        BNActivity.setText("Next");
-        BNActivity.setBorderPainted(false);
-        BNActivity.addActionListener(this::BNActivityActionPerformed);
+        BNBarang.setBackground(new java.awt.Color(0, 153, 204));
+        BNBarang.setFont(new java.awt.Font("Inter", 0, 12)); // NOI18N
+        BNBarang.setForeground(new java.awt.Color(255, 255, 255));
+        BNBarang.setText("Next");
+        BNBarang.setBorderPainted(false);
+        BNBarang.addActionListener(this::BNBarangActionPerformed);
 
-        LPActivity.setFont(new java.awt.Font("Inter", 0, 10)); // NOI18N
-        LPActivity.setForeground(new java.awt.Color(142, 157, 166));
-        LPActivity.setText("5 dari 10 data ditampilkan");
+        LPBarang.setFont(new java.awt.Font("Inter", 0, 10)); // NOI18N
+        LPBarang.setForeground(new java.awt.Color(142, 157, 166));
+        LPBarang.setText("5 dari 10 data ditampilkan");
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -362,17 +428,17 @@ public class BarangPanel extends javax.swing.JPanel {
             .addComponent(jLabel14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGap(61, 61, 61)
-                .addComponent(TSearchActivity))
+                .addComponent(TSearchBarang))
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addComponent(jLabel15)
                 .addGap(0, 0, Short.MAX_VALUE))
             .addComponent(jScrollPane2)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addComponent(LPActivity, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
+                .addComponent(LPBarang, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
-                .addComponent(BPActivity, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(BPBarang, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(BNActivity, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(BNBarang, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -382,15 +448,15 @@ public class BarangPanel extends javax.swing.JPanel {
                 .addComponent(jLabel14)
                 .addGap(15, 15, 15)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(TSearchActivity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(TSearchBarang, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel15))
                 .addGap(10, 10, 10)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(10, 10, 10)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(LPActivity, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(BNActivity)
-                    .addComponent(BPActivity))
+                    .addComponent(LPBarang, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BNBarang)
+                    .addComponent(BPBarang))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -401,8 +467,8 @@ public class BarangPanel extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 668, Short.MAX_VALUE)
-            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 668, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -419,7 +485,71 @@ public class BarangPanel extends javax.swing.JPanel {
     private void inputNamaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputNamaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_inputNamaActionPerformed
+private String generateKodeItem(Connection conn)
+        throws SQLException {
 
+    /*
+     =====================================
+     AMBIL KODE ITEM TERAKHIR
+     =====================================
+     */
+    String sql = """
+            SELECT kode_item
+            FROM items
+            ORDER BY kode_item DESC
+            LIMIT 1
+            """;
+    PreparedStatement ps =
+            conn.prepareStatement(sql);
+
+    ResultSet rs = ps.executeQuery();
+    /*
+     =====================================
+     DEFAULT NOMOR AWAL
+     =====================================
+     */
+    int urutan = 1;
+
+    /*
+     =====================================
+     JIKA DATA SUDAH ADA
+     =====================================
+     */
+    if (rs.next()) {
+
+        String lastKode =
+                rs.getString("kode_item");
+        /*
+         =====================================
+         VALIDASI FORMAT
+         CONTOH:
+         ITM-011
+         =====================================
+         */
+        if (lastKode != null
+                && lastKode.startsWith("ITM-")) {
+
+            /*
+             AMBIL ANGKA:
+             ITM-011 -> 011
+             */
+            String angka =
+                    lastKode.substring(4);
+
+            /*
+             CONVERT KE INTEGER
+             */
+            urutan =
+                    Integer.parseInt(angka) + 1;
+        }
+    }
+
+    
+    return String.format(
+            "ITM-%03d",
+            urutan
+    );
+}
     private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
         // --- 1. VALIDASI INPUT TIDAK BOLEH KOSONG ---
             if (inputNama.getText().trim().isEmpty()) {
@@ -447,15 +577,8 @@ public class BarangPanel extends javax.swing.JPanel {
                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             try (Connection conn = DatabaseConfig.getConnection()) {
-                // --- A. GENERATE KODE ITEM OTOMATIS (ITM-001) ---
-                String queryCek = "SELECT MAX(id) AS last_id FROM items"; // Menggunakan ID terakhir lebih akurat
-                PreparedStatement psCek = conn.prepareStatement(queryCek);
-                ResultSet rs = psCek.executeQuery();
-                int urutan = 1;
-                if (rs.next()) {
-                    urutan = rs.getInt("last_id") + 1;
-                }
-                String kodeOtomatis = String.format("ITM-%03d", urutan); 
+
+                String kodeOtomatis =  generateKodeItem(conn);
 
                 // --- B. EKSEKUSI INSERT ---
                 try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -476,8 +599,7 @@ public class BarangPanel extends javax.swing.JPanel {
                     ps.executeUpdate();
                     JOptionPane.showMessageDialog(this, "Data Berhasil Disimpan dengan Kode: " + kodeOtomatis);
 
-                    clearForm(); // Mengosongkan form setelah sukses
-                    loadData();  // Refresh JTable
+                    clearForm(); // Mengosongkan form + refresh JTable (async)
                 }
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(this, "Gagal simpan ke Database: " + e.getMessage());
@@ -576,44 +698,50 @@ public class BarangPanel extends javax.swing.JPanel {
 
     private void tableBarangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableBarangMouseClicked
         int row = tableBarang.getSelectedRow();
-        
-    if (row != -1) {
-        // 1. Ambil ID dari kolom pertama (index 0)
-        String idStr = tableBarang.getValueAt(row, 0).toString();
-        selectedId = Integer.parseInt(idStr); 
-
-        // 2. Query ke database untuk mendapatkan data lengkap berdasarkan ID
-        String sql = "SELECT * FROM items WHERE id = ?";
-        
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
-            ps.setString(1, idStr);
-            ResultSet rs = ps.executeQuery();
-            
-            if (rs.next()) {
-                // 3. Set data ke Form Input dari hasil query (ResultSet)
-                inputNama.setText(rs.getString("nama_item"));
-                inputKategori.setText(rs.getString("kategori"));
-                inputSatuan.setText(rs.getString("satuan"));
-                
-                // Mengisi Spinner secara aman
-                inputBerat.setValue(rs.getInt("berat"));
-                inputPanjang.setValue(rs.getInt("panjang"));
-                inputLebar.setValue(rs.getInt("lebar"));
-                inputTinggi.setValue(rs.getInt("tinggi"));
-                inputMinimumStok.setValue(rs.getInt("minimum_stok"));
-                
-               // 3. ATUR STATUS TOMBOL
-                btnSimpan.setEnabled(false); // Mematikan tombol Simpan
-                btnEdit.setEnabled(true);    // Pastikan tombol Edit menyala
-               
-            }
-            
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error ambil data: " + e.getMessage());
+        if (row == -1) {
+            return;
         }
-    }
+
+        // 1. Ambil ID dari kolom pertama (index 0)
+        final int id = Integer.parseInt(tableBarang.getValueAt(row, 0).toString());
+        selectedId = id;
+
+        // 2. Ambil data lengkap berdasarkan ID di background (UI tidak freeze)
+        UiWorker.run(() -> {
+            try (Connection conn = DatabaseConfig.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(
+                         "SELECT nama_item, kategori, satuan, berat, panjang, lebar, tinggi, minimum_stok FROM items WHERE id = ?")) {
+                ps.setInt(1, id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        return null;
+                    }
+                    return new Object[]{
+                        rs.getString("nama_item"), rs.getString("kategori"), rs.getString("satuan"),
+                        rs.getInt("berat"), rs.getInt("panjang"), rs.getInt("lebar"), rs.getInt("tinggi"),
+                        rs.getInt("minimum_stok")
+                    };
+                }
+            }
+        }, data -> {
+            // Abaikan jika user sudah memilih baris lain / mereset form
+            if (data == null || selectedId != id) {
+                return;
+            }
+            // 3. Set data ke Form Input
+            inputNama.setText((String) data[0]);
+            inputKategori.setText((String) data[1]);
+            inputSatuan.setText((String) data[2]);
+            inputBerat.setValue(data[3]);
+            inputPanjang.setValue(data[4]);
+            inputLebar.setValue(data[5]);
+            inputTinggi.setValue(data[6]);
+            inputMinimumStok.setValue(data[7]);
+
+            // 4. ATUR STATUS TOMBOL
+            btnSimpan.setEnabled(false); // Mematikan tombol Simpan
+            btnEdit.setEnabled(true);    // Pastikan tombol Edit menyala
+        }, e -> JOptionPane.showMessageDialog(this, "Error ambil data: " + e.getMessage()));
     }//GEN-LAST:event_tableBarangMouseClicked
 
     private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
@@ -624,31 +752,27 @@ public class BarangPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_inputKategoriActionPerformed
 
-    private void TSearchActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TSearchActivityActionPerformed
+    private void TSearchBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TSearchBarangActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_TSearchActivityActionPerformed
+    }//GEN-LAST:event_TSearchBarangActionPerformed
 
-    private void TSearchActivityKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchActivityKeyReleased
+    private void TSearchBarangKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchBarangKeyReleased
+        // Search ditangani DocumentListener + debounce di constructor
+    }//GEN-LAST:event_TSearchBarangKeyReleased
 
-    }//GEN-LAST:event_TSearchActivityKeyReleased
-
-    private void BPActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPActivityActionPerformed
+    private void BPBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPBarangActionPerformed
         if (currentPage > 1) {
-
             currentPage--;
-
-            loadDataAktifitas();
+            loadData();
         }
-    }//GEN-LAST:event_BPActivityActionPerformed
+    }//GEN-LAST:event_BPBarangActionPerformed
 
-    private void BNActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BNActivityActionPerformed
+    private void BNBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BNBarangActionPerformed
         if (currentPage < totalPage) {
-
             currentPage++;
-
-            loadDataAktifitas();
+            loadData();
         }
-    }//GEN-LAST:event_BNActivityActionPerformed
+    }//GEN-LAST:event_BNBarangActionPerformed
 
 private void clearForm() {
     inputNama.setText("");
@@ -666,10 +790,10 @@ private void clearForm() {
 }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton BNActivity;
-    private javax.swing.JButton BPActivity;
-    private javax.swing.JLabel LPActivity;
-    private javax.swing.JTextField TSearchActivity;
+    private javax.swing.JButton BNBarang;
+    private javax.swing.JButton BPBarang;
+    private javax.swing.JLabel LPBarang;
+    private javax.swing.JTextField TSearchBarang;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnEdit;
     private javax.swing.JButton btnReset;

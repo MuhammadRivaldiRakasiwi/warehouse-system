@@ -8,7 +8,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>25</maven.compiler.release>
-        <exec.mainClass>com.mycompany.warehouse.system.WarehouseSystem</exec.mainClass>
+        <exec.mainClass>com.mycompany.warehouse.system.view.FormLogin</exec.mainClass>
     </properties>
     
     <repositories>
@@ -45,13 +45,32 @@
     <artifactId>jasperreports</artifactId>
     <version>7.0.6</version>
 </dependency>
-    
-    
-    
+
+        <!-- Connection pool: koneksi TLS ke TiDB Cloud dipakai ulang (tidak buka koneksi baru ~2 detik per query) -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>7.1.0</version>
+        </dependency>
+        <!-- Log HikariCP (SLF4J) diteruskan ke java.util.logging, sama seperti logger aplikasi -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>2.0.17</version>
+        </dependency>
     </dependencies>
     
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <!-- Manifest JAR menjaga path Unicode saat Run/Debug dari NetBeans di Windows. -->
+                    <longClasspath>true</longClasspath>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

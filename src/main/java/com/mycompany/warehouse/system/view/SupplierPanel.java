@@ -5,6 +5,8 @@
 package com.mycompany.warehouse.system.view;
 
 import com.mycompany.warehouse.system.DatabaseConfig;
+import com.mycompany.warehouse.system.util.TableUtil;
+import com.mycompany.warehouse.system.util.UiWorker;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -312,7 +314,38 @@ public class SupplierPanel extends javax.swing.JPanel {
     // BUSINESS LOGIC: CRUD Supplier
     // ============================================================
 
+    // Nomor request terakhir: hasil query lama yang datang terlambat diabaikan
+    private int requestTabel = 0;
+
+    /** Memuat data supplier di background, lalu menampilkan ke tabel di EDT. */
     public final void loadData() {
+        final int request = ++requestTabel;
+        UiWorker.run(
+                () -> TableUtil.query(
+                        "SELECT id, kode_supplier, nama_supplier, no_telepon, email, kontak_person, alamat "
+                        + "FROM suppliers WHERE status_aktif = 1 ORDER BY id ASC",
+                        rs -> new Object[]{
+                            rs.getInt("id"),
+                            rs.getString("kode_supplier"),
+                            rs.getString("nama_supplier"),
+                            rs.getString("no_telepon"),
+                            rs.getString("email"),
+                            rs.getString("kontak_person"),
+                            rs.getString("alamat")
+                        }),
+                rows -> {
+                    if (request == requestTabel) {
+                        tampilkanData(rows);
+                    }
+                },
+                e -> {
+                    if (request == requestTabel) {
+                        JOptionPane.showMessageDialog(this, "Gagal memuat data: " + e.getMessage());
+                    }
+                });
+    }
+
+    private void tampilkanData(java.util.List<Object[]> rows) {
         DefaultTableModel model = new DefaultTableModel(
                 new String[]{"Kode", "Nama Supplier", "No. Telepon", "Email", "Kontak Person", "Alamat"}, 0) {
             @Override
@@ -320,28 +353,15 @@ public class SupplierPanel extends javax.swing.JPanel {
         };
 
         supplierIds.clear();
-        try (Connection conn = DatabaseConfig.getConnection()) {
-            String sql = "SELECT id, kode_supplier, nama_supplier, no_telepon, email, kontak_person, alamat "
-                    + "FROM suppliers WHERE status_aktif = 1 ORDER BY id ASC";
-            ResultSet rs = conn.createStatement().executeQuery(sql);
-            while (rs.next()) {
-                supplierIds.add(rs.getInt("id"));
-                model.addRow(new Object[]{
-                    rs.getString("kode_supplier"),
-                    rs.getString("nama_supplier"),
-                    rs.getString("no_telepon"),
-                    rs.getString("email"),
-                    rs.getString("kontak_person"),
-                    rs.getString("alamat")
-                });
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Gagal memuat data: " + e.getMessage());
+        for (Object[] r : rows) {
+            supplierIds.add((Integer) r[0]);
+            model.addRow(java.util.Arrays.copyOfRange(r, 1, r.length));
         }
 
         jTable4.setModel(model);
         rowSorter = new TableRowSorter<>(model);
         jTable4.setRowSorter(rowSorter);
+        filterTable(); // pertahankan kata kunci pencarian setelah data dimuat ulang
 
         // Atur lebar kolom proporsional, semua kolom auto-resize
         jTable4.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);

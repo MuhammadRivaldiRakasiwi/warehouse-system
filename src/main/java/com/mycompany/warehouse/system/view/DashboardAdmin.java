@@ -4,451 +4,231 @@
  */
 package com.mycompany.warehouse.system.view;
 
-import com.mycompany.warehouse.system.DatabaseConfig;
 import com.mycompany.warehouse.system.service.DashboardService;
-import static com.mycompany.warehouse.system.view.DashboardAdmin.instance;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import com.mycompany.warehouse.system.util.Debouncer;
+import com.mycompany.warehouse.system.util.TableUtil;
+import com.mycompany.warehouse.system.util.UiWorker;
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
 
 /**
  *
  * @author ndesc
  */
 public class DashboardAdmin extends javax.swing.JPanel {
- public static DashboardAdmin instance;
-private int currentPageAktifitas = 1;
-private final int dataPerPageAktifitas = 10;
-private int totalDataAktifitas = 0;
-private int totalPageAktifitas = 0;
+    public static DashboardAdmin instance;
 
-private int currentPageInventory = 1;
-private final int dataPerPageInventory = 10;
-private int totalDataInventory = 0;
-private int totalPageInventory = 0;
+    private static final String[] KOLOM_AKTIFITAS =
+            {"ID", "Jam", "Aktifitas", "Barang", "Lokasi", "Stok Sebelum", "Stok Sesudah"};
+    private static final String[] KOLOM_INVENTORY =
+            {"ID", "Nama Barang", "Lokasi", "Stok Terkini"};
+
+    private static final String SELECT_AKTIFITAS = """
+            SELECT sh.id, sh.waktu_transaksi, sh.jenis_transaksi, i.nama_item,
+                   l.kode_lokasi, sh.stock_sebelum, sh.stock_sesudah
+            FROM stock_history sh
+            INNER JOIN items i ON sh.item_id = i.id
+            INNER JOIN locations l ON sh.location_id = l.id
+            """;
+    private static final String SELECT_INVENTORY = """
+            SELECT inv.id, i.nama_item, l.kode_lokasi, inv.stok_terkini
+            FROM inventory inv
+            INNER JOIN items i ON inv.item_id = i.id
+            INNER JOIN locations l ON inv.location_id = l.id
+            """;
+
+    private static final TableUtil.RowMapper MAP_AKTIFITAS = rs -> new Object[]{
+        rs.getInt("id"),
+        rs.getString("waktu_transaksi"),
+        rs.getString("jenis_transaksi"),
+        rs.getString("nama_item"),
+        rs.getString("kode_lokasi"),
+        rs.getString("stock_sebelum"),
+        rs.getString("stock_sesudah")
+    };
+    private static final TableUtil.RowMapper MAP_INVENTORY = rs -> new Object[]{
+        rs.getInt("id"),
+        rs.getString("nama_item"),
+        rs.getString("kode_lokasi"),
+        rs.getString("stok_terkini")
+    };
+
+    // Search dijalankan 350 ms setelah user berhenti mengetik (bukan per huruf)
+    private final Debouncer searchActivityDebouncer = new Debouncer(350, this::cariActivity);
+    private final Debouncer searchInventoryDebouncer = new Debouncer(350, this::cariInventory);
+
+    // Nomor request terakhir per tabel: hasil query lama yang datang terlambat diabaikan
+    private int requestAktifitas = 0;
+    private int requestInventory = 0;
+
+    private int currentPageAktifitas = 1;
+    private final int dataPerPageAktifitas = 10;
+    private int totalPageAktifitas = 0;
+
+    private int currentPageInventory = 1;
+    private final int dataPerPageInventory = 10;
+    private int totalPageInventory = 0;
+
     /**
      * Creates new form DashboardAdmin
      */
     public DashboardAdmin() {
         initComponents();
-         instance = this;
+        instance = this;
 
         // Sembunyikan tombol Cari (search sudah realtime)
         BSearchActivity.setVisible(false);
 
-        // Setup search realtime untuk Inventory
-        TSearchInventory.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { cariInventory(); }
-            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { cariInventory(); }
-            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { cariInventory(); }
-        });
-         
-        // Load data di background agar UI tidak freeze
-        new javax.swing.SwingWorker<Void, Void>() {
-            @Override
-            protected Void doInBackground() {
-                hitungTotalDataAktifitas();
-                hitungTotalDataInventory();
-                loadDataAktifitas();
-                loadDataInventory();
-                loadDataCount();
-                return null;
-            }
-        }.execute();
+        // Search realtime (dengan debounce) untuk Aktifitas & Inventory
+        TSearchActivity.getDocument().addDocumentListener(TableUtil.onChange(searchActivityDebouncer::trigger));
+        TSearchInventory.getDocument().addDocumentListener(TableUtil.onChange(searchInventoryDebouncer::trigger));
+
+        TableUtil.disablePagination(BPActivity, BNActivity);
+        TableUtil.disablePagination(BPInventory, BNInventory);
+
+        // Semua data dimuat di background, UI tetap responsif
+        loadDataAktifitas();
+        loadDataInventory();
+        loadDataCount();
     }
-    public final void loadDataCount(){
-         LUser.setText(String.valueOf(DashboardService.getTotalUsers()));
-        LItem.setText(String.valueOf(DashboardService.getTotalItems()));
-        LSupplier.setText(String.valueOf(DashboardService.getTotalSuppliers()));
-        LLocation.setText(String.valueOf(DashboardService.getTotalLocations()));
-        LBarangMasuk.setText(String.valueOf(DashboardService.getTotalItemsMasuk()));
-        LBarangKeluar.setText(String.valueOf(DashboardService.getTotalItemsKeluar()));
+
+    /** Memuat angka kartu ringkasan (1 query, async). */
+    public final void loadDataCount() {
+        UiWorker.run(DashboardService::getAdminCounts, c -> {
+            LUser.setText(String.valueOf(c.users()));
+            LItem.setText(String.valueOf(c.items()));
+            LSupplier.setText(String.valueOf(c.suppliers()));
+            LLocation.setText(String.valueOf(c.locations()));
+            LBarangMasuk.setText(String.valueOf(c.barangMasuk()));
+            LBarangKeluar.setText(String.valueOf(c.barangKeluar()));
+        }, null);
     }
-    public final void loadDataAktifitas() { 
-        updatePaginationButtonAktifitas();
 
-            LPActivity.setText(
-                "Page " + currentPageAktifitas + " / " + totalPageAktifitas
-            );
-            DefaultTableModel model = new DefaultTableModel() {
-
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    return false;
-                }
-            };
-
-            model.addColumn("ID");
-            model.addColumn("Jam");
-            model.addColumn("Aktifitas");
-            model.addColumn("Barang");
-            model.addColumn("Lokasi");
-            model.addColumn("Stok Sebelum");
-            model.addColumn("Stok Sesudah");
-
-            int offset = (currentPageAktifitas - 1) * dataPerPageAktifitas;
-
-            String sql = """
-                SELECT sh.id,
-                       sh.waktu_transaksi,
-                       sh.jenis_transaksi,
-                       i.nama_item,
-                       l.kode_lokasi,
-                       sh.stock_sebelum,
-                       sh.stock_sesudah
-                FROM stock_history sh
-                INNER JOIN items i ON sh.item_id = i.id
-                INNER JOIN locations l ON sh.location_id = l.id
-                ORDER BY sh.id DESC
-                LIMIT ? OFFSET ?
-                """;
-
-            try (
-                Connection conn = DatabaseConfig.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)
-            ) {
-
-                ps.setInt(1, dataPerPageAktifitas);
-                ps.setInt(2, offset);
-
-                ResultSet rs = ps.executeQuery();
-
-                while (rs.next()) {
-
-                    model.addRow(new Object[]{
-                        rs.getInt("id"),
-                        rs.getString("waktu_transaksi"),
-                        rs.getString("jenis_transaksi"),
-                        rs.getString("nama_item"),
-                        rs.getString("kode_lokasi"),
-                        rs.getString("stock_sebelum"),
-                        rs.getString("stock_sesudah")
-                    });
-                }
-
-                TAktifitas.setModel(model);
-
-                TAktifitas.getColumnModel().getColumn(0).setMinWidth(0);
-                TAktifitas.getColumnModel().getColumn(0).setMaxWidth(0);
-                TAktifitas.getColumnModel().getColumn(0).setPreferredWidth(0);
-
-            } catch (SQLException e) {
-
-                JOptionPane.showMessageDialog(
-                    null,
-                    "Gagal memuat data: " + e.getMessage()
-                );
-            }
-     }
-    
-    private void updatePaginationButtonAktifitas() {
-   BNActivity.setOpaque(true);
-        BNActivity.setContentAreaFilled(true);
-        BPActivity.setOpaque(true);
-        BPActivity.setContentAreaFilled(true);
-     // PREVIOUS
-           BPActivity.setEnabled(currentPageAktifitas > 1);
-
-           // NEXT
-           BNActivity.setEnabled(currentPageAktifitas < totalPageAktifitas);
-
-           // STYLE PREVIOUS
-           if (BPActivity.isEnabled()) {
-
-               BPActivity.setBackground(
-                   new java.awt.Color(0,153,204)
-               );
-
-               BPActivity.setForeground(java.awt.Color.WHITE);
-
-           } else {
-
-               BPActivity.setBackground(
-                   new java.awt.Color(220, 220, 220)
-               );
-
-               BPActivity.setForeground(
-                   new java.awt.Color(120,120,120)
-               );
-           }
-
-           // STYLE NEXT
-           if (BNActivity.isEnabled()) {
-
-               BNActivity.setBackground(
-                   new java.awt.Color(0,153,204)
-               );
-
-               BNActivity.setForeground(java.awt.Color.WHITE);
-
-           } else {
-
-               BNActivity.setBackground(
-                   new java.awt.Color(220,220,220)
-               );
-
-               BNActivity.setForeground(
-                   new java.awt.Color(120,120,120)
-               );
-           }
-}
-    
-    private void hitungTotalDataAktifitas() {
-
-    String sql = "SELECT COUNT(*) AS total FROM stock_history";
-
-    try (
-        Connection conn = DatabaseConfig.getConnection();
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery()
-    ) {
-
-        if (rs.next()) {
-
-            totalDataAktifitas = rs.getInt("total");
-
-            totalPageAktifitas = (int) Math.ceil(
-                (double) totalDataAktifitas / dataPerPageAktifitas
-            );
+    /** Memuat halaman aktifitas saat ini (async). */
+    public final void loadDataAktifitas() {
+        if (!TSearchActivity.getText().trim().isEmpty()) {
+            cariActivity();
+            return;
         }
-
-    } catch (Exception e) {
-
-        JOptionPane.showMessageDialog(
-            this,
-            e.getMessage()
-        );
+        final int request = ++requestAktifitas;
+        final int page = currentPageAktifitas;
+        UiWorker.run(
+                () -> TableUtil.queryPage(
+                        "SELECT COUNT(*) FROM stock_history",
+                        SELECT_AKTIFITAS + " ORDER BY sh.id DESC LIMIT ? OFFSET ?",
+                        page, dataPerPageAktifitas, MAP_AKTIFITAS),
+                result -> {
+                    if (request != requestAktifitas) {
+                        return;
+                    }
+                    currentPageAktifitas = result.page();
+                    totalPageAktifitas = result.totalPages();
+                    tampilkanAktifitas(result.rows());
+                    LPActivity.setText(TableUtil.pageLabel(currentPageAktifitas, totalPageAktifitas));
+                    TableUtil.updatePagination(BPActivity, BNActivity, currentPageAktifitas, totalPageAktifitas);
+                },
+                e -> tampilkanError(request == requestAktifitas, e));
     }
-}
-         private void cariActivity() {
 
-        String keyword = TSearchActivity.getText();
-
-        DefaultTableModel model =
-            (DefaultTableModel) TAktifitas.getModel();
-
-        model.setRowCount(0);
-
-        try {
-
-            Connection conn = DatabaseConfig.getConnection();
-
-            String sql = """
-                 SELECT sh.id, sh.waktu_transaksi, sh.jenis_transaksi, i.nama_item,l.kode_lokasi, sh.stock_sebelum, sh.stock_sesudah 
-                                  FROM stock_history sh 
-                                  INNER JOIN items i ON sh.item_id = i.id
-                                  INNER JOIN locations l ON sh.location_id = l.id
-                                   WHERE sh.jenis_transaksi LIKE ?
-                                     OR i.nama_item LIKE ?
-                                     OR l.kode_lokasi LIKE ?
-                                  ORDER BY sh.id DESC
-            """;
-
-            PreparedStatement ps =
-                conn.prepareStatement(sql);
-
-            ps.setString(1, "%" + keyword + "%");
-            ps.setString(2, "%" + keyword + "%");
-            ps.setString(3, "%" + keyword + "%");
-
-            ResultSet rs = ps.executeQuery();
-
-            while(rs.next()) {
-
-                model.addRow(new Object[] {
-                        rs.getInt("id"), 
-                      rs.getString("waktu_transaksi"),
-                     rs.getString("jenis_transaksi"), 
-                     rs.getString("nama_item"), 
-                     rs.getString("kode_lokasi"), 
-                     rs.getString("stock_sebelum"), 
-                     rs.getString("stock_sesudah") 
-                });
-            }
-
-        } catch(Exception e) {
-
-            JOptionPane.showMessageDialog(
-                this,
-                e.getMessage()
-            );
+    private void cariActivity() {
+        String keyword = TSearchActivity.getText().trim();
+        if (keyword.isEmpty()) {
+            loadDataAktifitas();
+            return;
         }
+        final int request = ++requestAktifitas;
+        final String pola = TableUtil.like(keyword);
+        UiWorker.run(
+                () -> TableUtil.query(
+                        SELECT_AKTIFITAS + """
+                         WHERE sh.jenis_transaksi LIKE ?
+                            OR i.nama_item LIKE ?
+                            OR l.kode_lokasi LIKE ?
+                         ORDER BY sh.id DESC
+                         LIMIT 50
+                        """,
+                        MAP_AKTIFITAS, pola, pola, pola),
+                rows -> {
+                    if (request != requestAktifitas) {
+                        return;
+                    }
+                    tampilkanAktifitas(rows);
+                    LPActivity.setText("Hasil pencarian: " + rows.size());
+                    TableUtil.disablePagination(BPActivity, BNActivity);
+                },
+                e -> tampilkanError(request == requestAktifitas, e));
     }
-    
-         
-   
-         
+
+    private void tampilkanAktifitas(java.util.List<Object[]> rows) {
+        TAktifitas.setModel(TableUtil.readOnlyModel(KOLOM_AKTIFITAS, rows));
+        TableUtil.hideColumn(TAktifitas, 0);
+    }
+
+    /** Memuat halaman inventory saat ini (async, dengan pagination). */
+    public final void loadDataInventory() {
+        if (!TSearchInventory.getText().trim().isEmpty()) {
+            cariInventory();
+            return;
+        }
+        final int request = ++requestInventory;
+        final int page = currentPageInventory;
+        UiWorker.run(
+                () -> TableUtil.queryPage(
+                        "SELECT COUNT(*) FROM inventory inv "
+                        + "INNER JOIN items i ON inv.item_id = i.id "
+                        + "INNER JOIN locations l ON inv.location_id = l.id",
+                        SELECT_INVENTORY + " ORDER BY inv.id DESC LIMIT ? OFFSET ?",
+                        page, dataPerPageInventory, MAP_INVENTORY),
+                result -> {
+                    if (request != requestInventory) {
+                        return;
+                    }
+                    currentPageInventory = result.page();
+                    totalPageInventory = result.totalPages();
+                    tampilkanInventory(result.rows());
+                    LPInventory.setText(TableUtil.pageLabel(currentPageInventory, totalPageInventory));
+                    TableUtil.updatePagination(BPInventory, BNInventory, currentPageInventory, totalPageInventory);
+                },
+                e -> tampilkanError(request == requestInventory, e));
+    }
+
     private void cariInventory() {
         String keyword = TSearchInventory.getText().trim();
-        DefaultTableModel model = (DefaultTableModel) TInventory.getModel();
-        model.setRowCount(0);
-        try (Connection conn = DatabaseConfig.getConnection()) {
-            String sql = """
-                SELECT inv.id, i.nama_item, l.kode_lokasi, inv.stok_terkini
-                FROM inventory inv
-                INNER JOIN items i ON inv.item_id = i.id
-                INNER JOIN locations l ON inv.location_id = l.id
-                WHERE inv.stok_terkini > 0
-                  AND (i.nama_item LIKE ? OR l.kode_lokasi LIKE ?)
-                ORDER BY inv.id DESC
-            """;
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, "%" + keyword + "%");
-            ps.setString(2, "%" + keyword + "%");
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                model.addRow(new Object[]{
-                    rs.getInt("id"),
-                    rs.getString("nama_item"),
-                    rs.getString("kode_lokasi"),
-                    rs.getInt("stok_terkini")
-                });
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage());
+        if (keyword.isEmpty()) {
+            loadDataInventory();
+            return;
         }
-    }
-    
-    private void updatePaginationButtonInventory() {
-   BNInventory.setOpaque(true);
-        BNInventory.setContentAreaFilled(true);
-        BPInventory.setOpaque(true);
-        BPInventory.setContentAreaFilled(true);
-     // PREVIOUS
-           BPInventory.setEnabled(currentPageInventory > 1);
-
-           // NEXT
-           BNInventory.setEnabled(currentPageInventory < totalPageInventory);
-
-           // STYLE PREVIOUS
-           if (BPInventory.isEnabled()) {
-
-               BPInventory.setBackground(
-                   new java.awt.Color(0,153,204)
-               );
-
-               BPInventory.setForeground(java.awt.Color.WHITE);
-
-           } else {
-
-               BPInventory.setBackground(
-                   new java.awt.Color(220, 220, 220)
-               );
-
-               BPInventory.setForeground(
-                   new java.awt.Color(120,120,120)
-               );
-           }
-
-           // STYLE NEXT
-           if (BNInventory.isEnabled()) {
-
-               BNInventory.setBackground(
-                   new java.awt.Color(0,153,204)
-               );
-
-               BNInventory.setForeground(java.awt.Color.WHITE);
-
-           } else {
-
-               BNInventory.setBackground(
-                   new java.awt.Color(220,220,220)
-               );
-
-               BNInventory.setForeground(
-                   new java.awt.Color(120,120,120)
-               );
-           }
-}
-    
-    private void hitungTotalDataInventory() {
-
-    String sql = "SELECT COUNT(*) AS total FROM inventory";
-
-    try (
-        Connection conn = DatabaseConfig.getConnection();
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery()
-    ) {
-
-        if (rs.next()) {
-
-            totalDataInventory = rs.getInt("total");
-
-            totalPageInventory = (int) Math.ceil(
-                (double) totalDataInventory / dataPerPageInventory
-            );
-        }
-
-    } catch (Exception e) {
-
-        JOptionPane.showMessageDialog(
-            this,
-            e.getMessage()
-        );
-    }
-}
-
-       public final void loadDataInventory() {  updatePaginationButtonAktifitas();
-            updatePaginationButtonInventory();
-            LPInventory.setText(
-                "Page " + currentPageInventory + " / " + totalPageInventory
-            );
-                DefaultTableModel model = new DefaultTableModel() {
-                    // Best practice: Membuat sel tabel tidak bisa diedit secara manual oleh user
-                    @Override
-                    public boolean isCellEditable(int row, int column) {
-                        return false;
+        final int request = ++requestInventory;
+        final String pola = TableUtil.like(keyword);
+        UiWorker.run(
+                () -> TableUtil.query(
+                        SELECT_INVENTORY + """
+                         WHERE inv.stok_terkini > 0
+                           AND (i.nama_item LIKE ? OR l.kode_lokasi LIKE ?)
+                         ORDER BY inv.id DESC
+                         LIMIT 50
+                        """,
+                        MAP_INVENTORY, pola, pola),
+                rows -> {
+                    if (request != requestInventory) {
+                        return;
                     }
-                };
+                    tampilkanInventory(rows);
+                    LPInventory.setText("Hasil pencarian: " + rows.size());
+                    TableUtil.disablePagination(BPInventory, BNInventory);
+                },
+                e -> tampilkanError(request == requestInventory, e));
+    }
 
-        // Tambahkan kolom ID di index 0 
-        model.addColumn("ID"); 
-        model.addColumn("Nama Barang"); 
-        model.addColumn("Lokasi"); 
-        model.addColumn("Stok Terkini"); 
-  
+    private void tampilkanInventory(java.util.List<Object[]> rows) {
+        TInventory.setModel(TableUtil.readOnlyModel(KOLOM_INVENTORY, rows));
+        TableUtil.hideColumn(TInventory, 0);
+    }
 
-        String sql = """
-            SELECT sh.id,  i.nama_item,l.kode_lokasi, sh.stok_terkini
-                        FROM inventory sh 
-                        INNER JOIN items i ON sh.item_id = i.id
-                        INNER JOIN locations l ON sh.location_id = l.id
-                        ORDER BY sh.id DESC
-            """;
-
-            // Menggunakan try-with-resources untuk menutup conn, stmt, dan rs secara otomatis dan aman
-            try (Connection conn = DatabaseConfig.getConnection();
-                 PreparedStatement ps = conn.prepareStatement(sql);
-                 ResultSet rs = ps.executeQuery()) { 
-
-                while (rs.next()) { 
-                    model.addRow(new Object[]{ 
-                        rs.getInt("id"), 
-                        rs.getString("nama_item"),
-                        rs.getString("kode_lokasi"), 
-                        rs.getString("stok_terkini") 
-                    }); 
-                } 
-
-                // Atur model ke tabel UI
-                TInventory.setModel(model); 
-
-                // Beritahu UI bahwa data telah berubah agar visual langsung ter-render ulang
-                model.fireTableDataChanged();
-
-                // Sembunyikan kolom ID (Index 0) secara total agar aman dari resize manual user
-                TInventory.getColumnModel().getColumn(0).setMinWidth(0); 
-                TInventory.getColumnModel().getColumn(0).setMaxWidth(0); 
-                TInventory.getColumnModel().getColumn(0).setPreferredWidth(0);
-
-            } catch (SQLException e) { 
-                JOptionPane.showMessageDialog(null, "Gagal memuat data: " + e.getMessage()); 
-            } 
-     }
+    private void tampilkanError(boolean masihRelevan, Exception e) {
+        if (masihRelevan) {
+            JOptionPane.showMessageDialog(this, "Gagal memuat data: " + e.getMessage());
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -921,32 +701,35 @@ private int totalPageInventory = 0;
     }// </editor-fold>//GEN-END:initComponents
 
     private void BNActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BNActivityActionPerformed
-          if (currentPageAktifitas < totalPageAktifitas) {
-
-                currentPageAktifitas++;
-
-                loadDataAktifitas();
-            }
+        if (currentPageAktifitas < totalPageAktifitas) {
+            currentPageAktifitas++;
+            loadDataAktifitas();
+        }
     }//GEN-LAST:event_BNActivityActionPerformed
 
     private void BPActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPActivityActionPerformed
         if (currentPageAktifitas > 1) {
-
             currentPageAktifitas--;
             loadDataAktifitas();
         }
     }//GEN-LAST:event_BPActivityActionPerformed
 
     private void BNInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BNInventoryActionPerformed
-        // TODO add your handling code here:
+        if (currentPageInventory < totalPageInventory) {
+            currentPageInventory++;
+            loadDataInventory();
+        }
     }//GEN-LAST:event_BNInventoryActionPerformed
 
     private void BPInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPInventoryActionPerformed
-        // TODO add your handling code here:
+        if (currentPageInventory > 1) {
+            currentPageInventory--;
+            loadDataInventory();
+        }
     }//GEN-LAST:event_BPInventoryActionPerformed
 
     private void TSearchActivityKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchActivityKeyReleased
-       cariActivity();
+        // Search ditangani DocumentListener + debounce di constructor
     }//GEN-LAST:event_TSearchActivityKeyReleased
 
     private void BSearchActivityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BSearchActivityActionPerformed

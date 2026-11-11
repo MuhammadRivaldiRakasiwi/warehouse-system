@@ -6,6 +6,8 @@ package com.mycompany.warehouse.system.view;
 
 import com.mycompany.warehouse.system.DatabaseConfig;
 import com.mycompany.warehouse.system.service.PasswordHashGenerator;
+import com.mycompany.warehouse.system.util.TableUtil;
+import com.mycompany.warehouse.system.util.UiWorker;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -242,30 +244,48 @@ public class UserPanel extends javax.swing.JPanel {
     // BUSINESS LOGIC
     // ============================================================
 
+    // Nomor request terakhir: hasil query lama yang datang terlambat diabaikan
+    private int requestTabel = 0;
+
+    /** Memuat data user di background, lalu menampilkan ke tabel di EDT. */
     public final void loadData() {
+        final int request = ++requestTabel;
+        UiWorker.run(
+                () -> TableUtil.query(
+                        "SELECT id, username, nama_lengkap, email, role FROM users ORDER BY id ASC",
+                        rs -> new Object[]{
+                            rs.getInt("id"),
+                            rs.getString("username"),
+                            rs.getString("nama_lengkap"),
+                            rs.getString("email"),
+                            rs.getString("role")
+                        }),
+                rows -> {
+                    if (request == requestTabel) {
+                        tampilkanData(rows);
+                    }
+                },
+                e -> {
+                    if (request == requestTabel) {
+                        JOptionPane.showMessageDialog(this, "Gagal memuat data: " + e.getMessage());
+                    }
+                });
+    }
+
+    private void tampilkanData(java.util.List<Object[]> rows) {
         DefaultTableModel model = new DefaultTableModel(
                 new String[]{"Username", "Nama Lengkap", "Email", "Role"}, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         userIds.clear();
-        try (Connection conn = DatabaseConfig.getConnection()) {
-            ResultSet rs = conn.createStatement().executeQuery(
-                    "SELECT id, username, nama_lengkap, email, role FROM users ORDER BY id ASC");
-            while (rs.next()) {
-                userIds.add(rs.getInt("id"));
-                model.addRow(new Object[]{
-                    rs.getString("username"),
-                    rs.getString("nama_lengkap"),
-                    rs.getString("email"),
-                    rs.getString("role")
-                });
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Gagal memuat data: " + e.getMessage());
+        for (Object[] r : rows) {
+            userIds.add((Integer) r[0]);
+            model.addRow(java.util.Arrays.copyOfRange(r, 1, r.length));
         }
         jTable1.setModel(model);
         rowSorter = new TableRowSorter<>(model);
         jTable1.setRowSorter(rowSorter);
+        filter(); // pertahankan kata kunci pencarian setelah data dimuat ulang
         jTable1.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
 
         // Renderer hitam

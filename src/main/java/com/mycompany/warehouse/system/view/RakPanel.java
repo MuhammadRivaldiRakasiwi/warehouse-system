@@ -5,6 +5,8 @@
 package com.mycompany.warehouse.system.view;
 
 import com.mycompany.warehouse.system.DatabaseConfig;
+import com.mycompany.warehouse.system.util.TableUtil;
+import com.mycompany.warehouse.system.util.UiWorker;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -296,7 +298,37 @@ public class RakPanel extends javax.swing.JPanel {
     // BUSINESS LOGIC: CRUD Lokasi
     // ============================================================
 
+    // Nomor request terakhir: hasil query lama yang datang terlambat diabaikan
+    private int requestTabel = 0;
+
+    /** Memuat data lokasi di background, lalu menampilkan ke tabel di EDT. */
     public final void loadData() {
+        final int request = ++requestTabel;
+        UiWorker.run(
+                () -> TableUtil.query(
+                        "SELECT id, kode_lokasi, zona, rak, level_rak, kapasitas_maksimum "
+                        + "FROM locations WHERE status_aktif = 1 ORDER BY id ASC",
+                        rs -> new Object[]{
+                            rs.getInt("id"),
+                            rs.getString("kode_lokasi"),
+                            rs.getString("zona"),
+                            rs.getString("rak"),
+                            rs.getString("level_rak"),
+                            rs.getInt("kapasitas_maksimum")
+                        }),
+                rows -> {
+                    if (request == requestTabel) {
+                        tampilkanData(rows);
+                    }
+                },
+                e -> {
+                    if (request == requestTabel) {
+                        JOptionPane.showMessageDialog(this, "Gagal memuat data: " + e.getMessage());
+                    }
+                });
+    }
+
+    private void tampilkanData(java.util.List<Object[]> rows) {
         DefaultTableModel model = new DefaultTableModel(
                 new String[]{"Kode Lokasi", "Zona", "Rak", "Level Rak", "Kapasitas"}, 0) {
             @Override
@@ -304,27 +336,15 @@ public class RakPanel extends javax.swing.JPanel {
         };
 
         locationIds.clear();
-        try (Connection conn = DatabaseConfig.getConnection()) {
-            String sql = "SELECT id, kode_lokasi, zona, rak, level_rak, kapasitas_maksimum "
-                    + "FROM locations WHERE status_aktif = 1 ORDER BY id ASC";
-            ResultSet rs = conn.createStatement().executeQuery(sql);
-            while (rs.next()) {
-                locationIds.add(rs.getInt("id"));
-                model.addRow(new Object[]{
-                    rs.getString("kode_lokasi"),
-                    rs.getString("zona"),
-                    rs.getString("rak"),
-                    rs.getString("level_rak"),
-                    rs.getInt("kapasitas_maksimum")
-                });
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Gagal memuat data: " + e.getMessage());
+        for (Object[] r : rows) {
+            locationIds.add((Integer) r[0]);
+            model.addRow(java.util.Arrays.copyOfRange(r, 1, r.length));
         }
 
         jTable1.setModel(model);
         rowSorter = new TableRowSorter<>(model);
         jTable1.setRowSorter(rowSorter);
+        filterTable(); // pertahankan kata kunci pencarian setelah data dimuat ulang
 
         jTable1.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
 
