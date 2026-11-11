@@ -4,13 +4,15 @@
  */
 package com.mycompany.warehouse.system.view;
 import com.mycompany.warehouse.system.DatabaseConfig;
+import com.mycompany.warehouse.system.util.Debouncer;
+import com.mycompany.warehouse.system.util.TableUtil;
+import com.mycompany.warehouse.system.util.UiWorker;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.PreparedStatement; // Diperlukan untuk Simpan/Edit/Hapus
+import java.util.List;
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.Timer;
 
 
 /**
@@ -18,29 +20,37 @@ import javax.swing.Timer;
  * @author ndesc
  */
 public class BarangPanel extends javax.swing.JPanel {
-  private int selectedId = -1;
-private javax.swing.Timer searchTimer;
+    private int selectedId = -1;
+
+    private static final String[] KOLOM = {"ID", "Kode", "Nama", "Kategori", "Satuan"};
+    private static final TableUtil.RowMapper MAP_BARANG = rs -> new Object[]{
+        rs.getInt("id"),
+        rs.getString("kode_item"),
+        rs.getString("nama_item"),
+        rs.getString("kategori"),
+        rs.getString("satuan")
+    };
+
+    // Search dijalankan 350 ms setelah user berhenti mengetik (bukan per huruf)
+    private final Debouncer searchDebouncer = new Debouncer(350, this::cariBarang);
+    // Nomor request terakhir: hasil query lama yang datang terlambat diabaikan
+    private int requestTabel = 0;
 
     private int currentPage = 1;
     private final int dataPerPage = 10;
-
-    private int totalData = 0;
     private int totalPage = 0;
     /**
      * Creates new form BarangPanel
      */
     public BarangPanel() {
         initComponents();
-        
-              BNBarang.setOpaque(true);
-              BNBarang.setContentAreaFilled(true);
-
-              BPBarang.setOpaque(true);
-              BPBarang.setContentAreaFilled(true);
-           hitungTotalData();
-            loadData(); // Tambahkan ini
+        // Search realtime (dengan debounce), termasuk saat paste
+        TSearchBarang.getDocument().addDocumentListener(TableUtil.onChange(searchDebouncer::trigger));
+        TableUtil.disablePagination(BPBarang, BNBarang);
+        loadData();
     }
-        public javax.swing.JScrollPane asScrollable() {
+
+    public javax.swing.JScrollPane asScrollable() {
         javax.swing.JScrollPane sp = new javax.swing.JScrollPane(this);
         sp.setBorder(javax.swing.BorderFactory.createEmptyBorder());
         sp.getVerticalScrollBar().setUnitIncrement(16);
@@ -48,239 +58,77 @@ private javax.swing.Timer searchTimer;
         sp.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         return sp;
     }
-    
-        
-         private void cariBarang() {
 
-        String keyword = TSearchBarang.getText();
-
-        DefaultTableModel model =
-            (DefaultTableModel) tableBarang.getModel();
-
-        model.setRowCount(0);
-
-        try {
-
-            Connection conn = DatabaseConfig.getConnection();
-
-            String sql = """
-                        SELECT
-                             id,
-                             kode_item,
-                             nama_item,
-                             kategori,
-                             satuan
-                         FROM items
-                         WHERE
-                             status_aktif = 1
-                             AND (
-                                 kode_item LIKE ?
-                                 OR nama_item LIKE ?
-                                 OR kategori LIKE ?
-                                 OR satuan LIKE ?
-                             )
-                         ORDER BY id DESC
-                         LIMIT 50
-            """;
-
-            PreparedStatement ps =
-                conn.prepareStatement(sql);
-
-            ps.setString(1, "%" + keyword + "%");
-            ps.setString(2, "%" + keyword + "%");
-            ps.setString(3, "%" + keyword + "%");
-            ps.setString(4, "%" + keyword + "%");
-            ResultSet rs = ps.executeQuery();
-
-            while(rs.next()) {
-                model.addRow(new Object[] {
-                     rs.getInt("id"),
-                        rs.getString("kode_item"),
-                        rs.getString("nama_item"),
-                        rs.getString("kategori"),
-                        rs.getString("satuan")
-                });
-            }
-
-        } catch(Exception e) {
-
-            JOptionPane.showMessageDialog(
-                javax.swing.SwingUtilities.getWindowAncestor(this),
-                e.getMessage()
-            );
+    private void cariBarang() {
+        String keyword = TSearchBarang.getText().trim();
+        if (keyword.isEmpty()) {
+            loadData();
+            return;
         }
-    }   
+        final int request = ++requestTabel;
+        final String pola = TableUtil.like(keyword);
+        UiWorker.run(
+                () -> TableUtil.query("""
+                        SELECT id, kode_item, nama_item, kategori, satuan
+                        FROM items
+                        WHERE status_aktif = 1
+                          AND (kode_item LIKE ? OR nama_item LIKE ? OR kategori LIKE ? OR satuan LIKE ?)
+                        ORDER BY id DESC
+                        LIMIT 50
+                        """, MAP_BARANG, pola, pola, pola, pola),
+                rows -> {
+                    if (request != requestTabel) {
+                        return;
+                    }
+                    tampilkanTabel(rows);
+                    LPBarang.setText("Hasil pencarian: " + rows.size());
+                    TableUtil.disablePagination(BPBarang, BNBarang);
+                },
+                e -> tampilkanError(request == requestTabel, e));
+    }
+
+    /** Memuat halaman data barang saat ini (async). Jika kolom search terisi, menjalankan pencarian. */
     public final void loadData() {
-         DefaultTableModel model = new DefaultTableModel();
-
-    model.addColumn("ID");
-    model.addColumn("Kode");
-    model.addColumn("Nama");
-    model.addColumn("Kategori");
-    model.addColumn("Satuan");
-
-    /*
-     ============================
-     HITUNG OFFSET
-     ============================
-     */
-    int offset =
-            (currentPage - 1) * dataPerPage;
-
-    try (
-        Connection conn =
-                DatabaseConfig.getConnection()
-    ) {
-
-        String sql = """
-            SELECT
-                id,
-                kode_item,
-                nama_item,
-                kategori,
-                satuan
-            FROM items
-            WHERE status_aktif = 1
-            ORDER BY id DESC
-            LIMIT ? OFFSET ?
-            """;
-
-        PreparedStatement ps =
-                conn.prepareStatement(sql);
-
-        ps.setInt(1, dataPerPage);
-
-        ps.setInt(2, offset);
-
-        ResultSet rs = ps.executeQuery();
-
-        while (rs.next()) {
-
-            model.addRow(new Object[]{
-                rs.getInt("id"),
-                rs.getString("kode_item"),
-                rs.getString("nama_item"),
-                rs.getString("kategori"),
-                rs.getString("satuan")
-            });
+        if (!TSearchBarang.getText().trim().isEmpty()) {
+            cariBarang();
+            return;
         }
-
-        tableBarang.setModel(model);
-
-        /*
-         ============================
-         HIDE ID
-         ============================
-         */
-        tableBarang.getColumnModel()
-                .getColumn(0)
-                .setMinWidth(0);
-
-        tableBarang.getColumnModel()
-                .getColumn(0)
-                .setMaxWidth(0);
-
-        /*
-         ============================
-         UPDATE PAGINATION
-         ============================
-         */
-        LPBarang.setText(
-                "Page "
-                + currentPage
-                + " / "
-                + totalPage
-        );
-
-        updatePaginationButton();
-
-    } catch (SQLException e) {
-
-        JOptionPane.showMessageDialog(
-                javax.swing.SwingUtilities
-                        .getWindowAncestor(this),
-                e.getMessage()
-        );
+        final int request = ++requestTabel;
+        final int page = currentPage;
+        UiWorker.run(
+                () -> TableUtil.queryPage(
+                        "SELECT COUNT(*) FROM items WHERE status_aktif = 1",
+                        """
+                        SELECT id, kode_item, nama_item, kategori, satuan
+                        FROM items
+                        WHERE status_aktif = 1
+                        ORDER BY id DESC
+                        LIMIT ? OFFSET ?
+                        """,
+                        page, dataPerPage, MAP_BARANG),
+                result -> {
+                    if (request != requestTabel) {
+                        return;
+                    }
+                    currentPage = result.page();
+                    totalPage = result.totalPages();
+                    tampilkanTabel(result.rows());
+                    LPBarang.setText(TableUtil.pageLabel(currentPage, totalPage));
+                    TableUtil.updatePagination(BPBarang, BNBarang, currentPage, totalPage);
+                },
+                e -> tampilkanError(request == requestTabel, e));
     }
+
+    private void tampilkanTabel(List<Object[]> rows) {
+        tableBarang.setModel(TableUtil.readOnlyModel(KOLOM, rows));
+        TableUtil.hideColumn(tableBarang, 0);
     }
-    
-     
-        private void updatePaginationButton() {
-        // PREVIOUS
-           BPBarang.setEnabled(currentPage > 1);
 
-           // NEXT
-           BNBarang.setEnabled(currentPage < totalPage);
-
-           // STYLE PREVIOUS
-           if (BPBarang.isEnabled()) {
-
-               BPBarang.setBackground(
-                   new java.awt.Color(0,153,204)
-               );
-
-               BPBarang.setForeground(java.awt.Color.WHITE);
-
-           } else {
-
-               BPBarang.setBackground(
-                   new java.awt.Color(220, 220, 220)
-               );
-
-               BPBarang.setForeground(
-                   new java.awt.Color(120,120,120)
-               );
-           }
-
-           // STYLE NEXT
-           if (BNBarang.isEnabled()) {
-
-               BNBarang.setBackground(
-                   new java.awt.Color(0,153,204)
-               );
-
-               BNBarang.setForeground(java.awt.Color.WHITE);
-
-           } else {
-
-               BNBarang.setBackground(
-                   new java.awt.Color(220,220,220)
-               );
-
-               BNBarang.setForeground(
-                   new java.awt.Color(120,120,120)
-               );
-           }
-       }
-    
-    private void hitungTotalData() {
-
-    String sql = "SELECT COUNT(*) AS total FROM items WHERE status_aktif = 1";
-
-    try (
-        Connection conn = DatabaseConfig.getConnection();
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery()
-    ) {
-
-        if (rs.next()) {
-
-            totalData = rs.getInt("total");
-
-            totalPage = (int) Math.ceil(
-                (double) totalData / dataPerPage
-            );
+    private void tampilkanError(boolean masihRelevan, Exception e) {
+        if (masihRelevan) {
+            JOptionPane.showMessageDialog(javax.swing.SwingUtilities.getWindowAncestor(this), e.getMessage());
         }
-
-    } catch (Exception e) {
-
-        JOptionPane.showMessageDialog(
-            javax.swing.SwingUtilities.getWindowAncestor(this),
-            e.getMessage()
-        );
     }
-}
-     
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -751,8 +599,7 @@ private String generateKodeItem(Connection conn)
                     ps.executeUpdate();
                     JOptionPane.showMessageDialog(this, "Data Berhasil Disimpan dengan Kode: " + kodeOtomatis);
 
-                    clearForm(); // Mengosongkan form setelah sukses
-                    loadData();  // Refresh JTable
+                    clearForm(); // Mengosongkan form + refresh JTable (async)
                 }
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(this, "Gagal simpan ke Database: " + e.getMessage());
@@ -851,44 +698,50 @@ private String generateKodeItem(Connection conn)
 
     private void tableBarangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableBarangMouseClicked
         int row = tableBarang.getSelectedRow();
-        
-    if (row != -1) {
-        // 1. Ambil ID dari kolom pertama (index 0)
-        String idStr = tableBarang.getValueAt(row, 0).toString();
-        selectedId = Integer.parseInt(idStr); 
-
-        // 2. Query ke database untuk mendapatkan data lengkap berdasarkan ID
-        String sql = "SELECT * FROM items WHERE id = ?";
-        
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
-            ps.setString(1, idStr);
-            ResultSet rs = ps.executeQuery();
-            
-            if (rs.next()) {
-                // 3. Set data ke Form Input dari hasil query (ResultSet)
-                inputNama.setText(rs.getString("nama_item"));
-                inputKategori.setText(rs.getString("kategori"));
-                inputSatuan.setText(rs.getString("satuan"));
-                
-                // Mengisi Spinner secara aman
-                inputBerat.setValue(rs.getInt("berat"));
-                inputPanjang.setValue(rs.getInt("panjang"));
-                inputLebar.setValue(rs.getInt("lebar"));
-                inputTinggi.setValue(rs.getInt("tinggi"));
-                inputMinimumStok.setValue(rs.getInt("minimum_stok"));
-                
-               // 3. ATUR STATUS TOMBOL
-                btnSimpan.setEnabled(false); // Mematikan tombol Simpan
-                btnEdit.setEnabled(true);    // Pastikan tombol Edit menyala
-               
-            }
-            
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error ambil data: " + e.getMessage());
+        if (row == -1) {
+            return;
         }
-    }
+
+        // 1. Ambil ID dari kolom pertama (index 0)
+        final int id = Integer.parseInt(tableBarang.getValueAt(row, 0).toString());
+        selectedId = id;
+
+        // 2. Ambil data lengkap berdasarkan ID di background (UI tidak freeze)
+        UiWorker.run(() -> {
+            try (Connection conn = DatabaseConfig.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(
+                         "SELECT nama_item, kategori, satuan, berat, panjang, lebar, tinggi, minimum_stok FROM items WHERE id = ?")) {
+                ps.setInt(1, id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        return null;
+                    }
+                    return new Object[]{
+                        rs.getString("nama_item"), rs.getString("kategori"), rs.getString("satuan"),
+                        rs.getInt("berat"), rs.getInt("panjang"), rs.getInt("lebar"), rs.getInt("tinggi"),
+                        rs.getInt("minimum_stok")
+                    };
+                }
+            }
+        }, data -> {
+            // Abaikan jika user sudah memilih baris lain / mereset form
+            if (data == null || selectedId != id) {
+                return;
+            }
+            // 3. Set data ke Form Input
+            inputNama.setText((String) data[0]);
+            inputKategori.setText((String) data[1]);
+            inputSatuan.setText((String) data[2]);
+            inputBerat.setValue(data[3]);
+            inputPanjang.setValue(data[4]);
+            inputLebar.setValue(data[5]);
+            inputTinggi.setValue(data[6]);
+            inputMinimumStok.setValue(data[7]);
+
+            // 4. ATUR STATUS TOMBOL
+            btnSimpan.setEnabled(false); // Mematikan tombol Simpan
+            btnEdit.setEnabled(true);    // Pastikan tombol Edit menyala
+        }, e -> JOptionPane.showMessageDialog(this, "Error ambil data: " + e.getMessage()));
     }//GEN-LAST:event_tableBarangMouseClicked
 
     private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
@@ -904,44 +757,20 @@ private String generateKodeItem(Connection conn)
     }//GEN-LAST:event_TSearchBarangActionPerformed
 
     private void TSearchBarangKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchBarangKeyReleased
-/*
-               hentikan timer lama
-               */
-              if (searchTimer != null
-                      && searchTimer.isRunning()) {
-
-                  searchTimer.stop();
-              }
-
-              /*
-               delay 400ms
-               */
-              searchTimer =
-                      new javax.swing.Timer(400, e -> {
-
-                          cariBarang();
-                      });
-
-              searchTimer.setRepeats(false);
-
-              searchTimer.start();
+        // Search ditangani DocumentListener + debounce di constructor
     }//GEN-LAST:event_TSearchBarangKeyReleased
 
     private void BPBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPBarangActionPerformed
         if (currentPage > 1) {
-
             currentPage--;
-
-            loadDataAktifitas();
+            loadData();
         }
     }//GEN-LAST:event_BPBarangActionPerformed
 
     private void BNBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BNBarangActionPerformed
         if (currentPage < totalPage) {
-
             currentPage++;
-
-            loadDataAktifitas();
+            loadData();
         }
     }//GEN-LAST:event_BNBarangActionPerformed
 

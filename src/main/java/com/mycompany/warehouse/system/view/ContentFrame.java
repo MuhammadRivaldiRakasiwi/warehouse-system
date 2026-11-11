@@ -405,10 +405,14 @@ public class ContentFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMLokasiActionPerformed
 
     private void btnMDashboardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMDashboardActionPerformed
-         User user = Session.getUser();
+        User user = Session.getUser();
+        if (user == null) {
+            return;
+        }
 
         CardLayout cl = (CardLayout) panelContent.getLayout();
 
+        // Refresh data dashboard (semua async, UI tidak freeze)
         if (user.getRole().equalsIgnoreCase("staff")) {
             if (DashboardStaff.instance != null) {
                 DashboardStaff.instance.loadDataAktifitas();
@@ -416,21 +420,24 @@ public class ContentFrame extends javax.swing.JFrame {
             }
             cl.show(panelContent, "dashboardStaff");
 
-        }else if (user.getRole().equalsIgnoreCase("manager")) {
+        } else if (user.getRole().equalsIgnoreCase("manager")) {
             if (DashboardManager.instance != null) {
-//                DashboardManager.instance.loadDataInventory();
+                DashboardManager.instance.loadDataInventory();
+                DashboardManager.instance.loadDataAktifitas();
                 DashboardManager.instance.loadDataCount();
             }
             cl.show(panelContent, "dashboardManager");
 
         } else {
-              DashboardAdmin.instance.loadDataInventory();
-              DashboardAdmin.instance.loadDataAktifitas();
+            if (DashboardAdmin.instance != null) {
+                DashboardAdmin.instance.loadDataInventory();
+                DashboardAdmin.instance.loadDataAktifitas();
                 DashboardAdmin.instance.loadDataCount();
+            }
             cl.show(panelContent, "dashboardAdmin");
         }
 
-             setMenuColor(btnMDashboard); 
+        setMenuColor(btnMDashboard);
     }//GEN-LAST:event_btnMDashboardActionPerformed
 
     private void btnMBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMBarangActionPerformed
@@ -441,39 +448,58 @@ public class ContentFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMBarangActionPerformed
 
     private void btnMBarangMasukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMBarangMasukActionPerformed
-          if (menuBarangMasuk == null) { menuBarangMasuk = new BarangMasukPanel(); panelContent.add(menuBarangMasuk.asScrollable(), "cardBarangMasuk"); }
-          CardLayout cl = (CardLayout) panelContent.getLayout();
-          cl.show(panelContent, "cardBarangMasuk");
-         setMenuColor(btnMBarangMasuk); 
-         menuBarangMasuk.generateNomorPenerimaan();
-            menuBarangMasuk.loadSupplier();
-            menuBarangMasuk.loadItem();
-            menuBarangMasuk.loadLocation();
-            menuBarangMasuk.loadDataInbound();
+        if (menuBarangMasuk == null) {
+            // Panel baru: constructor sudah memuat semua data (async)
+            menuBarangMasuk = new BarangMasukPanel();
+            panelContent.add(menuBarangMasuk.asScrollable(), "cardBarangMasuk");
+        } else {
+            // Panel sudah ada: muat ulang nomor, dropdown, dan tabel (async)
+            menuBarangMasuk.refresh();
+        }
+        CardLayout cl = (CardLayout) panelContent.getLayout();
+        cl.show(panelContent, "cardBarangMasuk");
+        setMenuColor(btnMBarangMasuk);
     }//GEN-LAST:event_btnMBarangMasukActionPerformed
 
     private void btnMBarangKeluarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMBarangKeluarActionPerformed
-        if (menuBarangKeluar == null) { menuBarangKeluar = new BarangKeluarPanel(); panelContent.add(menuBarangKeluar.asScrollable(), "cardBarangKeluar"); }
-             CardLayout cl = (CardLayout) panelContent.getLayout();
-          cl.show(panelContent, "cardBarangKeluar");
-         setMenuColor(btnMBarangKeluar); 
-         menuBarangKeluar.loadBarangFromInventory();
+        if (menuBarangKeluar == null) {
+            // Panel baru: constructor sudah memuat semua data (async)
+            menuBarangKeluar = new BarangKeluarPanel();
+            panelContent.add(menuBarangKeluar.asScrollable(), "cardBarangKeluar");
+        } else {
+            // Panel sudah ada: muat ulang nomor, dropdown, dan tabel (async)
+            menuBarangKeluar.refresh();
+        }
+        CardLayout cl = (CardLayout) panelContent.getLayout();
+        cl.show(panelContent, "cardBarangKeluar");
+        setMenuColor(btnMBarangKeluar);
     }//GEN-LAST:event_btnMBarangKeluarActionPerformed
 
     private void btnMTransferBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMTransferBarangActionPerformed
-        if (menuTransferBarang == null) { menuTransferBarang = new TransferBarangPanel(); panelContent.add(menuTransferBarang.asScrollable(), "cardTransferBarang"); }
-             CardLayout cl = (CardLayout) panelContent.getLayout();
-          cl.show(panelContent, "cardTransferBarang");
-         setMenuColor(btnMTransferBarang); 
-         menuTransferBarang.loadDataInventory();
+        if (menuTransferBarang == null) {
+            // Panel baru: constructor sudah memuat semua data (async)
+            menuTransferBarang = new TransferBarangPanel();
+            panelContent.add(menuTransferBarang.asScrollable(), "cardTransferBarang");
+        } else {
+            // Panel sudah ada: muat ulang nomor, dropdown, dan tabel (async)
+            menuTransferBarang.refresh();
+        }
+        CardLayout cl = (CardLayout) panelContent.getLayout();
+        cl.show(panelContent, "cardTransferBarang");
+        setMenuColor(btnMTransferBarang);
     }//GEN-LAST:event_btnMTransferBarangActionPerformed
 
     private void btnMSupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMSupplierActionPerformed
-        if (menuSupplier == null) { menuSupplier = new SupplierPanel(); panelContent.add(menuSupplier.asScrollable(), "cardSupplier"); }
+        if (menuSupplier == null) {
+            // Panel baru: constructor sudah memuat data (async)
+            menuSupplier = new SupplierPanel();
+            panelContent.add(menuSupplier.asScrollable(), "cardSupplier");
+        } else {
+            menuSupplier.loadData();
+        }
         CardLayout cl = (CardLayout) panelContent.getLayout();
         cl.show(panelContent, "cardSupplier");
-         setMenuColor(btnMSupplier); 
-         menuSupplier.loadData();
+        setMenuColor(btnMSupplier);
     }//GEN-LAST:event_btnMSupplierActionPerformed
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
@@ -528,6 +554,9 @@ private void setMenuColor(JButton activeBtn) {
     
     btnMBarangKeluar.setBackground(warnaNormal);
     btnMBarangKeluar.setForeground(teksNormal);
+
+    btnMTransferBarang.setBackground(warnaNormal);
+    btnMTransferBarang.setForeground(teksNormal);
 
     // Set tombol aktif
     activeBtn.setBackground(warnaAktif);

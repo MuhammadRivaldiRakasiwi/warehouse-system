@@ -4,6 +4,9 @@
  */
 package com.mycompany.warehouse.system.view;
 import com.mycompany.warehouse.system.DatabaseConfig;
+import com.mycompany.warehouse.system.util.Debouncer;
+import com.mycompany.warehouse.system.util.TableUtil;
+import com.mycompany.warehouse.system.util.UiWorker;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,174 +16,206 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
 import java.util.HashMap;
-import javax.swing.Timer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.text.BadLocationException;
+import java.util.List;
 import javax.swing.JOptionPane;
 /**
  *
  * @author ndesc
  */
 public class BarangKeluarPanel extends javax.swing.JPanel {
+    private static final String[] KOLOM =
+            {"ID", "Penerima/Requestor", "No Pengiriman", "Tujuan", "Barang", "Satuan", "Quantity"};
+
+    private static final String SELECT_OUTBOUND = """
+            SELECT ot.id, ot.penerima_requestor, ot.nomor_pengeluaran, ot.tujuan,
+                   i.nama_item, i.satuan, ot.qty
+            FROM outbound_transactions ot
+            INNER JOIN items i ON ot.item_id = i.id
+            """;
+
+    private static final TableUtil.RowMapper MAP_OUTBOUND = rs -> new Object[]{
+        rs.getInt("id"),
+        rs.getString("penerima_requestor"),
+        rs.getString("nomor_pengeluaran"),
+        rs.getString("tujuan"),
+        rs.getString("nama_item"),
+        rs.getString("satuan"),
+        rs.getString("qty")
+    };
+
     private final HashMap<String, Integer> itemMap = new HashMap<>();
     private final HashMap<String, Integer> locationMap = new HashMap<>();
-     private javax.swing.Timer searchTimer;
+
+    // Search dijalankan 350 ms setelah user berhenti mengetik (bukan per huruf)
+    private final Debouncer searchDebouncer = new Debouncer(350, this::cariBarangKeluar);
+    // Nomor request terakhir: hasil query lama yang datang terlambat diabaikan
+    private int requestTabel = 0;
+    private int requestBarang = 0;
+    private int requestLokasi = 0;
+    private int requestNomor = 0;
+    // Tombol Kirim hanya aktif jika nomor pengeluaran & daftar lokasi sudah siap
+    private boolean nomorSiap = false;
+    private boolean lokasiSiap = false;
+
+    private int currentPage = 1;
+    private final int dataPerPage = 10;
+    private int totalPage = 0;
+
     /**
      * Creates new form BarangKeluarPanel
      */
-     private int currentPage = 1;
-    private final int dataPerPage = 10;
-
-    private int totalData = 0;
-    private int totalPage = 0;
-
     public BarangKeluarPanel() {
         initComponents();
-         inputTanggalKirim.setDateFormatString("yyyy-MM-dd");
-         inputTanggalKirim.getDateEditor().setEnabled(false);
-         inputTanggalKirim.setDate(new java.util.Date());
-         
-            loadBarangFromInventory();
-            generateNomorPengeluaran();
-            
-                hitungTotalData();
-              loadDataOutbound();
+        inputTanggalKirim.setDateFormatString("yyyy-MM-dd");
+        inputTanggalKirim.getDateEditor().setEnabled(false);
+        inputTanggalKirim.setDate(new java.util.Date());
+
+        // Style tabel cukup diatur sekali (sebelumnya diulang setiap load)
+        TBarangKeluar.setForeground(new java.awt.Color(33, 37, 41));
+        TBarangKeluar.setBackground(java.awt.Color.WHITE);
+        TBarangKeluar.setSelectionForeground(java.awt.Color.WHITE);
+        TBarangKeluar.setSelectionBackground(new java.awt.Color(0, 153, 204));
+        TBarangKeluar.setGridColor(new java.awt.Color(230, 230, 230));
+        TBarangKeluar.setRowHeight(31);
+        TBarangKeluar.getTableHeader().setForeground(java.awt.Color.BLACK);
+        TBarangKeluar.getTableHeader().setBackground(new java.awt.Color(245, 245, 245));
+
+        // Search realtime (dengan debounce), termasuk saat paste
+        TSearchBarangKeluar.getDocument().addDocumentListener(TableUtil.onChange(searchDebouncer::trigger));
+        TableUtil.disablePagination(BPBarangKeluar, BNBarangKeluar);
+
+        refresh();
     }
+
+    /**
+     * Memuat ulang semua data panel (nomor pengeluaran, dropdown barang, tabel) secara async.
+     * Dipanggil ContentFrame saat menu Barang Keluar dibuka lagi.
+     */
+    public void refresh() {
+        generateNomorPengeluaran();
+        loadBarangFromInventory();
+        loadDataOutbound();
+    }
+
+    private void updateTombolKirim() {
+        btnKirim.setEnabled(nomorSiap && lokasiSiap);
+    }
+
     private void generateNomorPengeluaran() {
-    try {
-        Connection conn = DatabaseConfig.getConnection();
-        String sql = """
-            SELECT COUNT(*) + 1 as total 
-            FROM outbound_transactions
-            """;
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            int nomor = rs.getInt("total");
-            String nomorFormat = String.format("DO-2026-%03d", nomor);
-            labelNoPengeluaran.setText(nomorFormat);
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }    
-   }
-
-public void loadBarangFromInventory() {
-
-    try {
-
-        Connection conn = DatabaseConfig.getConnection();
-
-        String sql = """
-                SELECT DISTINCT items.id,items.nama_item
-                              FROM inventory
-                                JOIN items
-                                    ON inventory.item_id = items.id
-                                WHERE inventory.stok_terkini > 0
-                                ORDER BY items.nama_item
-                """;
-
-        PreparedStatement ps = conn.prepareStatement(sql);
-
-        ResultSet rs = ps.executeQuery();
-        inputNamaBarang.removeAllItems();
-        itemMap.clear();
-        
-        while (rs.next()) {
-            int itemId = rs.getInt("id");
-            String namaItem =  rs.getString("nama_item");
-            itemMap.put(namaItem,itemId);
-            inputNamaBarang.addItem(namaItem);
-         
-        }
-
-   
-    } catch (Exception e) {
-
-        e.printStackTrace();
+        final int request = ++requestNomor;
+        nomorSiap = false;
+        updateTombolKirim();
+        UiWorker.run(
+                () -> TableUtil.count("SELECT COUNT(*) + 1 AS total FROM outbound_transactions"),
+                nomor -> {
+                    if (request != requestNomor) {
+                        return;
+                    }
+                    labelNoPengeluaran.setText(String.format("DO-2026-%03d", nomor));
+                    nomorSiap = true;
+                    updateTombolKirim();
+                },
+                e -> {
+                    if (request != requestNomor) {
+                        return;
+                    }
+                    nomorSiap = true;
+                    updateTombolKirim();
+                    e.printStackTrace();
+                });
     }
-}
-private void loadLokasiByItem(int itemId) {
 
-    try {
-        Connection conn =
-                DatabaseConfig.getConnection();
-
-        String sql = """
-          SELECT
-          inventory.location_id,
-                     inventory.stok_terkini,
-                     locations.kode_lokasi 
-                     FROM inventory
-                     JOIN locations
-                     ON inventory.location_id = locations.id
-                     WHERE inventory.item_id = ?
-                     AND inventory.stok_terkini > 0                                  
-                """;
-
-        PreparedStatement ps =
-                conn.prepareStatement(sql);
-
-        ps.setInt(1, itemId);
-
-        ResultSet rs =  ps.executeQuery();
-
-        inputLokasi.removeAllItems();
-
-        locationMap.clear();
-
-        while (rs.next()) {
-
-            int locationId = rs.getInt("location_id");
-            String lokasi = rs.getString("kode_lokasi");
-            int stock =  rs.getInt("stok_terkini");
-            /*
-             tampilkan stock
-             */
-            String display =
-                    lokasi
-                    + " (Stock: "
-                    + stock
-                    + ")";
-
-            inputLokasi.addItem(display);
-
-            locationMap.put( display,locationId);
-        }
-
-    } catch (Exception e) {
-
-        e.printStackTrace();
+    /** Memuat dropdown barang yang stoknya > 0 (async). */
+    public void loadBarangFromInventory() {
+        final int request = ++requestBarang;
+        UiWorker.run(
+                () -> TableUtil.query("""
+                        SELECT DISTINCT items.id, items.nama_item
+                        FROM inventory
+                        JOIN items ON inventory.item_id = items.id
+                        WHERE inventory.stok_terkini > 0
+                        ORDER BY items.nama_item
+                        """,
+                        rs -> new Object[]{rs.getInt("id"), rs.getString("nama_item")}),
+                rows -> {
+                    if (request != requestBarang) {
+                        return;
+                    }
+                    // Map diisi dulu, karena addItem() memicu inputNamaBarangActionPerformed
+                    itemMap.clear();
+                    for (Object[] r : rows) {
+                        itemMap.put((String) r[1], (Integer) r[0]);
+                    }
+                    inputNamaBarang.removeAllItems();
+                    for (Object[] r : rows) {
+                        inputNamaBarang.addItem((String) r[1]);
+                    }
+                    if (rows.isEmpty()) {
+                        inputLokasi.removeAllItems();
+                        locationMap.clear();
+                        lokasiSiap = true;
+                        updateTombolKirim();
+                    }
+                },
+                Exception::printStackTrace);
     }
-}
 
-private int getCurrentStock( int itemId,int locationId) {
-
-    try {
-
-        Connection conn = DatabaseConfig.getConnection();
-
-        String sql = """
-                SELECT stok_terkini
-                FROM inventory
-                WHERE item_id = ?
-                AND location_id = ?
-                """;
-
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setInt(1, itemId);
-        ps.setInt(2, locationId);
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            return rs.getInt("stok_terkini");
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
+    /** Memuat dropdown lokasi (beserta stok) untuk barang terpilih (async). */
+    private void loadLokasiByItem(int itemId) {
+        final int request = ++requestLokasi;
+        lokasiSiap = false;
+        updateTombolKirim();
+        UiWorker.run(
+                () -> TableUtil.query("""
+                        SELECT inventory.location_id, inventory.stok_terkini, locations.kode_lokasi
+                        FROM inventory
+                        JOIN locations ON inventory.location_id = locations.id
+                        WHERE inventory.item_id = ?
+                          AND inventory.stok_terkini > 0
+                        """,
+                        rs -> new Object[]{rs.getInt("location_id"), rs.getString("kode_lokasi"),
+                            rs.getInt("stok_terkini")},
+                        itemId),
+                rows -> {
+                    if (request != requestLokasi) {
+                        return;
+                    }
+                    inputLokasi.removeAllItems();
+                    locationMap.clear();
+                    for (Object[] r : rows) {
+                        // tampilkan stock
+                        String display = r[1] + " (Stock: " + r[2] + ")";
+                        inputLokasi.addItem(display);
+                        locationMap.put(display, (Integer) r[0]);
+                    }
+                    lokasiSiap = true;
+                    updateTombolKirim();
+                },
+                e -> {
+                    if (request != requestLokasi) {
+                        return;
+                    }
+                    lokasiSiap = true;
+                    updateTombolKirim();
+                    e.printStackTrace();
+                });
     }
-    return 0;
-}
 
-   public javax.swing.JScrollPane asScrollable() {
+    private int getCurrentStock(int itemId, int locationId) {
+        try {
+            return TableUtil.count("""
+                    SELECT stok_terkini
+                    FROM inventory
+                    WHERE item_id = ?
+                    AND location_id = ?
+                    """, itemId, locationId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public javax.swing.JScrollPane asScrollable() {
         javax.swing.JScrollPane sp = new javax.swing.JScrollPane(this);
         sp.setBorder(javax.swing.BorderFactory.createEmptyBorder());
         sp.getVerticalScrollBar().setUnitIncrement(16);
@@ -188,256 +223,75 @@ private int getCurrentStock( int itemId,int locationId) {
         sp.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         return sp;
     }
-  public final void loadDataOutbound() {
 
-            DefaultTableModel model = new DefaultTableModel() {
-
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    return false;
-                }
-            };
-
-            model.addColumn("ID");
-            model.addColumn("Penerima/Requestor");
-            model.addColumn("No Pengiriman");
-            model.addColumn("Tujuan");
-            model.addColumn("Barang");
-            model.addColumn("Satuan");           
-            model.addColumn("Quantity");
-
-
-            int offset = (currentPage - 1) * dataPerPage;
-
-            String sql = """
-                SELECT ot.id,
-                                                        ot.penerima_requestor ,
-                                                        ot.nomor_pengeluaran,
-                                                        ot.tujuan,
-                                                        i.nama_item,
-                                                        i.satuan,
-                                                        ot.qty
-                                                 FROM outbound_transactions ot
-                                                 INNER JOIN items i ON ot.item_id= i.id
-                                                 ORDER BY ot.id DESC
-                LIMIT ? OFFSET ?
-                """;
-
-            try (
-                Connection conn = DatabaseConfig.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)
-            ) {
-
-                ps.setInt(1, dataPerPage);
-                ps.setInt(2, offset);
-
-                ResultSet rs = ps.executeQuery();
-
-                while (rs.next()) {
-                    model.addRow(new Object[]{
-                        rs.getInt("id"),
-                        rs.getString("penerima_requestor"),
-                        rs.getString("nomor_pengeluaran"),
-                        rs.getString("tujuan"),
-                        rs.getString("nama_item"),
-                        rs.getString("satuan"),
-                        rs.getString("qty")
-                    });
-                }
-
-                TBarangKeluar.setModel(model);
-
-                // ===== STYLE TABLE =====
-                TBarangKeluar.setForeground(new java.awt.Color(33, 37, 41));
-                TBarangKeluar.setBackground(java.awt.Color.WHITE);
-
-                TBarangKeluar.setSelectionForeground(java.awt.Color.WHITE);
-                TBarangKeluar.setSelectionBackground(
-                    new java.awt.Color(0, 153, 204)
-                );
-
-                TBarangKeluar.setGridColor(
-                    new java.awt.Color(230, 230, 230)
-                );
-
-                TBarangKeluar.setRowHeight(31);
-
-                TBarangKeluar.getTableHeader().setForeground(
-                    java.awt.Color.BLACK
-                );
-
-                TBarangKeluar.getTableHeader().setBackground(
-                    new java.awt.Color(245,245,245)
-                );
-
-                // Hide ID
-                TBarangKeluar.getColumnModel().getColumn(0).setMinWidth(0);
-                TBarangKeluar.getColumnModel().getColumn(0).setMaxWidth(0);
-                TBarangKeluar.getColumnModel().getColumn(0).setPreferredWidth(0);
-
-                // ===== UPDATE PAGINATION =====
-                LPBarangMasuk.setText(
-                    "Page " + currentPage + " / " + totalPage
-                );
-
-                updatePaginationButton();
-
-            } catch (SQLException e) {
-
-                JOptionPane.showMessageDialog(
-                    javax.swing.SwingUtilities.getWindowAncestor(this),
-                    "Gagal memuat data: " + e.getMessage()
-                );
-                }
-    }
-     
-        private void updatePaginationButton() {
-        // PREVIOUS
-           BPBarangKeluar.setEnabled(currentPage > 1);
-
-           // NEXT
-           BNBarangKeluar.setEnabled(currentPage < totalPage);
-
-           // STYLE PREVIOUS
-           if (BPBarangKeluar.isEnabled()) {
-
-               BPBarangKeluar.setBackground(
-                   new java.awt.Color(0,153,204)
-               );
-
-               BPBarangKeluar.setForeground(java.awt.Color.WHITE);
-
-           } else {
-
-               BPBarangKeluar.setBackground(
-                   new java.awt.Color(220, 220, 220)
-               );
-
-               BPBarangKeluar.setForeground(
-                   new java.awt.Color(120,120,120)
-               );
-           }
-
-           // STYLE NEXT
-           if (BNBarangKeluar.isEnabled()) {
-
-               BNBarangKeluar.setBackground(
-                   new java.awt.Color(0,153,204)
-               );
-
-               BNBarangKeluar.setForeground(java.awt.Color.WHITE);
-
-           } else {
-
-               BNBarangKeluar.setBackground(
-                   new java.awt.Color(220,220,220)
-               );
-
-               BNBarangKeluar.setForeground(
-                   new java.awt.Color(120,120,120)
-               );
-           }
-       }
-    
-    private void hitungTotalData() {
-
-    String sql = "SELECT COUNT(*) AS total FROM outbound_transactions";
-
-    try (
-        Connection conn = DatabaseConfig.getConnection();
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery()
-    ) {
-
-        if (rs.next()) {
-
-            totalData = rs.getInt("total");
-
-            totalPage = (int) Math.ceil(
-                (double) totalData / dataPerPage
-            );
+    /** Memuat halaman data barang keluar saat ini (async). */
+    public final void loadDataOutbound() {
+        if (!TSearchBarangKeluar.getText().trim().isEmpty()) {
+            cariBarangKeluar();
+            return;
         }
-
-    } catch (Exception e) {
-
-        JOptionPane.showMessageDialog(
-            javax.swing.SwingUtilities.getWindowAncestor(this),
-            e.getMessage()
-        );
+        final int request = ++requestTabel;
+        final int page = currentPage;
+        UiWorker.run(
+                () -> TableUtil.queryPage(
+                        "SELECT COUNT(*) FROM outbound_transactions",
+                        SELECT_OUTBOUND + " ORDER BY ot.id DESC LIMIT ? OFFSET ?",
+                        page, dataPerPage, MAP_OUTBOUND),
+                result -> {
+                    if (request != requestTabel) {
+                        return;
+                    }
+                    currentPage = result.page();
+                    totalPage = result.totalPages();
+                    tampilkanTabel(result.rows());
+                    LPBarangMasuk.setText(TableUtil.pageLabel(currentPage, totalPage));
+                    TableUtil.updatePagination(BPBarangKeluar, BNBarangKeluar, currentPage, totalPage);
+                },
+                e -> tampilkanError(request == requestTabel, "Gagal memuat data: " + e.getMessage()));
     }
-}
-     
-   
- 
-private void cariBarangKeluar() {
 
-        String keyword = TSearchBarangKeluar.getText();
-
-        DefaultTableModel model =
-            (DefaultTableModel) TBarangKeluar.getModel();
-
-        model.setRowCount(0);
-
-        try {
-
-            Connection conn = DatabaseConfig.getConnection();
-
-            String sql = """
-                           SELECT
-                                         ot.id,
-                                         ot.penerima_requestor,
-                                         ot.nomor_pengeluaran,
-                                         ot.tujuan,
-                                         i.nama_item,
-                                         i.satuan,
-                                         ot.qty
-                                     FROM outbound_transactions ot
-                                     INNER JOIN items i
-                                         ON ot.item_id = i.id
-                                     WHERE
-                                         ot.penerima_requestor LIKE ?
-                                         OR ot.nomor_pengeluaran LIKE ?
-                                         OR ot.tujuan LIKE ?
-                                         OR i.nama_item LIKE ?
-                                         OR i.satuan LIKE ?
-                                         OR CAST(ot.qty AS CHAR) LIKE ?
-                                     ORDER BY ot.id DESC
+    private void cariBarangKeluar() {
+        String keyword = TSearchBarangKeluar.getText().trim();
+        if (keyword.isEmpty()) {
+            loadDataOutbound();
+            return;
+        }
+        final int request = ++requestTabel;
+        final String pola = TableUtil.like(keyword);
+        UiWorker.run(
+                () -> TableUtil.query(
+                        SELECT_OUTBOUND + """
+                         WHERE ot.penerima_requestor LIKE ?
+                            OR ot.nomor_pengeluaran LIKE ?
+                            OR ot.tujuan LIKE ?
+                            OR i.nama_item LIKE ?
+                            OR i.satuan LIKE ?
+                            OR CAST(ot.qty AS CHAR) LIKE ?
+                         ORDER BY ot.id DESC
                          LIMIT 50
-            """;
+                        """,
+                        MAP_OUTBOUND, pola, pola, pola, pola, pola, pola),
+                rows -> {
+                    if (request != requestTabel) {
+                        return;
+                    }
+                    tampilkanTabel(rows);
+                    LPBarangMasuk.setText("Hasil pencarian: " + rows.size());
+                    TableUtil.disablePagination(BPBarangKeluar, BNBarangKeluar);
+                },
+                e -> tampilkanError(request == requestTabel, e.getMessage()));
+    }
 
-            PreparedStatement ps =
-                conn.prepareStatement(sql);
-            ps.setString(1, "%" + keyword + "%");
-            ps.setString(2, "%" + keyword + "%");
-            ps.setString(3, "%" + keyword + "%");
-            ps.setString(4, "%" + keyword + "%");
-            ps.setString(5, "%" + keyword + "%");
-            ps.setString(6, "%" + keyword + "%");           
+    private void tampilkanTabel(List<Object[]> rows) {
+        TBarangKeluar.setModel(TableUtil.readOnlyModel(KOLOM, rows));
+        TableUtil.hideColumn(TBarangKeluar, 0);
+    }
 
-
-            ResultSet rs = ps.executeQuery();
-
-            while(rs.next()) {
-                model.addRow(new Object[] {
-                     rs.getInt("id"),
-                        rs.getString("penerima_requestor"),
-                        rs.getString("nomor_pengeluaran"),
-                        rs.getString("tujuan"),
-                        rs.getString("nama_item"),
-                        rs.getString("satuan"),
-                        rs.getString("qty")
-                });
-            }
-
-        } catch(Exception e) {
-
-            JOptionPane.showMessageDialog(
-                javax.swing.SwingUtilities.getWindowAncestor(this),
-                e.getMessage()
-            );
+    private void tampilkanError(boolean masihRelevan, String pesan) {
+        if (masihRelevan) {
+            JOptionPane.showMessageDialog(javax.swing.SwingUtilities.getWindowAncestor(this), pesan);
         }
-    }   
-  
+    }
 /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -805,27 +659,7 @@ private void cariBarangKeluar() {
     }//GEN-LAST:event_TSearchBarangKeluarActionPerformed
 
     private void TSearchBarangKeluarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchBarangKeluarKeyReleased
-        /*
-        hentikan timer lama
-        */
-        if (searchTimer != null
-            && searchTimer.isRunning()) {
-
-            searchTimer.stop();
-        }
-
-        /*
-        delay 400ms
-        */
-        searchTimer =
-        new javax.swing.Timer(400, e -> {
-
-            cariBarangKeluar();
-        });
-
-        searchTimer.setRepeats(false);
-
-        searchTimer.start();
+        // Search ditangani DocumentListener + debounce di constructor
     }//GEN-LAST:event_TSearchBarangKeluarKeyReleased
 
     private void BPBarangKeluarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPBarangKeluarActionPerformed
@@ -855,13 +689,15 @@ private void cariBarangKeluar() {
     }//GEN-LAST:event_inputLokasiActionPerformed
 
     private void inputNamaBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputNamaBarangActionPerformed
-             if (inputNamaBarang.getSelectedItem() == null) {
+        if (inputNamaBarang.getSelectedItem() == null) {
             return;
         }
 
         String namaBarang = inputNamaBarang.getSelectedItem().toString();
-        int itemId = itemMap.get(namaBarang);
-        loadLokasiByItem(itemId);
+        Integer itemId = itemMap.get(namaBarang);
+        if (itemId != null) {
+            loadLokasiByItem(itemId);
+        }
     }//GEN-LAST:event_inputNamaBarangActionPerformed
 
     private void btnKirimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKirimActionPerformed
@@ -1155,8 +991,8 @@ private void cariBarangKeluar() {
                 "Barang keluar berhasil"
         );
         
-        generateNomorPengeluaran();
-        loadDataOutbound();
+        // Nomor baru, dropdown barang/lokasi (stok berubah), dan tabel dimuat ulang async
+        refresh();
 
     } catch (Exception e) {
 
@@ -1190,96 +1026,25 @@ private void cariBarangKeluar() {
     }
     }//GEN-LAST:event_btnKirimActionPerformed
 private String generateNoOrder() {
-
-    try {
-
-        Connection conn =
-                DatabaseConfig.getConnection();
-
-        String tahun =
-                new SimpleDateFormat("yyyy")
-                        .format(
-                                new java.util.Date()
-                        );
-
-        String sql = """
-                SELECT COUNT(*) + 1 as total
-                FROM outbound_transactions
-                """;
-
-        PreparedStatement ps =
-                conn.prepareStatement(sql);
-
-        ResultSet rs =
-                ps.executeQuery();
-
-        if (rs.next()) {
-
-            int nomor =
-                    rs.getInt("total");
-
-            String urutan =
-                    String.format("%03d", nomor);
-
-            return "REQ-"
-                    + tahun
-                    + "-"
-                    + urutan;
-        }
-
-    } catch (Exception e) {
-
-        e.printStackTrace();
-    }
-
-    return "REQ-ERROR";
+    return generateNomorDokumen("REQ-", "REQ-ERROR");
 }
 
     private String generateNoSuratJalan() {
+        return generateNomorDokumen("SJ-", "SJ-ERROR");
+    }
 
+    /** Format: PREFIX + tahun + "-" + (jumlah outbound + 1), contoh REQ-2026-001. */
+    private String generateNomorDokumen(String prefix, String fallback) {
         try {
-
-            Connection conn =
-                    DatabaseConfig.getConnection();
-
-            String tahun =
-                    new SimpleDateFormat("yyyy")
-                            .format(
-                                    new java.util.Date()
-                            );
-
-            String sql = """
-                    SELECT COUNT(*) + 1 as total
-                    FROM outbound_transactions
-                    """;
-
-            PreparedStatement ps =
-                    conn.prepareStatement(sql);
-
-            ResultSet rs =
-                    ps.executeQuery();
-
-            if (rs.next()) {
-
-                int nomor =
-                        rs.getInt("total");
-
-                String urutan =
-                        String.format("%03d", nomor);
-
-                return "SJ-"
-                        + tahun
-                        + "-"
-                        + urutan;
-            }
-
-        } catch (Exception e) {
-
+            int nomor = TableUtil.count("SELECT COUNT(*) + 1 AS total FROM outbound_transactions");
+            String tahun = new SimpleDateFormat("yyyy").format(new java.util.Date());
+            return prefix + tahun + "-" + String.format("%03d", nomor);
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return "SJ-ERROR";
+        return fallback;
     }
+
     private void clearForm() {
         /*
          ============================
@@ -1316,7 +1081,6 @@ private String generateNoOrder() {
             inputLokasi.setSelectedIndex(0);
         }
     }
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BNBarangKeluar;

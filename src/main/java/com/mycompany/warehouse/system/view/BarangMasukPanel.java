@@ -3,8 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package com.mycompany.warehouse.system.view;
-//import com.mycompany.warehouse.system.DatabaseConfig;
 import com.mycompany.warehouse.system.DatabaseConfig;
+import com.mycompany.warehouse.system.util.Debouncer;
+import com.mycompany.warehouse.system.util.TableUtil;
+import com.mycompany.warehouse.system.util.UiWorker;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
@@ -12,117 +14,105 @@ import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import javax.swing.JOptionPane;
 import java.util.HashMap;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import javax.swing.table.DefaultTableModel;import javax.swing.text.AbstractDocument;
+import java.util.List;
+import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
-import javax.swing.Timer;
-import javax.swing.SwingWorker;
 /**
  *
  * @author ndesc
  */
 public class BarangMasukPanel extends javax.swing.JPanel {
-   
 
-    private javax.swing.Timer searchTimer;
+    private static final String[] KOLOM =
+            {"ID", "Supplier", "No Penerimaan", "Lokasi", "Barang", "Satuan", "Quantity"};
+
+    private static final String SELECT_INBOUND = """
+            SELECT it.id, s.nama_supplier, it.nomor_penerimaan, l.kode_lokasi,
+                   i.nama_item, i.satuan, it.qty
+            FROM inbound_transactions it
+            INNER JOIN suppliers s ON it.supplier_id = s.id
+            INNER JOIN items i ON it.item_id = i.id
+            INNER JOIN locations l ON it.location_id = l.id
+            """;
+
+    private static final TableUtil.RowMapper MAP_INBOUND = rs -> new Object[]{
+        rs.getInt("id"),
+        rs.getString("nama_supplier"),
+        rs.getString("nomor_penerimaan"),
+        rs.getString("kode_lokasi"),
+        rs.getString("nama_item"),
+        rs.getString("satuan"),
+        rs.getString("qty")
+    };
+
     private final HashMap<String, Integer> supplierMap = new HashMap<>();
     private final HashMap<String, Integer> itemMap = new HashMap<>();
     private final HashMap<String, Integer> locationMap = new HashMap<>();
-     private int currentPage = 1;
-    private final int dataPerPage = 10;
+    // kode_item -> {nama_item, satuan}; label diisi dari cache, tanpa query setiap ganti pilihan
+    private final HashMap<String, String[]> itemInfoMap = new HashMap<>();
 
-    private int totalData = 0;
+    // Search dijalankan 350 ms setelah user berhenti mengetik (bukan per huruf)
+    private final Debouncer searchDebouncer = new Debouncer(350, this::cariBarangMasuk);
+    // Nomor request terakhir: hasil query lama yang datang terlambat diabaikan
+    private int requestTabel = 0;
+    private int requestLookup = 0;
+    private int requestNomor = 0;
+
+    private int currentPage = 1;
+    private final int dataPerPage = 10;
     private int totalPage = 0;
+
+    /** Data dropdown (supplier, barang, lokasi) yang diambil dalam satu koneksi. */
+    private record LookupData(List<Object[]> suppliers, List<Object[]> items, List<Object[]> locations) {}
+
     /**
      * Creates new form BarangMasukPanel
      */
     public BarangMasukPanel() {
-          initComponents();
-
-    setupUI();
-
-    loadInitialDataAsync();
-             initComponents();
-
-    setupUI();
-
-    loadInitialDataAsync();
-    
-        
+        initComponents();
+        setupUI();
+        refresh();
     }
+
+    /**
+     * Memuat ulang semua data panel (nomor penerimaan, dropdown, tabel) secara async.
+     * Dipanggil ContentFrame saat menu Barang Masuk dibuka lagi.
+     */
+    public void refresh() {
+        generateNomorPenerimaan();
+        loadLookups();
+        loadDataInbound();
+    }
+
     private void setupTableStyle() {
+        TBarangMasuk.setForeground(new java.awt.Color(33, 37, 41));
+        TBarangMasuk.setBackground(java.awt.Color.WHITE);
+        TBarangMasuk.setSelectionForeground(java.awt.Color.WHITE);
+        TBarangMasuk.setSelectionBackground(new java.awt.Color(0, 153, 204));
+        TBarangMasuk.setGridColor(new java.awt.Color(230, 230, 230));
+        TBarangMasuk.setRowHeight(31);
+        TBarangMasuk.getTableHeader().setForeground(java.awt.Color.BLACK);
+        TBarangMasuk.getTableHeader().setBackground(new java.awt.Color(245, 245, 245));
+    }
 
-    TBarangMasuk.setForeground(
-            new java.awt.Color(33, 37, 41));
-
-    TBarangMasuk.setBackground(
-            java.awt.Color.WHITE);
-
-    TBarangMasuk.setSelectionForeground(
-            java.awt.Color.WHITE);
-
-    TBarangMasuk.setSelectionBackground(
-            new java.awt.Color(0, 153, 204));
-
-    TBarangMasuk.setGridColor(
-            new java.awt.Color(230, 230, 230));
-
-    TBarangMasuk.setRowHeight(31);
-
-    TBarangMasuk.getTableHeader().setForeground(
-            java.awt.Color.BLACK);
-
-    TBarangMasuk.getTableHeader().setBackground(
-            new java.awt.Color(245,245,245));
-}
     private void setupUI() {
+        inputTanggalTerima.setDateFormatString("yyyy-MM-dd");
+        inputTanggalTerima.getDateEditor().setEnabled(false);
+        inputTanggalTerima.setDate(new java.util.Date());
 
-    inputTanggalTerima.setDateFormatString("yyyy-MM-dd");
-    inputTanggalTerima.getDateEditor().setEnabled(false);
-    inputTanggalTerima.setDate(new java.util.Date());
+        formatHarga();
 
-    formatHarga();
+        BSearchBarangMasuk.setVisible(false);
+        TableUtil.disablePagination(BPBarangMasuk, BNBarangMasuk);
 
-    BSearchBarangMasuk.setVisible(false);
+        // Search realtime (dengan debounce), termasuk saat paste
+        TSearchBarangMasuk.getDocument().addDocumentListener(TableUtil.onChange(searchDebouncer::trigger));
 
-    BNBarangMasuk.setOpaque(true);
-    BNBarangMasuk.setContentAreaFilled(true);
+        setupTableStyle();
+    }
 
-    BPBarangMasuk.setOpaque(true);
-    BPBarangMasuk.setContentAreaFilled(true);
-
-    setupTableStyle();
-}
-    
-    private void loadInitialDataAsync() {
-
-    SwingWorker<Void, Void> worker =
-        new SwingWorker<>() {
-
-        @Override
-        protected Void doInBackground() {
-
-            generateNomorPenerimaan();
-            loadSupplier();
-            loadItem();
-            loadLocation();
-            hitungTotalData();
-
-            return null;
-        }
-
-        @Override
-        protected void done() {
-
-            loadDataInbound();
-        }
-    };
-
-    worker.execute();
-}
     public javax.swing.JScrollPane asScrollable() {
         javax.swing.JScrollPane sp = new javax.swing.JScrollPane(this);
         sp.setBorder(javax.swing.BorderFactory.createEmptyBorder());
@@ -131,289 +121,107 @@ public class BarangMasukPanel extends javax.swing.JPanel {
         sp.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         return sp;
     }
-    
-     public final void loadDataInbound() {
 
-            DefaultTableModel model = new DefaultTableModel() {
-
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    return false;
-                }
-            };
-
-            model.addColumn("ID");
-            model.addColumn("Supplier");
-            model.addColumn("No Penerimaan");
-            model.addColumn("Lokasi");
-            model.addColumn("Barang");
-            model.addColumn("Satuan");
-            model.addColumn("Quantity");
-
-            int offset = (currentPage - 1) * dataPerPage;
-
-            String sql = """
-                 SELECT it.id,
-                     s.nama_supplier ,
-                                       it.nomor_penerimaan,
-                                        l.kode_lokasi,
-                                       i.nama_item,
-                                       i.satuan,
-                                       it.qty
-                                FROM inbound_transactions it
-                                INNER JOIN suppliers s ON it.supplier_id = s.id
-                                INNER JOIN items i ON it.item_id= i.id
-                                INNER JOIN locations l ON it.location_id= l.id
-                                ORDER BY it.id DESC
-                LIMIT ? OFFSET ?
-                """;
-
-            try (
-                Connection conn = DatabaseConfig.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)
-            ) {
-
-                ps.setInt(1, dataPerPage);
-                ps.setInt(2, offset);
-
-                ResultSet rs = ps.executeQuery();
-
-                while (rs.next()) {
-                    model.addRow(new Object[]{
-                        rs.getInt("id"),
-                        rs.getString("nama_supplier"),
-                        rs.getString("nomor_penerimaan"),
-                        rs.getString("kode_lokasi"),
-                        rs.getString("nama_item"),
-                        rs.getString("satuan"),
-                        rs.getString("qty")
-                    });
-                }
-
-                TBarangMasuk.setModel(model);
-
-               
-
-                // Hide ID
-                TBarangMasuk.getColumnModel().getColumn(0).setMinWidth(0);
-                TBarangMasuk.getColumnModel().getColumn(0).setMaxWidth(0);
-                TBarangMasuk.getColumnModel().getColumn(0).setPreferredWidth(0);
-
-                // ===== UPDATE PAGINATION =====
-                LPBarangMasuk.setText(
-                    "Page " + currentPage + " / " + totalPage
-                );
-
-                updatePaginationButton();
-
-            } catch (SQLException e) {
-
-                JOptionPane.showMessageDialog(
-                    javax.swing.SwingUtilities.getWindowAncestor(this),
-                    "Gagal memuat data: " + e.getMessage()
-                );
-                }
+    /** Memuat halaman data barang masuk saat ini (async). */
+    public final void loadDataInbound() {
+        if (!TSearchBarangMasuk.getText().trim().isEmpty()) {
+            cariBarangMasuk();
+            return;
+        }
+        final int request = ++requestTabel;
+        final int page = currentPage;
+        UiWorker.run(
+                () -> TableUtil.queryPage(
+                        "SELECT COUNT(*) FROM inbound_transactions",
+                        SELECT_INBOUND + " ORDER BY it.id DESC LIMIT ? OFFSET ?",
+                        page, dataPerPage, MAP_INBOUND),
+                result -> {
+                    if (request != requestTabel) {
+                        return;
+                    }
+                    currentPage = result.page();
+                    totalPage = result.totalPages();
+                    tampilkanTabel(result.rows());
+                    LPBarangMasuk.setText(TableUtil.pageLabel(currentPage, totalPage));
+                    TableUtil.updatePagination(BPBarangMasuk, BNBarangMasuk, currentPage, totalPage);
+                },
+                e -> tampilkanError(request == requestTabel, "Gagal memuat data: " + e.getMessage()));
     }
-     
-        private void updatePaginationButton() {
-        // PREVIOUS
-           BPBarangMasuk.setEnabled(currentPage > 1);
 
-           // NEXT
-           BNBarangMasuk.setEnabled(currentPage < totalPage);
-
-           // STYLE PREVIOUS
-           if (BPBarangMasuk.isEnabled()) {
-
-               BPBarangMasuk.setBackground(
-                   new java.awt.Color(0,153,204)
-               );
-
-               BPBarangMasuk.setForeground(java.awt.Color.WHITE);
-
-           } else {
-
-               BPBarangMasuk.setBackground(
-                   new java.awt.Color(220, 220, 220)
-               );
-
-               BPBarangMasuk.setForeground(
-                   new java.awt.Color(120,120,120)
-               );
-           }
-
-           // STYLE NEXT
-           if (BNBarangMasuk.isEnabled()) {
-
-               BNBarangMasuk.setBackground(
-                   new java.awt.Color(0,153,204)
-               );
-
-               BNBarangMasuk.setForeground(java.awt.Color.WHITE);
-
-           } else {
-
-               BNBarangMasuk.setBackground(
-                   new java.awt.Color(220,220,220)
-               );
-
-               BNBarangMasuk.setForeground(
-                   new java.awt.Color(120,120,120)
-               );
-           }
-       }
-    
-    private void hitungTotalData() {
-
-    String sql = "SELECT COUNT(*) AS total FROM inbound_transactions";
-
-    try (
-        Connection conn = DatabaseConfig.getConnection();
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery()
-    ) {
-
-        if (rs.next()) {
-
-            totalData = rs.getInt("total");
-
-            totalPage = (int) Math.ceil(
-                (double) totalData / dataPerPage
-            );
+    private void cariBarangMasuk() {
+        String keyword = TSearchBarangMasuk.getText().trim();
+        if (keyword.isEmpty()) {
+            loadDataInbound();
+            return;
         }
-
-    } catch (Exception e) {
-
-        JOptionPane.showMessageDialog(
-            javax.swing.SwingUtilities.getWindowAncestor(this),
-            e.getMessage()
-        );
-    }
-}
-     
-   private void formatHarga() {
-
-        inputHarga.setHorizontalAlignment(
-            javax.swing.JTextField.RIGHT
-    );
-
-    AbstractDocument document =
-            (AbstractDocument) inputHarga.getDocument();
-
-    document.setDocumentFilter(new DocumentFilter() {
-
-        @Override
-        public void insertString(
-                FilterBypass fb,
-                int offset,
-                String string,
-                AttributeSet attr
-        ) throws BadLocationException {
-
-            replace(fb, offset, 0, string, attr);
-        }
-
-        @Override
-        public void replace(
-                FilterBypass fb,
-                int offset,
-                int length,
-                String text,
-                AttributeSet attrs
-        ) throws BadLocationException {
-
-            String oldText =
-                    fb.getDocument().getText(
-                            0,
-                            fb.getDocument().getLength()
-                    );
-
-            String newText =
-                    oldText.substring(0, offset)
-                    + text
-                    + oldText.substring(offset + length);
-
-            /*
-             hanya angka + titik desimal
-             contoh valid:
-             100
-             1000
-             1000.50
-             */
-            if (newText.matches("^\\d*(\\.\\d{0,2})?$")) {
-
-                super.replace(
-                        fb,
-                        offset,
-                        length,
-                        text,
-                        attrs
-                );
-            }
-        }
-    });
-}
-  private void cariBarangMasuk() {
-
-        String keyword = TSearchBarangMasuk.getText();
-
-        DefaultTableModel model =
-            (DefaultTableModel) TBarangMasuk.getModel();
-
-        model.setRowCount(0);
-
-        try {
-
-            Connection conn = DatabaseConfig.getConnection();
-
-            String sql = """
-                           SELECT it.id,s.nama_supplier , it.nomor_penerimaan,  l.kode_lokasi,i.nama_item,i.satuan,it.qty
-                            FROM inbound_transactions it
-                                        INNER JOIN suppliers s ON it.supplier_id = s.id
-                                         INNER JOIN items i ON it.item_id= i.id
-                                           INNER JOIN locations l ON it.location_id= l.id
-                                      WHERE s.nama_supplier LIKE ? 
-                                      OR it.nomor_penerimaan LIKE ?
-                                    OR it.nomor_penerimaan LIKE ?
-                                    OR  l.kode_lokasi LIKE ?
-                                    OR i.satuan LIKE ?
-                                    OR it.qty LIKE ?
+        final int request = ++requestTabel;
+        final String pola = TableUtil.like(keyword);
+        UiWorker.run(
+                () -> TableUtil.query(
+                        SELECT_INBOUND + """
+                         WHERE s.nama_supplier LIKE ?
+                            OR it.nomor_penerimaan LIKE ?
+                            OR i.nama_item LIKE ?
+                            OR l.kode_lokasi LIKE ?
+                            OR i.satuan LIKE ?
+                            OR CAST(it.qty AS CHAR) LIKE ?
                          ORDER BY it.id DESC
-            """;
+                         LIMIT 50
+                        """,
+                        MAP_INBOUND, pola, pola, pola, pola, pola, pola),
+                rows -> {
+                    if (request != requestTabel) {
+                        return;
+                    }
+                    tampilkanTabel(rows);
+                    LPBarangMasuk.setText("Hasil pencarian: " + rows.size());
+                    TableUtil.disablePagination(BPBarangMasuk, BNBarangMasuk);
+                },
+                e -> tampilkanError(request == requestTabel, e.getMessage()));
+    }
 
-            PreparedStatement ps =
-                conn.prepareStatement(sql);
+    private void tampilkanTabel(List<Object[]> rows) {
+        TBarangMasuk.setModel(TableUtil.readOnlyModel(KOLOM, rows));
+        TableUtil.hideColumn(TBarangMasuk, 0);
+    }
 
-            ps.setString(1, "%" + keyword + "%");
-            ps.setString(2, "%" + keyword + "%");
-            ps.setString(3, "%" + keyword + "%");
-            ps.setString(4, "%" + keyword + "%");
-            ps.setString(5, "%" + keyword + "%");
-            ps.setString(6, "%" + keyword + "%");
+    private void tampilkanError(boolean masihRelevan, String pesan) {
+        if (masihRelevan) {
+            JOptionPane.showMessageDialog(javax.swing.SwingUtilities.getWindowAncestor(this), pesan);
+        }
+    }
 
-            ResultSet rs = ps.executeQuery();
+    private void formatHarga() {
+        inputHarga.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
 
-            while(rs.next()) {
-                model.addRow(new Object[] {
-                     rs.getInt("id"),
-                        rs.getString("nama_supplier"),
-                        rs.getString("nomor_penerimaan"),
-                        rs.getString("kode_lokasi"),
-                        rs.getString("nama_item"),
-                        rs.getString("satuan"),
-                        rs.getString("qty")
-                });
+        AbstractDocument document = (AbstractDocument) inputHarga.getDocument();
+
+        document.setDocumentFilter(new DocumentFilter() {
+
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
+                    throws BadLocationException {
+                replace(fb, offset, 0, string, attr);
             }
 
-        } catch(Exception e) {
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                    throws BadLocationException {
+                String oldText = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String newText = oldText.substring(0, offset)
+                        + (text == null ? "" : text)
+                        + oldText.substring(offset + length);
 
-            JOptionPane.showMessageDialog(
-                javax.swing.SwingUtilities.getWindowAncestor(this),
-                e.getMessage()
-            );
-        }
-    }   
-       
+                /*
+                 hanya angka + titik desimal
+                 contoh valid: 100, 1000, 1000.50
+                 */
+                if (newText.matches("^\\d*(\\.\\d{0,2})?$")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -1049,8 +857,7 @@ public class BarangMasukPanel extends javax.swing.JPanel {
                       "Barang masuk berhasil disimpan\n"
                       + "Batch : " + noBatchLot
               );
-              clearForm();
-              generateNomorPenerimaan();
+              clearForm(); // termasuk generate ulang nomor penerimaan
               loadDataInbound();
 
           } catch (Exception e) {
@@ -1095,27 +902,7 @@ public class BarangMasukPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_TSearchBarangMasukActionPerformed
 
     private void TSearchBarangMasukKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TSearchBarangMasukKeyReleased
- /*
-               hentikan timer lama
-               */
-              if (searchTimer != null
-                      && searchTimer.isRunning()) {
-
-                  searchTimer.stop();
-              }
-
-              /*
-               delay 400ms
-               */
-              searchTimer =
-                      new javax.swing.Timer(400, e -> {
-
-                          cariBarangMasuk();
-                      });
-
-              searchTimer.setRepeats(false);
-
-              searchTimer.start();
+        // Search ditangani DocumentListener + debounce di setupUI()
     }//GEN-LAST:event_TSearchBarangMasukKeyReleased
 
     private void BPBarangMasukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BPBarangMasukActionPerformed
@@ -1149,140 +936,123 @@ public class BarangMasukPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_inputLokasiActionPerformed
 
     private void inputKodeBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputKodeBarangActionPerformed
-  try {
-            // Cegah null saat pertama load
-            if (inputKodeBarang.getSelectedItem() == null) {
-                return;
-            }
-            String kodeBarang =
-                    inputKodeBarang.getSelectedItem().toString();
-            Connection conn =
-                    DatabaseConfig.getConnection();
-            String sql = """
-                    SELECT nama_item, satuan
-                    FROM items
-                    WHERE kode_item = ?
-                    """;
-
-            PreparedStatement ps =
-                    conn.prepareStatement(sql);
-            ps.setString(1, kodeBarang);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                String namaBarang =
-                        rs.getString("nama_item");
-                String satuan =
-                        rs.getString("satuan");
-                // Update label otomatis
-                labelNamaBarang.setText(namaBarang);
-                labelSatuan.setText(satuan);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        // Cegah null saat pertama load / saat dropdown dikosongkan
+        if (inputKodeBarang.getSelectedItem() == null) {
+            return;
+        }
+        // Nama & satuan diambil dari cache (dimuat bersama dropdown), tanpa query ke database
+        String[] info = itemInfoMap.get(inputKodeBarang.getSelectedItem().toString());
+        if (info != null) {
+            labelNamaBarang.setText(info[0]);
+            labelSatuan.setText(info[1]);
         }
     }//GEN-LAST:event_inputKodeBarangActionPerformed
-
+/** Membuat nomor penerimaan berikutnya (async). Tombol Simpan dinonaktifkan sampai nomor siap. */
 public void generateNomorPenerimaan() {
-
-    try {
-           Connection conn = DatabaseConfig.getConnection();
-        String sql = """
-                SELECT COUNT(*) + 1 as total
-                FROM inbound_transactions
-                """;
-
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            int nomor = rs.getInt("total");
-            String nomorFormat = String.format("GR-2026-%03d", nomor);
-            labelNomorPenerimaan.setText(nomorFormat);
-        }
-
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
+    final int request = ++requestNomor;
+    btnSimpan.setEnabled(false);
+    UiWorker.run(
+            () -> TableUtil.count("SELECT COUNT(*) + 1 AS total FROM inbound_transactions"),
+            nomor -> {
+                if (request != requestNomor) {
+                    return;
+                }
+                labelNomorPenerimaan.setText(String.format("GR-2026-%03d", nomor));
+                btnSimpan.setEnabled(true);
+            },
+            e -> {
+                if (request != requestNomor) {
+                    return;
+                }
+                btnSimpan.setEnabled(true);
+                e.printStackTrace();
+            });
 }
 
+/** Memuat ulang dropdown supplier, barang, dan lokasi (satu koneksi, async). */
 public void loadSupplier() {
-
-    try {
-
-        Connection conn = DatabaseConfig.getConnection();
-        String sql = "SELECT id, nama_supplier FROM suppliers";
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery();
-        inputSupplier.removeAllItems();
-        while (rs.next()) {
-            int id = rs.getInt("id");
-            String nama = rs.getString("nama_supplier");
-            supplierMap.put(nama, id);
-            inputSupplier.addItem(nama);
-        }
-
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
+    loadLookups();
 }
 
+/** Memuat ulang dropdown supplier, barang, dan lokasi (satu koneksi, async). */
 public void loadItem() {
-
-    try {
-
-        Connection conn = DatabaseConfig.getConnection();
-
-        String sql = """
-                SELECT id, kode_item
-                FROM items
-                """;
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery();
-        inputKodeBarang.removeAllItems();
-
-        while (rs.next()) {
-            int id = rs.getInt("id");
-            String kodeBarang = rs.getString("kode_item");
-            itemMap.put(kodeBarang, id);
-            inputKodeBarang.addItem(kodeBarang);
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
+    loadLookups();
 }
+
+/** Memuat ulang dropdown supplier, barang, dan lokasi (satu koneksi, async). */
 public void loadLocation() {
+    loadLookups();
+}
 
-    try {
-
-        Connection conn = DatabaseConfig.getConnection();
-
-        String sql = """
-                SELECT id, kode_lokasi
-                FROM locations
-                """;
-
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery();
-        inputLokasi.removeAllItems();
-
-        while (rs.next()) {
-            int id = rs.getInt("id");
-            String lokasi = rs.getString("kode_lokasi");
-            locationMap.put(lokasi, id);
-            inputLokasi.addItem(lokasi);
+private void loadLookups() {
+    final int request = ++requestLookup;
+    UiWorker.run(() -> {
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            return new LookupData(
+                    queryRows(conn, "SELECT id, nama_supplier FROM suppliers",
+                            rs -> new Object[]{rs.getInt("id"), rs.getString("nama_supplier")}),
+                    queryRows(conn, "SELECT id, kode_item, nama_item, satuan FROM items",
+                            rs -> new Object[]{rs.getInt("id"), rs.getString("kode_item"),
+                                rs.getString("nama_item"), rs.getString("satuan")}),
+                    queryRows(conn, "SELECT id, kode_lokasi FROM locations",
+                            rs -> new Object[]{rs.getInt("id"), rs.getString("kode_lokasi")}));
+        }
+    }, data -> {
+        if (request != requestLookup) {
+            return;
+        }
+        supplierMap.clear();
+        inputSupplier.removeAllItems();
+        for (Object[] r : data.suppliers()) {
+            supplierMap.put((String) r[1], (Integer) r[0]);
+            inputSupplier.addItem((String) r[1]);
         }
 
-    } catch (Exception e) {
-        e.printStackTrace();
+        // Cache diisi dulu, karena addItem() memicu inputKodeBarangActionPerformed
+        itemMap.clear();
+        itemInfoMap.clear();
+        for (Object[] r : data.items()) {
+            itemMap.put((String) r[1], (Integer) r[0]);
+            itemInfoMap.put((String) r[1], new String[]{(String) r[2], (String) r[3]});
+        }
+        inputKodeBarang.removeAllItems();
+        for (Object[] r : data.items()) {
+            inputKodeBarang.addItem((String) r[1]);
+        }
+
+        locationMap.clear();
+        inputLokasi.removeAllItems();
+        for (Object[] r : data.locations()) {
+            locationMap.put((String) r[1], (Integer) r[0]);
+            inputLokasi.addItem((String) r[1]);
+        }
+    }, Exception::printStackTrace);
+}
+
+private static List<Object[]> queryRows(Connection conn, String sql, TableUtil.RowMapper mapper)
+        throws SQLException {
+    try (PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+        List<Object[]> rows = new java.util.ArrayList<>();
+        while (rs.next()) {
+            rows.add(mapper.map(rs));
+        }
+        return rows;
     }
 }
+
 private void clearForm() {
 
-    // Reset supplier ke item pertama
-    inputSupplier.setSelectedIndex(0);
-    // Reset kode barang ke item pertama
-    inputKodeBarang.setSelectedIndex(0);
-    // Reset lokasi ke item pertama
-    inputLokasi.setSelectedIndex(0);
+    // Reset supplier, kode barang, lokasi ke item pertama (jika ada)
+    if (inputSupplier.getItemCount() > 0) {
+        inputSupplier.setSelectedIndex(0);
+    }
+    if (inputKodeBarang.getItemCount() > 0) {
+        inputKodeBarang.setSelectedIndex(0);
+    }
+    if (inputLokasi.getItemCount() > 0) {
+        inputLokasi.setSelectedIndex(0);
+    }
     // Reset qty
     inputQty.setValue(0);
      // Reset Harga
@@ -1319,31 +1089,23 @@ private String generateBatchLot(Connection conn)
             WHERE no_batch_lot LIKE ?
             """;
 
-    PreparedStatement ps =
-            conn.prepareStatement(sql);
-
-    ps.setString(1, "BATCH-" + tahun + "%");
-
-    ResultSet rs = ps.executeQuery();
-
-    if (rs.next()) {
-
-        int nomor = rs.getInt("total");
-
-        /*
-         FORMAT:
-         01
-         02
-         03
-         */
-        String urutan =
-                String.format("%02d", nomor);
-
-        return "BATCH-" + tahun + urutan;
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, "BATCH-" + tahun + "%");
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                int nomor = rs.getInt("total");
+                /*
+                 FORMAT: 01, 02, 03
+                 */
+                String urutan = String.format("%02d", nomor);
+                return "BATCH-" + tahun + urutan;
+            }
+        }
     }
 
     return "BATCH-" + tahun + "01";
 }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BNBarangMasuk;
     private javax.swing.JButton BPBarangMasuk;

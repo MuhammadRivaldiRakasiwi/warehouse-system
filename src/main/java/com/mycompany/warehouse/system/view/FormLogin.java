@@ -166,29 +166,24 @@ blogin1.setEnabled(false);
 blogin1.setText("Loading...");
 this.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.WAIT_CURSOR));
 
-// 4. Jalankan autentikasi + load dashboard di background thread
-new javax.swing.SwingWorker<ContentFrame, Void>() {
-    private User userResult;
+// 4. Autentikasi (query ke TiDB Cloud) di background thread agar form tidak freeze.
+//    Komponen Swing (ContentFrame) WAJIB dibuat di EDT, jadi dibuat di done().
+//    Data dashboard dimuat async oleh panelnya sendiri, jadi pembuatan frame cepat.
+new javax.swing.SwingWorker<User, Void>() {
 
     @Override
-    protected ContentFrame doInBackground() {
-        // Authenticate (koneksi DB ke TiDB Cloud)
-        userResult = UserService.authenticate(username, password);
-        if (userResult == null) return null;
-
-        // Set session
-        Session.setUser(userResult);
-
-        // Buat ContentFrame (load semua panel + data dari DB)
-        return new ContentFrame();
+    protected User doInBackground() {
+        return UserService.authenticate(username, password);
     }
 
     @Override
     protected void done() {
         try {
-            ContentFrame dash = get();
-            if (dash != null) {
-                // Login berhasil — buka dashboard
+            User userResult = get();
+            if (userResult != null) {
+                // Login berhasil — set session lalu buka dashboard
+                Session.setUser(userResult);
+                ContentFrame dash = new ContentFrame();
                 dash.setLocationRelativeTo(null);
                 dash.setVisible(true);
                 FormLogin.this.dispose();
@@ -214,17 +209,23 @@ new javax.swing.SwingWorker<ContentFrame, Void>() {
     }//GEN-LAST:event_blogin1ActionPerformed
 
     private void tusernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tusernameActionPerformed
-        // TODO add your handling code here:
+        // Enter di username -> pindah ke password
+        tpassword.requestFocusInWindow();
     }//GEN-LAST:event_tusernameActionPerformed
 
     private void tpasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tpasswordActionPerformed
-        // TODO add your handling code here:
+        // Enter di password -> login (tidak jalan jika tombol sedang disabled/loading)
+        blogin1.doClick();
     }//GEN-LAST:event_tpasswordActionPerformed
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        // Buka koneksi database di background selagi form login tampil,
+        // jadi saat tombol Login ditekan koneksi ke TiDB Cloud sudah siap.
+        com.mycompany.warehouse.system.DatabaseConfig.warmUp();
+
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
